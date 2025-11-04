@@ -3,6 +3,7 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditorBuild from '@ckeditor/ckeditor5-build-classic';
 import { News, NewsFormData } from '../../types/news';
 import NewsCard from '../NewsCard';
+import { ModalInput, ModalLabel, ModalCheckbox, ModalButton } from './ui/ModalStyles';
 
 const ClassicEditor = ClassicEditorBuild as any;
 
@@ -52,40 +53,39 @@ const NewsModal: React.FC<NewsModalProps> = ({
     };
 
     return (
-        <form onSubmit={onSubmit} className="px-6 pb-6 space-y-6">
+        <form onSubmit={onSubmit} className="p-6 space-y-6">
             <style>
                 {`.ck-editor__editable_inline { min-height: 200px; }`}
             </style>
             <div>
-                <label className="block text-md font-medium text-gray-700 mb-2">Заголовок <span className="text-red-600">*</span></label>
-                <input
+                <ModalLabel required htmlFor="title">Заголовок</ModalLabel>
+                <ModalInput
+                    id="title"
                     type="text"
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
                     placeholder="Іван Франко відвідав власний університет!"
                 />
             </div>
 
             <div>
-                <label className="block text-md font-medium text-gray-700 mb-2">
+                <ModalLabel htmlFor="fileInput">
                     {editingItem ? 'Змінити зображення' : 'Зображення'}
-                </label>
-                <input
+                </ModalLabel>
+                <ModalInput
+                    id="fileInput"
                     type="file"
                     accept="image/*"
                     onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 />
-                
                 <p className="mt-2 text-sm text-gray-500">
                     {selectedFile ? selectedFile.name : !editingItem ? "Файл не вибрано" : null}
                 </p>
             </div>
 
             <div>
-                <label className="block text-md font-medium text-gray-700 mb-2">Контент <span className="text-red-600">*</span></label>
+                <ModalLabel required>Контент</ModalLabel>
                 <CKEditor
                     editor={ClassicEditor}
                     data={formData.content}
@@ -100,31 +100,28 @@ const NewsModal: React.FC<NewsModalProps> = ({
             </div>
 
             <div className="flex items-center">
-                <input
-                    type="checkbox"
+                <ModalCheckbox
                     id="isImportant"
                     checked={formData.isImportant}
                     onChange={(e) => setFormData({ ...formData, isImportant: e.target.checked })}
-                    className="h-4 w-4 border-gray-300 rounded"
                 />
                 <label htmlFor="isImportant" className="ml-2 text-md font-medium text-gray-700">Важлива новина</label>
             </div>
             
-            <div className="px-6 pt-6"> 
-    <div className="w-full max-w-sm mx-auto"> 
-     <NewsCard news={previewNews} isPreview={true} />
-    </div>
-   </div>
+            <div>
+                <ModalLabel>Попередній перегляд</ModalLabel>
+                <div className="w-full max-w-sm mx-auto"> 
+                    <NewsCard news={previewNews} isPreview={true} />
+                </div>
+            </div>
 
-            <hr className="border-t border-gray-200" />
-
-            <div className="flex justify-end space-x-4">
-                <button type="button" onClick={onClose} className="px-4 py-2 border rounded-lg hover:bg-gray-50">
+            <div className="flex justify-end space-x-4 border-t pt-4">
+                <ModalButton type="button" onClick={onClose} variant="secondary">
                     Скасувати
-                </button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                </ModalButton>
+                <ModalButton type="submit" variant="primary">
                     {editingItem ? 'Зберегти зміни' : 'Створити новину'}
-                </button>
+                </ModalButton>
             </div>
         </form>
     );

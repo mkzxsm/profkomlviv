@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Document, DocumentFormData } from '../../types/documents';
 import { ModalInput, ModalButton, ModalLabel } from './ui/ModalStyles';
+import DocumentCard from '../DocumentCard';
 
 interface DocumentModalProps {
   formData: DocumentFormData;
@@ -22,11 +23,38 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   onClose
 }) => {
 
+  const [previewLocalUrl, setPreviewLocalUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (selectedFile) {
+      const objectUrl = URL.createObjectURL(selectedFile);
+      setPreviewLocalUrl(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+    setPreviewLocalUrl(null);
+  }, [selectedFile]);
+
+  const previewDocument: Document = useMemo(() => {
+    const currentDbUrl = editingItem?.filePath ? editingItem.filePath : undefined;
+    const previewPath = previewLocalUrl || currentDbUrl || '';
+
+    return {
+      id: editingItem?.id || 0,
+      title: formData.title || 'Назва документа',
+      description: formData.description || 'Опис...',
+      filePath: previewPath,
+      fileSize: selectedFile?.size || editingItem?.fileSize || 0,
+      createdAt: editingItem?.createdAt || new Date().toISOString(),
+      updatedAt: editingItem?.updatedAt,
+    };
+  }, [formData, selectedFile, editingItem, previewLocalUrl]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFile(e.target.files?.[0] || null);
   };
 
   const getFileName = (filePath: string) => {
+    if (filePath.startsWith('blob:')) return 'Новий файл';
     return filePath.split('/').pop() || 'file';
   };
 
@@ -78,6 +106,15 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
         <p className="mt-1 text-xs text-gray-500">{fileInputHelperText}</p>
       </div>
 
+      <div>
+        <ModalLabel>Попередній перегляд</ModalLabel>
+        <div className="w-full">
+          <DocumentCard 
+            document={previewDocument} 
+          />
+        </div>
+      </div>
+
       <div className="flex justify-end space-x-4 border-t pt-6">
         <ModalButton type="button" onClick={onClose} variant="secondary">
           Скасувати
@@ -85,6 +122,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
         <ModalButton
           type="submit"
           variant="primary"
+          disabled={!editingItem && !selectedFile}
         >
           {editingItem ? 'Зберегти зміни' : 'Додати документ'}
         </ModalButton>

@@ -196,7 +196,7 @@ useEffect(() => {
     </div>
    </div>
 
-    <div className="flex justify-end space-x-4 pt-4">
+    <div className="flex justify-end space-x-4 border-t pt-6">
      <ModalButton type="button" onClick={onClose} variant="secondary">
       Скасувати
      </ModalButton>

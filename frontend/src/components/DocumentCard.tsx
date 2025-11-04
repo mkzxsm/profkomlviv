@@ -8,7 +8,13 @@ interface DocumentCardProps {
 
 const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
   
-  const fileUrl = `${import.meta.env.VITE_API_URL}${document.filePath}`;
+  const isFullUrl = document.filePath.startsWith('blob:') || 
+                    document.filePath.startsWith('http:') || 
+                    document.filePath.startsWith('https:');
+  
+  const fileUrl = document.filePath
+    ? (isFullUrl ? document.filePath : `${import.meta.env.VITE_API_URL}${document.filePath}`)
+    : null;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -27,9 +33,11 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
+  const buttonClasses = "w-full py-2 px-4 rounded-md font-medium transition-colors duration-200 flex items-center justify-center mt-auto";
+
   return (
     <div
-      className="group flex flex-col overflow-visible bg-white hover:bg-blue-50 rounded-xl transition-all duration-300 hover:-translate-y-2 shadow-sm hover:shadow-lg border border-gray-200 hover:border-blue-300"
+      className="group flex flex-col overflow-visible bg-white hover:bg-blue-50 rounded-xl transition-all duration-300 shadow-sm border border-gray-200"
     >
       <div className="p-6 flex flex-col flex-1">
         <div className="flex items-start justify-between mb-4">
@@ -58,15 +66,26 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
           {formatDate(document.createdAt)}
         </div>
 
-        <a
-          href={fileUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md font-medium transition-colors duration-200 flex items-center justify-center mt-auto"
-        >
-          <Download className="h-4 w-4 mr-2" />
-          Завантажити
-        </a>
+        {fileUrl ? (
+          <a
+            href={fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${buttonClasses} bg-blue-600 hover:bg-blue-700 text-white`}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Завантажити
+          </a>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className={`${buttonClasses} bg-gray-300 text-gray-500 cursor-not-allowed`}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Завантажити
+          </button>
+        )}
       </div>
     </div>
   );
