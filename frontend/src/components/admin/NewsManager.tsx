@@ -139,6 +139,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ data, loading, fetchData }) =
                         <NewsModal
                             formData={formData}
                             setFormData={setFormData}
+                            selectedFile={selectedFile}
                             setSelectedFile={setSelectedFile}
                             editingItem={editingItem}
                             onSubmit={handleSubmit}

@@ -3,7 +3,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import AboutUsPage from './pages/AboutUsPage';
-import ProfPage from './pages/ProfPage';
+import OurStructurePage from './pages/OurStructurePage';
 import DocumentsPage from './pages/DocumentsPage';
 import ContactsPage from './pages/ContactsPage';
 import AdminLogin from './pages/AdminLogin';
@@ -28,7 +28,7 @@ function App() {
               <Route path="/news" element={<NewsPage />} />
               <Route path="/news/:id/:slug?" element={<NewsDetailPage />} />
               <Route path="/about-us" element={<AboutUsPage />} />
-              <Route path="/fuck" element={<ProfPage />} />
+              <Route path="/structure" element={<OurStructurePage />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
             </Routes>

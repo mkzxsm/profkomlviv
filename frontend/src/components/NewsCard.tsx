@@ -13,6 +13,7 @@ interface News {
 
 interface NewsCardProps {
   news: News;
+  isPreview?: boolean;
 }
 
 const formatDate = (dateString: string) => {
@@ -24,17 +25,17 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
+const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
   const imageSrc = news.imageUrl
-    ? `${import.meta.env.VITE_API_URL}${news.imageUrl}`
+    ? (news.imageUrl.startsWith('blob:')
+      ? news.imageUrl
+      : `${import.meta.env.VITE_API_URL}${news.imageUrl}`)
     : undefined;
 
-  return (
-    <Link
-      to={`/news/${news.id}`}
-      className="group relative flex flex-col p-4 bg-white hover:bg-blue-50 rounded-xl transition-all duration-300 hover:-translate-y-2 shadow-sm hover:shadow-lg border border-gray-200 hover:border-blue-300"
-    >
-      {/* Image Section */}
+  const className = `group relative flex flex-col p-4 bg-white rounded-xl transition-all duration-300 border border-gray-200 shadow-sm hover:bg-blue-50 hover:-translate-y-2 hover:shadow-lg hover:border-blue-300`;
+
+  const cardContent = (
+    <>
       <div className="relative mb-3 aspect-[4/5] rounded-md overflow-hidden">
         {imageSrc ? (
           <img
@@ -45,21 +46,19 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-            <span className="text-white text-sm font-semibold">Новина</span>
+            <span className="text-white text-xl font-semibold">Фото</span>
           </div>
         )}
       </div>
 
-      {/* Star Icon */}
       {news.isImportant && (
         <div className="absolute top-6 right-6 text-white bg-blue-600 p-1.5 rounded-full shadow-md">
           <Star className="h-3 w-3 fill-current" />
         </div>
       )}
 
-      {/* Content Section */}
       <div className="flex flex-col flex-1">
-        <h3 className="text-xl font-semibold text-[#1E2A5A] group-hover:text-blue-600 mb-3 leading-tight min-h-[3rem] line-clamp-2">
+        <h3 className="text-xl font-semibold text-[#1E2A5A] mb-3 leading-tight min-h-[3rem] line-clamp-2 group-hover:text-blue-600">
           {news.title}
         </h3>
         <p className="text-[#1E2A5A] text-sm line-clamp-3 mb-4 leading-relaxed italic" dangerouslySetInnerHTML={{ __html: news.content }} />
@@ -68,11 +67,23 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
             <Calendar className="h-4 w-4 mr-2" />
             {formatDate(news.publishedAt)}
           </div>
-          <span className="text-sm font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            Читати →
-          </span>
+          {!isPreview && (
+            <span className="text-sm font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              Читати →
+            </span>
+          )}
         </div>
       </div>
+    </>
+  );
+
+  return isPreview ? (
+    <div className={className}>
+      {cardContent}
+    </div>
+  ) : (
+    <Link to={`/news/${news.id}`} className={className}>
+      {cardContent}
     </Link>
   );
 };

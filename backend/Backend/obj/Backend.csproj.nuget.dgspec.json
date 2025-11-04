@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\VSCode project\\dep-main\\backend\\Backend\\Backend.csproj": {}
+    "D:\\Website\\profkomlviv\\Backend\\backend\\Backend.csproj": {}
   },
   "projects": {
-    "D:\\VSCode project\\dep-main\\backend\\Backend\\Backend.csproj": {
+    "D:\\Website\\profkomlviv\\Backend\\backend\\Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\VSCode project\\dep-main\\backend\\Backend\\Backend.csproj",
+        "projectUniqueName": "D:\\Website\\profkomlviv\\Backend\\backend\\Backend.csproj",
         "projectName": "Backend",
-        "projectPath": "D:\\VSCode project\\dep-main\\backend\\Backend\\Backend.csproj",
-        "packagesPath": "C:\\Users\\Bohuslav\\.nuget\\packages\\",
-        "outputPath": "D:\\VSCode project\\dep-main\\backend\\Backend\\obj\\",
+        "projectPath": "D:\\Website\\profkomlviv\\Backend\\backend\\Backend.csproj",
+        "packagesPath": "C:\\Users\\mazur\\.nuget\\packages\\",
+        "outputPath": "D:\\Website\\profkomlviv\\Backend\\backend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Bohuslav\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mazur\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],

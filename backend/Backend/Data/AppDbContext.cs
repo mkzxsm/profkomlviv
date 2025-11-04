@@ -16,5 +16,18 @@ namespace ProfkomBackend.Data
         public DbSet<Department> Departments { get; set; }
         public DbSet<Unit> Unit { get; set; }
         public DbSet<Document> Documents { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder) // Дозволяє видалити голову, не видаляючи факультет
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Faculty>()
+                .HasOne(f => f.Head)
+                .WithMany()
+                .HasForeignKey(f => f.HeadId)
+                .IsRequired(false) 
+                .OnDelete(DeleteBehavior.SetNull);
+        }
     }
 }
+

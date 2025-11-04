@@ -32,7 +32,7 @@ namespace ProfkomBackend.Models
         public int OrderInd { get; set; }           // number у фронті
 
         [Required]
-        public bool IsActive { get; set; } = true;
+        public bool IsTemporary { get; set; } = false;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // created_at
 

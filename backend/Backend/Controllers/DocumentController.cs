@@ -48,7 +48,6 @@ namespace ProfkomBackend.Controllers
                 return BadRequest("File is required.");
             }
 
-            // Логіка збереження файлу
             var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "documents");
             Directory.CreateDirectory(uploadsDir);
             
@@ -60,12 +59,12 @@ namespace ProfkomBackend.Controllers
                 await formData.File.CopyToAsync(stream);
             }
 
-            // Створення документа
             var document = new Document
             {
                 Title = formData.Title,
                 Description = formData.Description,
                 FilePath = $"/uploads/documents/{fileName}",
+                FileSize = formData.File.Length, // <--- ДОДАЙТЕ ЦЕЙ РЯДОК
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -82,10 +81,8 @@ namespace ProfkomBackend.Controllers
             var document = await _db.Documents.FindAsync(id);
             if (document == null) return NotFound();
 
-            // Логіка заміни файлу
             if (formData.File != null && formData.File.Length > 0)
             {
-                // Видаляємо старий файл
                 if (!string.IsNullOrEmpty(document.FilePath))
                 {
                     var oldPath = Path.Combine(_env.ContentRootPath, document.FilePath.TrimStart('/'));
@@ -95,7 +92,6 @@ namespace ProfkomBackend.Controllers
                     }
                 }
                 
-                // Зберігаємо новий файл
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "documents");
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(formData.File.FileName)}";
                 var newFilePath = Path.Combine(uploadsDir, fileName);
@@ -105,6 +101,7 @@ namespace ProfkomBackend.Controllers
                     await formData.File.CopyToAsync(stream);
                 }
                 document.FilePath = $"/uploads/documents/{fileName}";
+                document.FileSize = formData.File.Length; // <--- ДОДАЙТЕ ЦЕЙ РЯДОК
             }
 
             document.Title = formData.Title;

@@ -7,9 +7,10 @@ export interface FacultyFormData {
   room: string;
   schedule: string;
   summary: string;
-  instagram_link: string;
-  telegram_link: string;
+  instagram_Link: string;
+  telegram_Link: string;
   isActive: boolean;
+  isCollege: boolean;
   imageUrl: string;
 }
 
@@ -23,7 +24,8 @@ export interface Faculty {
   room?: string;
   schedule?: string;
   summary?: string;
-  instagram_link?: string;
-  telegram_link?: string;
+  instagram_Link?: string;
+  telegram_Link?: string;
   isActive: boolean;
+  isCollege: boolean;
 }

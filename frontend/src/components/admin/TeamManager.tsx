@@ -23,8 +23,32 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
     email: '',
     imageUrl: '',
     orderInd: 0,
-    isActive: true,
+    isTemporary: false,
   });
+
+  const handleOpenAddModal = () => {
+    const membersOfType = data.filter(m => m.type === filterType);
+    const indicesSet = new Set(membersOfType.map(member => member.orderInd));
+
+    let nextOrderInd = 0;
+    while (indicesSet.has(nextOrderInd)) {
+      nextOrderInd++;
+    }
+
+    setTeamFormData({
+      name: '',
+      position: '',
+      type: filterType,
+      email: '',
+      imageUrl: '',
+      orderInd: nextOrderInd,
+      isTemporary: false,
+    });
+
+    setEditingTeamMember(null);
+    setSelectedFile(null);
+    setShowAddModal(true);
+  };
 
   const handleTeamSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,12 +59,11 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
       formData.append('Type', teamFormData.type.toString());
       formData.append('Email', teamFormData.email || '');
       formData.append('OrderInd', teamFormData.orderInd.toString());
-      formData.append('IsActive', teamFormData.isActive.toString());
+      formData.append('IsTemporary', teamFormData.isTemporary.toString());
 
       if (selectedFile) {
         formData.append('Image', selectedFile);
       } else if (editingTeamMember) {
-        // Якщо нового файлу немає передаємо старий URL
         formData.append('ImageUrl', editingTeamMember.imageUrl || '');
       }
 
@@ -52,14 +75,6 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
       if (editingTeamMember) {
         await axios.put(`${import.meta.env.VITE_API_URL}/api/team/${editingTeamMember.id}`, formData, { headers });
       } else {
-        if (teamFormData.orderInd === 0) {
-          const maxOrder = Math.max(...data.map(m => m.orderInd), 0);
-          formData.set('OrderInd', (maxOrder + 1).toString());
-        }
-        const membersOfType = data.filter(m => m.type === teamFormData.type);
-        const maxOrder = Math.max(...membersOfType.map(m => m.orderInd), -1); // індекс з -1 для порожніх груп
-        formData.set('OrderInd', (maxOrder + 1).toString());
-
         await axios.post(`${import.meta.env.VITE_API_URL}/api/team`, formData, { headers });
       }
 
@@ -96,8 +111,9 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
       email: member.email || '',
       imageUrl: member.imageUrl || '',
       orderInd: member.orderInd,
-      isActive: member.isActive,
+      isTemporary: member.isTemporary,
     });
+    setSelectedFile(null);
     setShowAddModal(true);
   };
 
@@ -112,11 +128,10 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
       email: '',
       imageUrl: '',
       orderInd: 0,
-      isActive: true,
+      isTemporary: false,
     });
   };
 
-  // Фільтруємо та сортуємо дані перед відображенням
   const filteredData = data
     .filter(member => member.type === filterType)
     .sort((a, b) => a.orderInd - b.orderInd);
@@ -124,9 +139,21 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-medium text-gray-900">Управління командою</h2>
+        <div className="flex items-center">
+          <h2 className="text-lg font-medium text-gray-900">Управління командою</h2>
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(parseInt(e.target.value))}
+            className="border border-gray-300 rounded-lg px-3 py-2 ml-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value={0}>Члени Президії</option>
+            <option value={1}>Голови Профбюро Студентів</option>
+            <option value={2}>Голови Відділів</option>
+          </select>
+        </div>
+
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={handleOpenAddModal}
           className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
         >
           <UserPlus className="h-5 w-5" />
@@ -134,24 +161,12 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
         </button>
       </div>
 
-      <div className="flex items-center mb-4 space-x-4">
-        <label className="text-sm font-medium text-gray900">Фільтр за типом:</label>
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(parseInt(e.target.value))}
-          className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value={0}>Апарат</option>
-          <option value={1}>Профбюро</option>
-          <option value={2}>Відділ</option>
-        </select>
-      </div>
-
       <TeamTable
         data={filteredData}
         loading={loading}
         onEdit={handleEditTeamMember}
         onDelete={handleDeleteTeamMember}
+        filterType={filterType}
       />
 
       {showAddModal && (

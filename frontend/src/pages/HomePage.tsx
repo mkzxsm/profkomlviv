@@ -419,7 +419,7 @@ const HomePage: React.FC = () => {
         to="/news"
         className="hidden sm:inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200"
       >
-        Всі новини
+        Усі новини
         <ArrowRight className="ml-2 h-5 w-5" />
       </Link>
     </div>
@@ -455,7 +455,7 @@ const HomePage: React.FC = () => {
         loop
         speed={700}
         autoplay={{ delay: 5000, disableOnInteraction: false }}
-        className="pb-4"
+        className="pb-4 pt-2"
       >
         {news.slice(0, 6).map((article, index) => (
           <SwiperSlide key={article.id}>

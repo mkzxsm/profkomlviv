@@ -22,7 +22,6 @@ namespace ProfkomBackend.Controllers
             _env = env;
         }
 
-        // GET: api/departments
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Department>>> GetAll()
@@ -32,7 +31,6 @@ namespace ProfkomBackend.Controllers
                 .ToListAsync();
         }
 
-        // GET: api/departments/{id}
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<Department>> GetById(int id)
@@ -45,7 +43,6 @@ namespace ProfkomBackend.Controllers
             return department;
         }
 
-        // POST: api/departments
         [HttpPost]
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<Department>> Create([FromForm] DepartmentFormData formData)
@@ -73,6 +70,9 @@ namespace ProfkomBackend.Controllers
             {
                 head = await _db.Team.FirstOrDefaultAsync(t => t.Id == formData.HeadId && t.Type == MemberType.Viddil);
                 if (head == null) return BadRequest("Head must be a Team member with Type = Viddil");
+                
+                head.IsChoosed = true;
+                _db.Team.Update(head);
             }
 
             var department = new Department
@@ -91,12 +91,14 @@ namespace ProfkomBackend.Controllers
             return CreatedAtAction(nameof(GetById), new { id = department.Id }, department);
         }
 
-        // PUT: api/departments/{id}
         [HttpPut("{id}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(int id, [FromForm] DepartmentFormData formData)
         {
-            var department = await _db.Departments.FindAsync(id);
+            var department = await _db.Departments
+                .Include(d => d.Head)
+                .FirstOrDefaultAsync(d => d.Id == id);
+                
             if (department == null) return NotFound();
 
             string? logoUrl = department.LogoUrl;
@@ -126,18 +128,30 @@ namespace ProfkomBackend.Controllers
                 logoUrl = $"/uploads/departments/{fileName}";
             }
 
-            Team? head = null;
+            Team? newHead = null;
             if (formData.HeadId.HasValue)
             {
-                head = await _db.Team.FirstOrDefaultAsync(t => t.Id == formData.HeadId && t.Type == MemberType.Viddil);
-                if (head == null) return BadRequest("Head must be a Team member with Type = Viddil");
+                newHead = await _db.Team.FirstOrDefaultAsync(t => t.Id == formData.HeadId && t.Type == MemberType.Viddil);
+                if (newHead == null) return BadRequest("Head must be a Team member with Type = Viddil");
+            }
+
+            if (department.Head != null && department.Head.Id != formData.HeadId)
+            {
+                department.Head.IsChoosed = false;
+                _db.Team.Update(department.Head);
+            }
+
+            if (newHead != null && newHead.Id != department.Head?.Id)
+            {
+                newHead.IsChoosed = true;
+                _db.Team.Update(newHead);
             }
 
             department.Name = formData.Name;
             department.Description = formData.Description;
             department.LogoUrl = logoUrl ?? formData.LogoUrl;
             department.HeadId = formData.HeadId;
-            department.Head = head;
+            department.Head = newHead;
             department.IsActive = formData.IsActive;
             department.UpdatedAt = DateTime.UtcNow;
 
@@ -145,13 +159,20 @@ namespace ProfkomBackend.Controllers
             return NoContent();
         }
 
-        // DELETE: api/departments/{id}
         [HttpDelete("{id}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int id)
         {
-            var department = await _db.Departments.FindAsync(id);
+            var department = await _db.Departments
+                .Include(d => d.Head)
+                .FirstOrDefaultAsync(d => d.Id == id);
+                
             if (department == null) return NotFound();
+
+            if (department.Head != null)
+            {
+                department.Head.IsChoosed = false;
+            }
 
             if (!string.IsNullOrEmpty(department.LogoUrl))
             {
@@ -168,11 +189,9 @@ namespace ProfkomBackend.Controllers
         }
     }
 
-    // DTO для обробки вхідних даних
     public class DepartmentFormData
     {
         public int? HeadId { get; set; }
-
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? LogoUrl { get; set; }

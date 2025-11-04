@@ -1,9 +1,9 @@
 import React, { useState, useRef } from "react";
 import { Mail, MapPin, Clock, User } from "lucide-react";
-import { FacultyUnion } from '../types/faculty';
+import { Faculty } from '../types/faculty';
 
 interface CardProps {
-  union: FacultyUnion;
+  union: Faculty;
   index: number;
 }
 
@@ -26,7 +26,6 @@ const Card: React.FC<CardProps> = ({ union, index }) => {
   };
 
   const headName = union.head?.name || "Наразі не призначений";
-  const headEmail = union.head?.email || "Наразі не доступний";
 
   return (
     <div
@@ -106,22 +105,26 @@ const Card: React.FC<CardProps> = ({ union, index }) => {
                   </p>
                 </div>
               </div>
-              {headEmail && (
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <Mail className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm">Електронна пошта</p>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Mail className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm">Електронна пошта</p>
+                  {union.head?.email ? (
                     <a
-                      href={`mailto:${headEmail}`}
+                      href={`mailto:${union.head.email}`}
                       className="font-medium text-sm hover:text-blue-600 transition-colors flex-shrink-0 italic break-words"
                     >
-                      {headEmail}
+                      {union.head.email}
                     </a>
-                  </div>
+                  ) : (
+                    <span className="font-medium text-sm italic">
+                      Недоступна
+                    </span>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
             <div className="space-y-3">
               {(union.address || union.room) && (

@@ -9,8 +9,8 @@ const Header: React.FC = () => {
   const navigation = [
     { name: 'Головна', href: '/' },
     { name: 'Про нас', href: '/about-us' },
+    { name: 'Наша структура', href: '/structure' },
     { name: 'Документи', href: '/documents' },
-    { name: 'Профбюро', href: '/fuck' },
     { name: 'Новини', href: '/news' },
     { name: 'Контакти', href: '/contacts' },
   ];
@@ -43,7 +43,7 @@ const Header: React.FC = () => {
               </div>
               <div className="hidden xxs:block">
                 <h1 className="text-md font-bold text-[#1E2A5A]">Профком студентів</h1>
-                <p className="text-sm text-[#1E2A5A]">ЛНУ імені Івана Франка</p>
+                <p className="text-sm text-[#1E2A5A]">ЛНУ ім. Івана Франка</p>
               </div>
             </Link>
 

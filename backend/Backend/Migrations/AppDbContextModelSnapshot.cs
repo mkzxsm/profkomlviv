@@ -124,6 +124,9 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -190,6 +193,9 @@ namespace Backend.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsCollege")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
@@ -260,10 +266,10 @@ namespace Backend.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsChoosed")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<bool>("IsChoosed")
+                    b.Property<bool>("IsTemporary")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
@@ -335,7 +341,8 @@ namespace Backend.Migrations
                 {
                     b.HasOne("ProfkomBackend.Models.Team", "Head")
                         .WithMany()
-                        .HasForeignKey("HeadId");
+                        .HasForeignKey("HeadId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Head");
                 });

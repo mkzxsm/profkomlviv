@@ -74,7 +74,7 @@ namespace ProfkomBackend.Controllers
                 Type = formData.Type,
                 Email = formData.Email,
                 OrderInd = formData.OrderInd,
-                IsActive = formData.IsActive,
+                IsTemporary = formData.IsTemporary,
                 ImageUrl = imageUrl ?? formData.ImageUrl,
                 IsChoosed = formData.IsChoosed,
                 CreatedAt = DateTime.UtcNow
@@ -131,7 +131,7 @@ namespace ProfkomBackend.Controllers
             member.Type = formData.Type;
             member.Email = formData.Email;
             member.OrderInd = formData.OrderInd;
-            member.IsActive = formData.IsActive;
+            member.IsTemporary = formData.IsTemporary;
             member.ImageUrl = newImageUrl ?? formData.ImageUrl;
             member.IsChoosed = formData.IsChoosed;
             member.UpdatedAt = DateTime.UtcNow;
@@ -173,7 +173,7 @@ namespace ProfkomBackend.Controllers
         public MemberType Type { get; set; }
         public string? Email { get; set; }
         public int OrderInd { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsTemporary { get; set; }
         public string? ImageUrl { get; set; }
         public IFormFile? Image { get; set; }
         public bool IsChoosed { get; set; } = false;

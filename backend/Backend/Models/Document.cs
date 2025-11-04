@@ -16,6 +16,8 @@ namespace ProfkomBackend.Models
         [Required]
         public string FilePath { get; set; } = string.Empty;
 
+        public long FileSize { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public DateTime? UpdatedAt { get; set; }

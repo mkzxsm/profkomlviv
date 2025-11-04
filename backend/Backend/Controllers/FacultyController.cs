@@ -26,17 +26,15 @@ namespace ProfkomBackend.Controllers
             _env = env;
         }
 
-        // GET: api/faculties
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Faculty>>> GetAll()
         {
             return await _db.Faculties
-                .Include(f => f.Head) // Підтягуємо пов'язану модель Team
+                .Include(f => f.Head)
                 .ToListAsync();
         }
 
-        // GET: api/faculties/{id}
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<Faculty>> GetById(int id)
@@ -53,7 +51,6 @@ namespace ProfkomBackend.Controllers
             return faculty;
         }
 
-        // POST: api/faculties
         [HttpPost]
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<Faculty>> Create([FromForm] FacultyFormData formData)
@@ -61,10 +58,11 @@ namespace ProfkomBackend.Controllers
             Team? headTeam = null;
             if (formData.HeadId.HasValue)
             {
-                headTeam = await _db.Team.FirstOrDefaultAsync(t => t.Id == formData.HeadId && t.IsActive);
+                headTeam = await _db.Team.FirstOrDefaultAsync(t => t.Id == formData.HeadId && t.Type == MemberType.Profburo);
+                
                 if (headTeam == null)
                 {
-                    return BadRequest("Invalid HeadId or team member is inactive.");
+                    return BadRequest("Invalid HeadId or team member is not the correct type.");
                 }
                 headTeam.IsChoosed = true;
                 _db.Team.Update(headTeam);
@@ -99,6 +97,7 @@ namespace ProfkomBackend.Controllers
                 Schedule = formData.Schedule,
                 Summary = formData.Summary,
                 IsActive = formData.IsActive,
+                IsCollege = formData.IsCollege,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -107,7 +106,6 @@ namespace ProfkomBackend.Controllers
             return CreatedAtAction(nameof(GetById), new { id = faculty.Id }, faculty);
         }
 
-        // PUT: api/faculties/{id}
         [HttpPut("{id}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(int id, [FromForm] FacultyFormData formData)
@@ -124,10 +122,11 @@ namespace ProfkomBackend.Controllers
             Team? newHead = null;
             if (formData.HeadId.HasValue)
             {
-                newHead = await _db.Team.FirstOrDefaultAsync(t => t.Id == formData.HeadId && t.IsActive);
+                newHead = await _db.Team.FirstOrDefaultAsync(t => t.Id == formData.HeadId && t.Type == MemberType.Profburo);
+                
                 if (newHead == null)
                 {
-                    return BadRequest("Invalid HeadId or team member is inactive.");
+                    return BadRequest("Invalid HeadId or team member is not the correct type.");
                 }
             }
 
@@ -178,13 +177,13 @@ namespace ProfkomBackend.Controllers
             faculty.Schedule = formData.Schedule;
             faculty.Summary = formData.Summary;
             faculty.IsActive = formData.IsActive;
+            faculty.IsCollege = formData.IsCollege;
             faculty.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
             return NoContent();
         }
 
-        // DELETE: api/faculties/{id}
         [HttpDelete("{id}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int id)
@@ -203,13 +202,12 @@ namespace ProfkomBackend.Controllers
                 faculty.Head.IsChoosed = false;
             }
 
-            // Видаляємо файл, пов'язаний з факультетом
             if (!string.IsNullOrEmpty(faculty.ImageUrl))
             {
                  var filePath = Path.Combine(_env.ContentRootPath, faculty.ImageUrl.TrimStart('/'));
                  if (System.IO.File.Exists(filePath))
                  {
-                     System.IO.File.Delete(filePath);
+                      System.IO.File.Delete(filePath);
                  }
             }
 
@@ -232,6 +230,7 @@ namespace ProfkomBackend.Controllers
         public string? Schedule { get; set; }
         public string? Summary { get; set; }
         public bool IsActive { get; set; } = true;
+        public bool IsCollege { get; set; } = false;
         public IFormFile? Image { get; set; }
     }
 }

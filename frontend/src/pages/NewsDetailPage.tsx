@@ -240,7 +240,7 @@ const NewsDetailPage: React.FC = () => {
             <div className="border bg-white rounded-lg shadow-sm p-6 transform transition-transform duration-500 ease-in-out hover:-translate-y-2 hover:shadow-lg">
               <div className="flex items-center mb-6">
                 <Clock className="h-5 w-5 text-blue-600 mr-2" />
-                <h2 className="text-xl font-bold text-gray-900">Інші новини</h2>
+                <h2 className="text-xl font-bold text-gray-900">Останні новини</h2>
               </div>
               <div className="space-y-4">
                 {relatedNews.map((news) => (

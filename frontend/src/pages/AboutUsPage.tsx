@@ -12,21 +12,9 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
-interface Department {
-  id: number;
-  name: string;
-  content?: string | null;
-  imageUrl?: string | null;
-  orderInd: number;
-  is_active: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
 const TeamPage: React.FC = () => {
   const navigate = useNavigate();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -53,20 +41,11 @@ const TeamPage: React.FC = () => {
         const membersResponse = await axios.get<TeamMember[]>(`${import.meta.env.VITE_API_URL}/api/team`);
         console.log('Team Members:', membersResponse.data);
         
-        // Фільтруємо тільки активних і сортуємо по orderInd
+        // Сортуємо по orderInd
         const activeMembers = membersResponse.data
-          .filter(member => member.isActive)
           .sort((a, b) => a.orderInd - b.orderInd);
         
         setTeamMembers(activeMembers);
-
-        const departmentsResponse = await axios.get<Department[]>(`${import.meta.env.VITE_API_URL}/api/unit`);
-        console.log('Departments:', departmentsResponse.data);
-        setDepartments(
-          departmentsResponse.data
-            .filter(dept => dept.is_active)
-            .sort((a, b) => a.orderInd - b.orderInd)
-        );
       } catch (error) {
         console.error("Помилка при отриманні даних:", error);
         if (axios.isAxiosError(error)) {
@@ -90,13 +69,6 @@ const TeamPage: React.FC = () => {
         (member.email && member.email.toLowerCase().includes(searchTerm.toLowerCase()))
       );
   }, [teamMembers, selectedType, searchTerm]);
-
-  // Назви типів для відображення
-  const typeNames: Record<number, string> = {
-    [APARAT_TYPE]: "Апарат Профкому",
-    [PROFBURO_HEAD_TYPE]: "Голови Профбюро",
-    [VIDDIL_HEAD_TYPE]: "Голови Відділів",
-  };
 
   const startAutoPlay = useCallback(() => {
     stopAutoPlay();
@@ -126,15 +98,6 @@ const TeamPage: React.FC = () => {
     startAutoPlay();
     return () => stopAutoPlay();
   }, [startAutoPlay, stopAutoPlay]);
-
-  const filteredDepartments = useMemo(() => {
-    return departments.filter(
-      (department) =>
-        department.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (department.content &&
-          department.content.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-  }, [departments, searchTerm]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -166,8 +129,8 @@ const TeamPage: React.FC = () => {
               }}
               className="rounded-lg border border-gray-300 py-2 px-4 font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value={APARAT_TYPE}>Апарат Профкому</option>
-              <option value={PROFBURO_HEAD_TYPE}>Голови Профбюро</option>
+              <option value={APARAT_TYPE}>Члени Президії</option>
+              <option value={PROFBURO_HEAD_TYPE}>Голови Профбюро Студентів</option>
               <option value={VIDDIL_HEAD_TYPE}>Голови Відділів</option>
             </select>
             <div className="relative flex-1 max-w-md">
@@ -204,14 +167,14 @@ const TeamPage: React.FC = () => {
             <div className="py-12 text-center">
               <h3 className="mb-2 text-lg font-medium text-gray-900">
                 {searchTerm 
-                  ? `Не знайдено результатів у категорії "${typeNames[selectedType]}"` 
-                  : `Команда у категорії "${typeNames[selectedType]}" ще не сформована`
+                  ? `Нікого не знайдено за запитом "${searchTerm}"`
+                  : `У цій категорії ще немає записів`
                 }
               </h3>
               <p className="text-gray-500">
                 {searchTerm
-                  ? "Спробуйте змінити критерії пошуку або оберіть іншу категорію"
-                  : "Інформація буде додана найближчим часом"}
+                  ? `Ми не змогли знайти нікого у цій категорії. Спробуйте змінити критерії пошуку.`
+                  : "Дані про учасників будуть додані найближчим часом."}
               </p>
             </div>
           ) : (
