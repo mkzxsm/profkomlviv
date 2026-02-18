@@ -10,8 +10,11 @@ const ClassicEditor = ClassicEditorBuild as any;
 interface NewsModalProps {
     formData: NewsFormData;
     setFormData: React.Dispatch<React.SetStateAction<NewsFormData>>;
-    selectedFile: File | null;
-    setSelectedFile: React.Dispatch<React.SetStateAction<File | null>>;
+    
+    // ЗМІНА 1: Приймаємо список файлів
+    selectedFiles: FileList | null;
+    setSelectedFiles: React.Dispatch<React.SetStateAction<FileList | null>>;
+    
     editingItem: News | null;
     onSubmit: (e: React.FormEvent) => void;
     onClose: () => void;
@@ -20,36 +23,47 @@ interface NewsModalProps {
 const NewsModal: React.FC<NewsModalProps> = ({
     formData,
     setFormData,
-    selectedFile,
-    setSelectedFile,
+    selectedFiles,
+    setSelectedFiles,
     editingItem,
     onSubmit,
     onClose
 }) => {
     const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
 
+    // ЗМІНА 2: Логіка прев'ю для першого файлу зі списку
     useEffect(() => {
-        if (selectedFile) {
-            const objectUrl = URL.createObjectURL(selectedFile);
+        if (selectedFiles && selectedFiles.length > 0) {
+            // Беремо перший файл для попереднього перегляду
+            const file = selectedFiles[0];
+            const objectUrl = URL.createObjectURL(file);
             setPreviewImageUrl(objectUrl);
+            
+            // Чистка пам'яті
             return () => URL.revokeObjectURL(objectUrl);
         }
         setPreviewImageUrl(null);
-    }, [selectedFile]);
+    }, [selectedFiles]);
 
+    // Визначаємо URL для прев'ю: або новий файл, або старе фото з сервера
     const imageUrlForPreview = previewImageUrl
         ? previewImageUrl
-        : editingItem?.imageUrl
-        ? editingItem.imageUrl
-        : undefined;
+        : (editingItem?.images && editingItem.images.length > 0)
+            ? editingItem.images[0].imagePath // Якщо у вас структура NewsImage { imagePath: string }
+            : editingItem?.imageUrl // Фоллбек для старої структури
+            ? editingItem.imageUrl
+            : undefined;
 
-    const previewNews: News = {
+   const previewNews: News = {
         id: editingItem?.id || 0,
         title: formData.title || "Заголовок новини",
         content: formData.content || "<p>Тут буде ваш контент</p>",
         publishedAt: new Date().toISOString(),
         isImportant: formData.isImportant,
-        imageUrl: imageUrlForPreview,
+        
+        // ОСЬ ТУТ БУЛА ПОМИЛКА. Додаємо newsId: 0
+        imageUrl: imageUrlForPreview, 
+        images: imageUrlForPreview ? [{ id: 0, imagePath: imageUrlForPreview, newsId: 0 }] : [],
     };
 
     return (
@@ -71,17 +85,32 @@ const NewsModal: React.FC<NewsModalProps> = ({
 
             <div>
                 <ModalLabel htmlFor="fileInput">
-                    {editingItem ? 'Змінити зображення' : 'Зображення'}
+                    {editingItem ? 'Додати/Змінити зображення' : 'Зображення (можна декілька)'}
                 </ModalLabel>
+                
+                {/* ЗМІНА 3: Input type="file" з атрибутом multiple */}
                 <ModalInput
                     id="fileInput"
                     type="file"
                     accept="image/*"
-                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                    multiple 
+                    onChange={(e) => setSelectedFiles(e.target.files)} // Зберігаємо FileList
                 />
-                <p className="mt-2 text-sm text-gray-500">
-                    {selectedFile ? selectedFile.name : !editingItem ? "Файл не вибрано" : null}
-                </p>
+                
+                <div className="mt-2 text-sm text-gray-500">
+                    {selectedFiles && selectedFiles.length > 0 ? (
+                        <div>
+                            <p className="font-medium text-green-600">Обрано файлів: {selectedFiles.length}</p>
+                            <ul className="list-disc list-inside mt-1">
+                                {Array.from(selectedFiles).map((file, index) => (
+                                    <li key={index} className="truncate">{file.name}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    ) : !editingItem ? (
+                        "Файли не вибрано"
+                    ) : null}
+                </div>
             </div>
 
             <div>
@@ -109,8 +138,8 @@ const NewsModal: React.FC<NewsModalProps> = ({
             </div>
             
             <div>
-                <ModalLabel>Попередній перегляд</ModalLabel>
-                <div className="w-full max-w-sm mx-auto"> 
+                <ModalLabel>Попередній перегляд (обкладинка)</ModalLabel>
+                <div className="w-full max-w-sm mx-auto border rounded-lg overflow-hidden shadow-sm"> 
                     <NewsCard news={previewNews} isPreview={true} />
                 </div>
             </div>

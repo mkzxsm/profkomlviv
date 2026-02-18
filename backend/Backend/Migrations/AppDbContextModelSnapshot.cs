@@ -233,9 +233,6 @@ namespace Backend.Migrations
                     b.Property<string>("Content")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("longtext");
-
                     b.Property<bool>("IsImportant")
                         .HasColumnType("tinyint(1)");
 
@@ -249,6 +246,26 @@ namespace Backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("News");
+                });
+
+            modelBuilder.Entity("ProfkomBackend.Models.NewsImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("NewsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NewsId");
+
+                    b.ToTable("NewsImages");
                 });
 
             modelBuilder.Entity("ProfkomBackend.Models.Team", b =>
@@ -345,6 +362,22 @@ namespace Backend.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Head");
+                });
+
+            modelBuilder.Entity("ProfkomBackend.Models.NewsImage", b =>
+                {
+                    b.HasOne("ProfkomBackend.Models.News", "News")
+                        .WithMany("Images")
+                        .HasForeignKey("NewsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("News");
+                });
+
+            modelBuilder.Entity("ProfkomBackend.Models.News", b =>
+                {
+                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

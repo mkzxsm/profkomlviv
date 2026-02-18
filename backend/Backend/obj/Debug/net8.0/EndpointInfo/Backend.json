@@ -145,6 +145,472 @@
         }
       }
     },
+    "/api/departments": {
+      "get": {
+        "tags": [
+          "Department"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Department"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Department"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Department"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Department"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "HeadId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Name": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "LogoUrl": {
+                    "type": "string"
+                  },
+                  "IsActive": {
+                    "type": "boolean"
+                  },
+                  "Logo": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "HeadId": {
+                  "style": "form"
+                },
+                "Name": {
+                  "style": "form"
+                },
+                "Description": {
+                  "style": "form"
+                },
+                "LogoUrl": {
+                  "style": "form"
+                },
+                "IsActive": {
+                  "style": "form"
+                },
+                "Logo": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/departments/{id}": {
+      "get": {
+        "tags": [
+          "Department"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Department"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "HeadId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Name": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "LogoUrl": {
+                    "type": "string"
+                  },
+                  "IsActive": {
+                    "type": "boolean"
+                  },
+                  "Logo": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "HeadId": {
+                  "style": "form"
+                },
+                "Name": {
+                  "style": "form"
+                },
+                "Description": {
+                  "style": "form"
+                },
+                "LogoUrl": {
+                  "style": "form"
+                },
+                "IsActive": {
+                  "style": "form"
+                },
+                "Logo": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Department"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/documents": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Document"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Document"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Document"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Documents"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "Title"
+                ],
+                "type": "object",
+                "properties": {
+                  "Title": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "File": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "Title": {
+                  "style": "form"
+                },
+                "Description": {
+                  "style": "form"
+                },
+                "File": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/{id}": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Documents"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "Title"
+                ],
+                "type": "object",
+                "properties": {
+                  "Title": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "File": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "Title": {
+                  "style": "form"
+                },
+                "Description": {
+                  "style": "form"
+                },
+                "File": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Documents"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Events": {
       "get": {
         "tags": [
@@ -270,6 +736,327 @@
         }
       }
     },
+    "/api/faculties": {
+      "get": {
+        "tags": [
+          "Faculty"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Faculty"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Faculty"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Faculty"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Faculty"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Name": {
+                    "type": "string"
+                  },
+                  "HeadId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Address": {
+                    "type": "string"
+                  },
+                  "Room": {
+                    "type": "string"
+                  },
+                  "Instagram_Link": {
+                    "type": "string"
+                  },
+                  "Telegram_Link": {
+                    "type": "string"
+                  },
+                  "ImageUrl": {
+                    "type": "string"
+                  },
+                  "Schedule": {
+                    "type": "string"
+                  },
+                  "Summary": {
+                    "type": "string"
+                  },
+                  "IsActive": {
+                    "type": "boolean"
+                  },
+                  "IsCollege": {
+                    "type": "boolean"
+                  },
+                  "Image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "Name": {
+                  "style": "form"
+                },
+                "HeadId": {
+                  "style": "form"
+                },
+                "Address": {
+                  "style": "form"
+                },
+                "Room": {
+                  "style": "form"
+                },
+                "Instagram_Link": {
+                  "style": "form"
+                },
+                "Telegram_Link": {
+                  "style": "form"
+                },
+                "ImageUrl": {
+                  "style": "form"
+                },
+                "Schedule": {
+                  "style": "form"
+                },
+                "Summary": {
+                  "style": "form"
+                },
+                "IsActive": {
+                  "style": "form"
+                },
+                "IsCollege": {
+                  "style": "form"
+                },
+                "Image": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Faculty"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Faculty"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Faculty"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/faculties/{id}": {
+      "get": {
+        "tags": [
+          "Faculty"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Faculty"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Faculty"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Faculty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Faculty"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Name": {
+                    "type": "string"
+                  },
+                  "HeadId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Address": {
+                    "type": "string"
+                  },
+                  "Room": {
+                    "type": "string"
+                  },
+                  "Instagram_Link": {
+                    "type": "string"
+                  },
+                  "Telegram_Link": {
+                    "type": "string"
+                  },
+                  "ImageUrl": {
+                    "type": "string"
+                  },
+                  "Schedule": {
+                    "type": "string"
+                  },
+                  "Summary": {
+                    "type": "string"
+                  },
+                  "IsActive": {
+                    "type": "boolean"
+                  },
+                  "IsCollege": {
+                    "type": "boolean"
+                  },
+                  "Image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "Name": {
+                  "style": "form"
+                },
+                "HeadId": {
+                  "style": "form"
+                },
+                "Address": {
+                  "style": "form"
+                },
+                "Room": {
+                  "style": "form"
+                },
+                "Instagram_Link": {
+                  "style": "form"
+                },
+                "Telegram_Link": {
+                  "style": "form"
+                },
+                "ImageUrl": {
+                  "style": "form"
+                },
+                "Schedule": {
+                  "style": "form"
+                },
+                "Summary": {
+                  "style": "form"
+                },
+                "IsActive": {
+                  "style": "form"
+                },
+                "IsCollege": {
+                  "style": "form"
+                },
+                "Image": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Faculty"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/News": {
       "get": {
         "tags": [
@@ -294,19 +1081,18 @@
                 ],
                 "type": "object",
                 "properties": {
-                  "Id": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
                   "Title": {
                     "type": "string"
                   },
                   "Content": {
                     "type": "string"
                   },
-                  "Image": {
-                    "type": "string",
-                    "format": "binary"
+                  "Images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
                   },
                   "IsImportant": {
                     "type": "boolean"
@@ -314,16 +1100,13 @@
                 }
               },
               "encoding": {
-                "Id": {
-                  "style": "form"
-                },
                 "Title": {
                   "style": "form"
                 },
                 "Content": {
                   "style": "form"
                 },
-                "Image": {
+                "Images": {
                   "style": "form"
                 },
                 "IsImportant": {
@@ -386,19 +1169,18 @@
                 ],
                 "type": "object",
                 "properties": {
-                  "Id": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
                   "Title": {
                     "type": "string"
                   },
                   "Content": {
                     "type": "string"
                   },
-                  "Image": {
-                    "type": "string",
-                    "format": "binary"
+                  "Images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
                   },
                   "IsImportant": {
                     "type": "boolean"
@@ -406,16 +1188,13 @@
                 }
               },
               "encoding": {
-                "Id": {
-                  "style": "form"
-                },
                 "Title": {
                   "style": "form"
                 },
                 "Content": {
                   "style": "form"
                 },
-                "Image": {
+                "Images": {
                   "style": "form"
                 },
                 "IsImportant": {
@@ -453,312 +1232,14 @@
         }
       }
     },
-    "/api/Prof": {
-      "get": {
-        "tags": [
-          "Prof"
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Prof"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Prof"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Prof"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Prof"
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "Name": {
-                    "type": "string"
-                  },
-                  "Head": {
-                    "type": "string"
-                  },
-                  "Email": {
-                    "type": "string"
-                  },
-                  "Adress": {
-                    "type": "string"
-                  },
-                  "Schedule": {
-                    "type": "string"
-                  },
-                  "Summary": {
-                    "type": "string"
-                  },
-                  "FacultyURL": {
-                    "type": "string"
-                  },
-                  "Link": {
-                    "type": "string"
-                  },
-                  "OrderInd": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "IsActive": {
-                    "type": "boolean"
-                  },
-                  "ImageUrl": {
-                    "type": "string"
-                  },
-                  "Image": {
-                    "type": "string",
-                    "format": "binary"
-                  }
-                }
-              },
-              "encoding": {
-                "Name": {
-                  "style": "form"
-                },
-                "Head": {
-                  "style": "form"
-                },
-                "Email": {
-                  "style": "form"
-                },
-                "Adress": {
-                  "style": "form"
-                },
-                "Schedule": {
-                  "style": "form"
-                },
-                "Summary": {
-                  "style": "form"
-                },
-                "FacultyURL": {
-                  "style": "form"
-                },
-                "Link": {
-                  "style": "form"
-                },
-                "OrderInd": {
-                  "style": "form"
-                },
-                "IsActive": {
-                  "style": "form"
-                },
-                "ImageUrl": {
-                  "style": "form"
-                },
-                "Image": {
-                  "style": "form"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Prof"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Prof"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Prof"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Prof/{id}": {
-      "get": {
-        "tags": [
-          "Prof"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Prof"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Prof"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Prof"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Prof"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "Name": {
-                    "type": "string"
-                  },
-                  "Head": {
-                    "type": "string"
-                  },
-                  "Email": {
-                    "type": "string"
-                  },
-                  "Adress": {
-                    "type": "string"
-                  },
-                  "Schedule": {
-                    "type": "string"
-                  },
-                  "Summary": {
-                    "type": "string"
-                  },
-                  "FacultyURL": {
-                    "type": "string"
-                  },
-                  "Link": {
-                    "type": "string"
-                  },
-                  "OrderInd": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "IsActive": {
-                    "type": "boolean"
-                  },
-                  "ImageUrl": {
-                    "type": "string"
-                  },
-                  "Image": {
-                    "type": "string",
-                    "format": "binary"
-                  }
-                }
-              },
-              "encoding": {
-                "Name": {
-                  "style": "form"
-                },
-                "Head": {
-                  "style": "form"
-                },
-                "Email": {
-                  "style": "form"
-                },
-                "Adress": {
-                  "style": "form"
-                },
-                "Schedule": {
-                  "style": "form"
-                },
-                "Summary": {
-                  "style": "form"
-                },
-                "FacultyURL": {
-                  "style": "form"
-                },
-                "Link": {
-                  "style": "form"
-                },
-                "OrderInd": {
-                  "style": "form"
-                },
-                "IsActive": {
-                  "style": "form"
-                },
-                "ImageUrl": {
-                  "style": "form"
-                },
-                "Image": {
-                  "style": "form"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      },
+    "/api/News/image/{imageId}": {
       "delete": {
         "tags": [
-          "Prof"
+          "News"
         ],
         "parameters": [
           {
-            "name": "id",
+            "name": "imageId",
             "in": "path",
             "required": true,
             "schema": {
@@ -827,20 +1308,17 @@
                   "Position": {
                     "type": "string"
                   },
-                  "Content": {
-                    "type": "string"
+                  "Type": {
+                    "$ref": "#/components/schemas/MemberType"
                   },
                   "Email": {
-                    "type": "string"
-                  },
-                  "Phone": {
                     "type": "string"
                   },
                   "OrderInd": {
                     "type": "integer",
                     "format": "int32"
                   },
-                  "IsActive": {
+                  "IsTemporary": {
                     "type": "boolean"
                   },
                   "ImageUrl": {
@@ -849,6 +1327,9 @@
                   "Image": {
                     "type": "string",
                     "format": "binary"
+                  },
+                  "IsChoosed": {
+                    "type": "boolean"
                   }
                 }
               },
@@ -859,25 +1340,25 @@
                 "Position": {
                   "style": "form"
                 },
-                "Content": {
+                "Type": {
                   "style": "form"
                 },
                 "Email": {
                   "style": "form"
                 },
-                "Phone": {
-                  "style": "form"
-                },
                 "OrderInd": {
                   "style": "form"
                 },
-                "IsActive": {
+                "IsTemporary": {
                   "style": "form"
                 },
                 "ImageUrl": {
                   "style": "form"
                 },
                 "Image": {
+                  "style": "form"
+                },
+                "IsChoosed": {
                   "style": "form"
                 }
               }
@@ -974,20 +1455,17 @@
                   "Position": {
                     "type": "string"
                   },
-                  "Content": {
-                    "type": "string"
+                  "Type": {
+                    "$ref": "#/components/schemas/MemberType"
                   },
                   "Email": {
-                    "type": "string"
-                  },
-                  "Phone": {
                     "type": "string"
                   },
                   "OrderInd": {
                     "type": "integer",
                     "format": "int32"
                   },
-                  "IsActive": {
+                  "IsTemporary": {
                     "type": "boolean"
                   },
                   "ImageUrl": {
@@ -996,6 +1474,9 @@
                   "Image": {
                     "type": "string",
                     "format": "binary"
+                  },
+                  "IsChoosed": {
+                    "type": "boolean"
                   }
                 }
               },
@@ -1006,25 +1487,25 @@
                 "Position": {
                   "style": "form"
                 },
-                "Content": {
+                "Type": {
                   "style": "form"
                 },
                 "Email": {
                   "style": "form"
                 },
-                "Phone": {
-                  "style": "form"
-                },
                 "OrderInd": {
                   "style": "form"
                 },
-                "IsActive": {
+                "IsTemporary": {
                   "style": "form"
                 },
                 "ImageUrl": {
                   "style": "form"
                 },
                 "Image": {
+                  "style": "form"
+                },
+                "IsChoosed": {
                   "style": "form"
                 }
               }
@@ -1307,74 +1788,6 @@
           }
         }
       }
-    },
-    "/api/Uploads": {
-      "post": {
-        "tags": [
-          "Uploads"
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "ContentType": {
-                    "type": "string"
-                  },
-                  "ContentDisposition": {
-                    "type": "string"
-                  },
-                  "Headers": {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "Length": {
-                    "type": "integer",
-                    "format": "int64"
-                  },
-                  "Name": {
-                    "type": "string"
-                  },
-                  "FileName": {
-                    "type": "string"
-                  }
-                }
-              },
-              "encoding": {
-                "ContentType": {
-                  "style": "form"
-                },
-                "ContentDisposition": {
-                  "style": "form"
-                },
-                "Headers": {
-                  "style": "form"
-                },
-                "Length": {
-                  "style": "form"
-                },
-                "Name": {
-                  "style": "form"
-                },
-                "FileName": {
-                  "style": "form"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
     }
   },
   "components": {
@@ -1431,6 +1844,90 @@
         },
         "additionalProperties": false
       },
+      "Department": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "headId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "head": {
+            "$ref": "#/components/schemas/Team"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Document": {
+        "required": [
+          "filePath",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "filePath": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Event": {
         "required": [
           "title"
@@ -1468,7 +1965,7 @@
         },
         "additionalProperties": false
       },
-      "Prof": {
+      "Faculty": {
         "type": "object",
         "properties": {
           "id": {
@@ -1479,15 +1976,19 @@
             "type": "string",
             "nullable": true
           },
+          "headId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
           "head": {
+            "$ref": "#/components/schemas/Team"
+          },
+          "address": {
             "type": "string",
             "nullable": true
           },
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "adress": {
+          "room": {
             "type": "string",
             "nullable": true
           },
@@ -1499,19 +2000,18 @@
             "type": "string",
             "nullable": true
           },
-          "facultyURL": {
+          "instagram_Link": {
             "type": "string",
             "nullable": true
           },
-          "link": {
+          "telegram_Link": {
             "type": "string",
             "nullable": true
-          },
-          "orderInd": {
-            "type": "integer",
-            "format": "int32"
           },
           "isActive": {
+            "type": "boolean"
+          },
+          "isCollege": {
             "type": "boolean"
           },
           "imageUrl": {
@@ -1530,12 +2030,22 @@
         },
         "additionalProperties": false
       },
+      "MemberType": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
       "Team": {
         "required": [
-          "isActive",
+          "isTemporary",
           "name",
           "orderInd",
-          "position"
+          "position",
+          "type"
         ],
         "type": "object",
         "properties": {
@@ -1551,9 +2061,8 @@
             "minLength": 1,
             "type": "string"
           },
-          "content": {
-            "type": "string",
-            "nullable": true
+          "type": {
+            "$ref": "#/components/schemas/MemberType"
           },
           "imageUrl": {
             "type": "string",
@@ -1563,20 +2072,23 @@
             "type": "string",
             "nullable": true
           },
-          "phone": {
-            "type": "string",
-            "nullable": true
-          },
           "orderInd": {
             "type": "integer",
             "format": "int32"
           },
-          "isActive": {
+          "isTemporary": {
             "type": "boolean"
           },
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isChoosed": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -1623,7 +2135,7 @@
     "securitySchemes": {
       "Bearer": {
         "type": "apiKey",
-        "description": "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
+        "description": "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token.",
         "name": "Authorization",
         "in": "header"
       }

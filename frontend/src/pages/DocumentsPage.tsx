@@ -192,8 +192,8 @@ const DocumentsPage: React.FC = () => {
                 Документи не знайдено
               </h3>
               <p className="text-gray-500">
-                {searchTerm 
-                  ? "Спробуйте змінити критерії пошуку" 
+                {searchTerm
+                  ? "Спробуйте змінити критерії пошуку"
                   : "Наразі документи відсутні."}
               </p>
             </div>
@@ -232,6 +232,7 @@ const DocumentsPage: React.FC = () => {
           </div>
         </div>
       </section>
+
     </div>
   );
 };

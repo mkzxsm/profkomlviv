@@ -59,9 +59,9 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
         <h3 className="text-2xl font-bold text-[#1E2A5A] w-full truncate group-hover:text-blue-600">
           {member.name}
         </h3>
-        <p className="mt-1 text-lg italic text-[#1E2A5A] w-full truncate">
+        <p className="mt-1 text-lg italic text-[#1E2A5A] w-full">
           {member.isTemporary 
-            ? member.position.replace("Голова", "В.О. Голови") 
+            ? member.position.replace("Керівник", "В.О. Керівника") 
             : member.position}
           </p>
       </div>

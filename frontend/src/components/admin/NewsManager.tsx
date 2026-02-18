@@ -14,12 +14,14 @@ interface NewsManagerProps {
 const NewsManager: React.FC<NewsManagerProps> = ({ data, loading, fetchData }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<News | null>(null);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    
+    // ЗМІНА 1: Тепер тут зберігаємо список файлів (FileList), а не один файл
+    const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
 
     const getInitialFormData = (): NewsFormData => ({
         title: '',
         content: '',
-        imageUrl: '',
+        imageUrl: '', // Це поле залишається для відображення старих URL при редагуванні
         isImportant: false,
     });
 
@@ -28,6 +30,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ data, loading, fetchData }) =
     const handleOpenAddModal = useCallback(() => {
         setFormData(getInitialFormData());
         setEditingItem(null);
+        setSelectedFiles(null); // Очищаємо файли
         setIsModalOpen(true);
     }, []);
 
@@ -39,13 +42,14 @@ const NewsManager: React.FC<NewsManagerProps> = ({ data, loading, fetchData }) =
             imageUrl: item.imageUrl || '',
             isImportant: item.isImportant,
         });
+        setSelectedFiles(null); // При відкритті редагування нові файли ще не обрані
         setIsModalOpen(true);
     }, []);
 
     const handleCloseModal = useCallback(() => {
         setIsModalOpen(false);
         setEditingItem(null);
-        setSelectedFile(null);
+        setSelectedFiles(null);
         setFormData(getInitialFormData());
     }, []);
 
@@ -54,14 +58,20 @@ const NewsManager: React.FC<NewsManagerProps> = ({ data, loading, fetchData }) =
 
         const dataToSend = new FormData();
         dataToSend.append('Title', formData.title);
-        dataToSend.append('Content', formData.content);
+        // Якщо content null або undefined, відправляємо пустий рядок
+        dataToSend.append('Content', formData.content || ''); 
         dataToSend.append('IsImportant', formData.isImportant.toString());
 
-        if (selectedFile) {
-            dataToSend.append('Image', selectedFile);
-        } else if (editingItem) {
-            dataToSend.append('ImageUrl', editingItem.imageUrl || '');
-        }
+        // ЗМІНА 2: Логіка додавання багатьох картинок
+        if (selectedFiles && selectedFiles.length > 0) {
+            for (let i = 0; i < selectedFiles.length; i++) {
+                // Важливо: ключ має бути 'Images', як у C# DTO (public List<IFormFile> Images)
+                dataToSend.append('Images', selectedFiles[i]);
+            }
+        } 
+        
+        // Примітка: Ми не відправляємо старий ImageUrl назад на сервер, 
+        // бо сервер сам знає старі картинки. Ми відправляємо тільки НОВІ файли.
 
         const headers = {
             'Content-Type': 'multipart/form-data',
@@ -79,8 +89,9 @@ const NewsManager: React.FC<NewsManagerProps> = ({ data, loading, fetchData }) =
         } catch (error) {
             const axiosError = error as AxiosError;
             console.error('Error saving news:', axiosError.response?.data || axiosError.message);
+            alert('Помилка при збереженні. Перевірте консоль.');
         }
-    }, [formData, selectedFile, editingItem, fetchData, handleCloseModal]);
+    }, [formData, selectedFiles, editingItem, fetchData, handleCloseModal]);
 
     const handleDelete = useCallback(async (id: number) => {
         if (window.confirm('Ви впевнені, що хочете видалити цю новину?')) {
@@ -136,11 +147,15 @@ const NewsManager: React.FC<NewsManagerProps> = ({ data, loading, fetchData }) =
                                 <X className="h-6 w-6" />
                             </button>
                         </div>
+                        
+                        {/* ЗМІНА 3: Передаємо selectedFiles (множина) у модальне вікно.
+                           Вам також доведеться оновити NewsModal, щоб він приймав ці пропси.
+                        */}
                         <NewsModal
                             formData={formData}
                             setFormData={setFormData}
-                            selectedFile={selectedFile}
-                            setSelectedFile={setSelectedFile}
+                            selectedFiles={selectedFiles}       // <--- Новий пропс
+                            setSelectedFiles={setSelectedFiles} // <--- Новий пропс
                             editingItem={editingItem}
                             onSubmit={handleSubmit}
                             onClose={handleCloseModal}

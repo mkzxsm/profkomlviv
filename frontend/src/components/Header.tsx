@@ -10,9 +10,11 @@ const Header: React.FC = () => {
     { name: 'Головна', href: '/' },
     { name: 'Про нас', href: '/about-us' },
     { name: 'Наша структура', href: '/structure' },
+    { name: 'Сервіси', href: '/services', mobileOnly: true },
     { name: 'Документи', href: '/documents' },
     { name: 'Новини', href: '/news' },
     { name: 'Контакти', href: '/contacts' },
+    // Цей пункт має властивість mobileOnly: true
   ];
 
   const isActive = (path: string) => {
@@ -49,21 +51,24 @@ const Header: React.FC = () => {
 
             {/* Десктоп-навігація */}
             <nav className="hidden lg:flex space-x-6">
-              {navigation.map((item) => {
-                const active = isActive(item.href);
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`px-3 py-1 rounded-2xl text-sm font-medium transition-all duration-300 border hover:-translate-y-0.5
+              {navigation
+                // Фільтруємо пункти, які мають бути тільки на мобільному
+                .filter((item) => !item.mobileOnly) 
+                .map((item) => {
+                  const active = isActive(item.href);
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={`px-3 py-1 rounded-2xl text-sm font-medium transition-all duration-300 border hover:-translate-y-0.5
                       ${active
                         ? 'text-blue-600 bg-white shadow-md border-gray-300'
                         : 'text-[#1E2A5A] border-transparent hover:border-gray-300 hover:shadow-md'
                       }`}
-                  >
-                    {item.name}
-                  </Link>
-                );
+                    >
+                      {item.name}
+                    </Link>
+                  );
               })}
             </nav>
 
@@ -99,6 +104,7 @@ const Header: React.FC = () => {
       >
         <div className="px-4 pt-3 pb-4 space-y-2">
           {navigation.map((item) => (
+            // Тут відображаємо ВСІ пункти, включаючи Сервіси
             <Link
               key={item.name}
               to={item.href}
