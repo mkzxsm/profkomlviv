@@ -174,6 +174,23 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/uploads"
 });
 
+// Безпечне підключення папки з картинками
+var dbDataPath = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", "..", "database data"));
+
+if (Directory.Exists(dbDataPath))
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(dbDataPath),
+        RequestPath = "/database-data"
+    });
+    Console.WriteLine($"[OK] Папка з картинками підключена: {dbDataPath}");
+}
+else
+{
+    Console.WriteLine($"[ПОМИЛКА] Папку з картинками не знайдено! Сервер шукав рівно за цим шляхом: {dbDataPath}");
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 
