@@ -282,10 +282,10 @@ const TeamPage: React.FC = () => {
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <button
-              className="flex transform items-center justify-center rounded-lg bg-yellow-500 px-8 py-3 font-semibold text-blue-900 shadow-lg transition-all duration-200 hover:scale-105 hover:bg-yellow-600"
+              className="flex transform items-center justify-center rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 px-8 py-3 font-bold text-[#1E2A5A] shadow-[0_4px_14px_0_rgba(234,179,8,0.39)] transition-all duration-300 hover:scale-105 hover:shadow-[0_6px_20px_rgba(234,179,8,0.23)] hover:from-yellow-300 hover:to-yellow-400 ring-2 ring-transparent focus:ring-yellow-400"
               onClick={() => window.open("https://forms.office.com/e/enQBJqB4SN")}
             >
-              Подати заяву <ArrowRight className="ml-2 h-5 w-5" />
+              Подати заяву <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
             <button
               className="transform rounded-lg border-2 border-white px-8 py-3 font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:bg-white hover:text-blue-800"

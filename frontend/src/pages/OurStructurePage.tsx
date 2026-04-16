@@ -18,6 +18,11 @@ const StructurePage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedType, setSelectedType] = useState<number>(FACULTY_TYPE);
   const itemsPerPage = 5;
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const structureTypes = [
+    { id: FACULTY_TYPE, label: 'Профбюро Студентів' },
+    { id: DEPARTMENT_TYPE, label: 'Відділи Профкому' }
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -211,29 +216,66 @@ const StructurePage: React.FC = () => {
         </div>
       </section>
       
-      <section className="bg-white py-6 md:py-8 shadow-sm">
+{/* Search & Filter Section */}
+      <section className="bg-white py-6 md:py-8 shadow-sm relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row gap-4 items-center">
             
-            <div className="relative">
-              <select
-                value={selectedType}
-                onChange={(e) => {
-                  setSelectedType(Number(e.target.value));
-                  setSearchTerm("");
-                  setCurrentPage(1);
-                }}
-                className="w-full sm:w-auto appearance-none rounded-lg border border-gray-300 py-3 px-4 pr-10 font-medium bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            {/* 1. Кастомний Дропдаун */}
+            <div className="relative w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center justify-between w-full sm:w-72 h-[46px] bg-white border border-gray-300 rounded-lg px-4 text-[#1E2A5A] font-medium transition-all duration-300 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm"
               >
-                <option value={FACULTY_TYPE}>Профбюро Студентів</option>
-                <option value={DEPARTMENT_TYPE}>Відділи Профкому Студентів</option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
-                <ChevronDown className="h-5 w-5 text-gray-400" />
+                <span className="truncate pr-2 text-sm md:text-base">
+                  {structureTypes.find(type => type.id === selectedType)?.label}
+                </span>
+                <ChevronDown 
+                  className={`w-4 h-4 text-gray-400 transition-transform duration-300 shrink-0 ${
+                    isDropdownOpen ? 'rotate-180' : ''
+                  }`} 
+                />
+              </button>
+
+              {/* Шар для закриття по кліку будь-де */}
+              {isDropdownOpen && (
+                <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
+              )}
+
+              {/* Меню вибору */}
+              <div
+                className={`absolute top-full left-0 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden z-20 transition-all duration-200 origin-top ${
+                  isDropdownOpen 
+                    ? 'opacity-100 scale-y-100 translate-y-0' 
+                    : 'opacity-0 scale-y-95 -translate-y-2 pointer-events-none'
+                }`}
+              >
+                <div className="py-1">
+                  {structureTypes.map((type) => (
+                    <button
+                      key={type.id}
+                      onClick={() => {
+                        setSelectedType(type.id);
+                        setSearchTerm("");
+                        setCurrentPage(1);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-3 text-sm transition-colors duration-150 flex items-center ${
+                        selectedType === type.id
+                          ? 'bg-blue-50 text-blue-700 font-semibold'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-[#1E2A5A]'
+                      }`}
+                    >
+                      {type.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="relative flex-1 w-full sm:max-w-md">
+            {/* 2. Пошук */}
+            <div className="relative flex-1 w-full sm:max-w-md shadow-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
               <input
                 type="text"
@@ -247,15 +289,17 @@ const StructurePage: React.FC = () => {
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full pl-10 pr-4 h-[46px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none"
               />
             </div>
             
-            <div className="text-sm text-gray-600 flex items-center gap-1">
+            {/* 3. Лічильник */}
+            <div className="text-sm text-gray-600 flex items-center gap-1 sm:ml-auto">
               <span>Знайдено:</span>
               <span className="font-semibold">{filteredData.length}</span>
               <span>{getCountWord(filteredData.length)}</span>
             </div>
+
           </div>
         </div>
       </section>

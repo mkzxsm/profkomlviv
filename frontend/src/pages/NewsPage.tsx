@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Calendar, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight } from 'lucide-react';
+import { Search, Filter, Calendar, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, ChevronDown } from 'lucide-react';
 import NewsCard from '../components/NewsCard';
 import axios from 'axios';
 
@@ -19,6 +19,12 @@ const NewsPage: React.FC = () => {
   const [filterType, setFilterType] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const newsPerPage = 6;
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const filterOptions = [
+    { id: 'all', label: 'Всі новини' },
+    { id: 'important', label: 'Важливі' },
+    { id: 'regular', label: 'Звичайні' }
+  ];
 
   useEffect(() => {
     fetchNews();
@@ -173,40 +179,90 @@ const NewsPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Search & Filter */}
-      <section className="bg-white py-8 shadow-sm">
+{/* Search & Filter */}
+      <section className="bg-white py-8 shadow-sm relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <input
-                type="text"
-                placeholder="Пошук новин..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+          
+          {/* Головний контейнер: вертикальне розташування (flex-col) */}
+          <div className="flex flex-col gap-4">
+            
+            {/* 1. Блок з пошуком і фільтром (верхній ряд) */}
+            <div className="flex flex-col sm:flex-row gap-4 w-full">
+              
+              {/* Пошук (flex-1 змушує його розтягнутися на весь доступний простір) */}
+              <div className="relative flex-1 shadow-sm">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <input
+                  type="text"
+                  placeholder="Пошук новин..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 h-[46px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                />
+              </div>
+
+              {/* Кастомний Дропдаун Фільтру */}
+              <div className="relative w-full sm:w-[220px] shadow-sm">
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10 pointer-events-none" />
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center justify-between w-full h-[46px] bg-white border border-gray-300 rounded-lg pl-10 pr-4 text-[#1E2A5A] font-medium transition-all duration-300 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                >
+                  <span className="truncate pr-2 text-sm md:text-base">
+                    {filterOptions.find(opt => opt.id === filterType)?.label}
+                  </span>
+                  <ChevronDown 
+                    className={`w-4 h-4 text-gray-400 transition-transform duration-300 shrink-0 ${
+                      isDropdownOpen ? 'rotate-180' : ''
+                    }`} 
+                  />
+                </button>
+
+                {/* Шар для закриття кліком поза меню */}
+                {isDropdownOpen && (
+                  <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
+                )}
+
+                {/* Меню опцій */}
+                <div
+                  className={`absolute top-full left-0 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden z-20 transition-all duration-200 origin-top ${
+                    isDropdownOpen 
+                      ? 'opacity-100 scale-y-100 translate-y-0' 
+                      : 'opacity-0 scale-y-95 -translate-y-2 pointer-events-none'
+                  }`}
+                >
+                  <div className="py-1">
+                    {filterOptions.map((opt) => (
+                      <button
+                        key={opt.id}
+                        onClick={() => {
+                          setFilterType(opt.id);
+                          setIsDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 text-sm transition-colors duration-150 flex items-center ${
+                          filterType === opt.id
+                            ? 'bg-blue-50 text-blue-700 font-semibold'
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-[#1E2A5A]'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
             </div>
 
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white min-w-[200px]"
-              >
-                <option value="all">Всі новини</option>
-                <option value="important">Важливі</option>
-                <option value="regular">Звичайні</option>
-              </select>
+            {/* 2. Лічильник (нижній ряд, автоматично вирівнюється по лівому краю) */}
+            <div className="text-sm text-gray-600">
+              Знайдено новин: <span className="font-semibold">{filteredNews.length}</span>
+              {totalPages > 1 && (
+                <span className="ml-2">(сторінка {currentPage} з {totalPages})</span>
+              )}
             </div>
-          </div>
 
-          <div className="mt-4 text-sm text-gray-600">
-            Знайдено новин: {filteredNews.length}
-            {totalPages > 1 && (
-              <span className="ml-2">(сторінка {currentPage} з {totalPages})</span>
-            )}
           </div>
         </div>
       </section>
