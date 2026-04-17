@@ -9,6 +9,7 @@ namespace ProfkomBackend.Data
 
         public DbSet<Admin> Admins { get; set; }
         public DbSet<News> News { get; set; }
+<<<<<<< HEAD
         public DbSet<NewsImage> NewsImages { get; set; } // <--- НОВЕ ПОЛЕ
         public DbSet<Event> Events { get; set; }
         public DbSet<ContactMessage> ContactMessages { get; set; }
@@ -39,3 +40,13 @@ namespace ProfkomBackend.Data
         }
     }
 }
+=======
+        public DbSet<Event> Events { get; set; }
+        public DbSet<ContactMessage> ContactMessages { get; set; }
+        public DbSet<Team> Team { get; set; }
+        public DbSet<Prof> Prof { get; set; }
+        public DbSet<Department> Department { get; set; }
+        public DbSet<Unit> Unit { get; set; }
+    }
+}
+>>>>>>> upstream/main

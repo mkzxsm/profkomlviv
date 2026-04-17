@@ -1,6 +1,7 @@
 {
   "format": 1,
   "restore": {
+<<<<<<< HEAD
     "G:\\Profcom\\profkomlviv\\backend\\Backend\\Backend.csproj": {}
   },
   "projects": {
@@ -25,6 +26,38 @@
         "frameworks": {
           "net10.0": {
             "targetAlias": "net10.0",
+=======
+    "D:\\VSC Project\\profkomlviv\\backend\\Backend\\Backend.csproj": {}
+  },
+  "projects": {
+    "D:\\VSC Project\\profkomlviv\\backend\\Backend\\Backend.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\VSC Project\\profkomlviv\\backend\\Backend\\Backend.csproj",
+        "projectName": "Backend",
+        "projectPath": "D:\\VSC Project\\profkomlviv\\backend\\Backend\\Backend.csproj",
+        "packagesPath": "C:\\Users\\mazur\\.nuget\\packages\\",
+        "outputPath": "D:\\VSC Project\\profkomlviv\\backend\\Backend\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\mazur\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+>>>>>>> upstream/main
             "projectReferences": {}
           }
         },
@@ -38,11 +71,19 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
+<<<<<<< HEAD
         "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
+=======
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+>>>>>>> upstream/main
           "dependencies": {
             "Azure.Identity": {
               "target": "Package",
@@ -116,6 +157,7 @@
               "privateAssets": "all"
             }
           },
+<<<<<<< HEAD
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
@@ -531,6 +573,9 @@
             "System.Xml.XPath": "(,4.3.32767]",
             "System.Xml.XPath.XDocument": "(,5.0.32767]"
           }
+=======
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
+>>>>>>> upstream/main
         }
       }
     }

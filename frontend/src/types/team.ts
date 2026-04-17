@@ -11,7 +11,11 @@ export interface TeamFormData {
   position: string;
   type: number;
   orderInd: number;
+<<<<<<< HEAD
   isTemporary: boolean;
+=======
+  isActive: boolean;
+>>>>>>> upstream/main
   email?: string;
   imageUrl?: string;
 }
@@ -22,7 +26,11 @@ export interface TeamMember {
   position: string;
   type: number;
   orderInd: number;
+<<<<<<< HEAD
   isTemporary: boolean;
+=======
+  isActive: boolean;
+>>>>>>> upstream/main
   createdAt: string;
   email?: string;
   imageUrl?: string;

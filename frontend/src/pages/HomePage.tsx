@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Users, Building, HandCoins, CreditCard, TentTree } from 'lucide-react';
 import NewsCard from '../components/NewsCard';
+<<<<<<< HEAD
 import axios from 'axios';
+=======
+import  axios  from 'axios';
+>>>>>>> upstream/main
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -32,6 +36,7 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [scrollY, setScrollY] = useState(0);
   const [showBackground, setShowBackground] = useState(false);
+<<<<<<< HEAD
   
   // Стан для пасхалки (Dino game)
   const [secretClickCount, setSecretClickCount] = useState(0);
@@ -40,12 +45,23 @@ const HomePage: React.FC = () => {
 
   // hero section functions
   const heroSlides: HeroSlide[] = [
+=======
+  const navigate = useNavigate();
+
+//hero section functions
+
+    const heroSlides: HeroSlide[] = [
+>>>>>>> upstream/main
     {
       id: 1,
       image: "/home_page/university.JPG",
       title: 'Профком студентів',
       subtitle: 'Львівський національний університет імені Івана Франка',
+<<<<<<< HEAD
       description: 'Це про можливості всебічного поступу, захист прав та представництво інтересів студентів та аспірантів'
+=======
+      description: 'Захищаємо права студентів, надаємо підтримку та створюємо можливості для розвитку'
+>>>>>>> upstream/main
     },
     {
       id: 2,
@@ -57,9 +73,15 @@ const HomePage: React.FC = () => {
     {
       id: 3,
       image: '/home_page/entertainment.jpg',
+<<<<<<< HEAD
       title: 'Дозвілля',
       subtitle: 'Посвяти, фестивалі та інші заходи',
       description: 'Це про незабутні події, які роблять твоє студентське життя вайбовим'
+=======
+      title: 'Культурне життя',
+      subtitle: 'Фестивалі та творчі заходи',
+      description: 'Організовуємо яскраві культурно-освітні події для всіх студентів'
+>>>>>>> upstream/main
     },
     {
       id: 4,
@@ -114,7 +136,12 @@ const HomePage: React.FC = () => {
     startAutoPlay();
   };
 
+<<<<<<< HEAD
   // service scrollbar functions
+=======
+ //service scrollbar functions
+
+>>>>>>> upstream/main
   const services = [
     {
       icon: <Building className="h-8 w-8" />,
@@ -222,7 +249,11 @@ const HomePage: React.FC = () => {
   const fetchNews = async () => {
     try {
       setLoading(true);
+<<<<<<< HEAD
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/news`);
+=======
+      const response = await axios.get('http://localhost:5068/api/news');
+>>>>>>> upstream/main
       setNews(response.data.slice(0, 6)); // Обмежуємо до 6 новин
     } catch (error) {
       console.error('Помилка при отриманні новин:', error);
@@ -231,6 +262,7 @@ const HomePage: React.FC = () => {
     }
   };
 
+<<<<<<< HEAD
   // Функція обробки кліку для пасхалки
   const handleSecretLogoClick = () => {
     const newCount = secretClickCount + 1;
@@ -243,6 +275,8 @@ const HomePage: React.FC = () => {
       setSecretClickCount(0);
     }
   };
+=======
+>>>>>>> upstream/main
 
   return (
     <div className="min-h-screen">
@@ -262,7 +296,11 @@ const HomePage: React.FC = () => {
                 backgroundImage: `url(${slide.image})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
+<<<<<<< HEAD
                 maxWidth: '1920px',
+=======
+                maxWidth: '1920px', // обмеження максимальної ширини
+>>>>>>> upstream/main
                 width: '100%',
                 height: '100%',
               }}
@@ -354,6 +392,7 @@ const HomePage: React.FC = () => {
                   <img 
                     src="/under_cards.png" 
                     alt="background"
+<<<<<<< HEAD
                     className="absolute left-1/2 -translate-x-1/2 w-80 h-80 cursor-pointer pointer-events-auto transition-transform active:scale-95 select-none"
                     onClick={handleSecretLogoClick}
                   />
@@ -362,6 +401,16 @@ const HomePage: React.FC = () => {
                   <div
                     key={index}
                     className={`stack-card absolute w-80 h-80 rounded-3xl shadow-md transition-all duration-500 ease-in-out cursor-pointer bg-gradient-to-br ${service.color} group hover:shadow-xl hover:-translate-y-1`}
+=======
+                    className="absolute left-1/2 -translate-x-1/2 w-80 h-80 pointer-events-none"
+                  />
+                )}
+
+                {services.map((service, index) => (
+                  <div
+                    key={index}
+                    className={`stack-card absolute w-80 h-80 rounded-3xl shadow-md transition-all duration-500 ease-in-out cursor-pointer bg-gradient-to-br ${service.color}`}
+>>>>>>> upstream/main
                     style={{
                       top: 'calc(50% - 160px)',
                       left: 'calc(50% - 160px)',
@@ -380,6 +429,7 @@ const HomePage: React.FC = () => {
                         <h3 className="text-3xl font-bold leading-tight mb-4">
                           {service.title}
                         </h3>
+<<<<<<< HEAD
                         <div className="flex justify-between items-center mt-4">
                           <p className="text-sm opacity-90 leading-relaxed mr-4">
                             {service.description}
@@ -399,6 +449,11 @@ const HomePage: React.FC = () => {
                               />
                             </svg>
                         </div>
+=======
+                        <p className="text-sm opacity-90 leading-relaxed">
+                          {service.description}
+                        </p>
+>>>>>>> upstream/main
                       </div>
                     </div>
                   </div>
@@ -431,6 +486,7 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* News Section */}
+<<<<<<< HEAD
       <section className="bg-gray-50 py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
@@ -512,6 +568,90 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
+=======
+      {/* News Section */}
+<section className="bg-gray-50 py-12 sm:py-16">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    {/* Header */}
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 sm:mb-10">
+      <div>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          Останні новини
+        </h2>
+        <p className="text-base sm:text-lg text-gray-600">
+          Будьте в курсі всіх подій нашого університету
+        </p>
+      </div>
+
+      <Link
+        to="/news"
+        className="hidden sm:inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200"
+      >
+        Всі новини
+        <ArrowRight className="ml-2 h-5 w-5" />
+      </Link>
+    </div>
+
+    {/* Loader / News */}
+    {loading ? (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(6)].map((_, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-xl shadow-sm overflow-hidden animate-pulse"
+            style={{ animationDelay: `${i * 100}ms` }}
+          >
+            <div className="h-40 bg-gray-200"></div>
+            <div className="p-5">
+              <div className="h-4 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded mb-4 w-3/4"></div>
+              <div className="h-3 bg-gray-200 rounded mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <Swiper
+        modules={[Autoplay]}
+        spaceBetween={16}
+        slidesPerView={1}
+        breakpoints={{
+          640: { slidesPerView: 2, spaceBetween: 20 },
+          1024: { slidesPerView: 3, spaceBetween: 24 },
+        }}
+        loop
+        speed={700}
+        autoplay={{ delay: 5000, disableOnInteraction: false }}
+        className="pb-4"
+      >
+        {news.slice(0, 6).map((article, index) => (
+          <SwiperSlide key={article.id}>
+            <div
+              className="cursor-pointer h-full"
+              style={{ animationDelay: `${index * 150}ms` }}
+              onClick={() => navigate(`/news/${article.id}`)}
+            >
+              <NewsCard news={article} />
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    )}
+
+    {/* Mobile link */}
+    <div className="text-center mt-6 sm:hidden">
+      <Link
+        to="/news"
+        className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200"
+      >
+        Всі новини
+        <ArrowRight className="ml-2 h-5 w-5" />
+      </Link>
+    </div>
+  </div>
+</section>
+>>>>>>> upstream/main
 
       <style>{`
         /* News Cards Animation */

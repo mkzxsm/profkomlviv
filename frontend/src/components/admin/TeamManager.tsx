@@ -23,6 +23,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
     email: '',
     imageUrl: '',
     orderInd: 0,
+<<<<<<< HEAD
     isTemporary: false,
   });
 
@@ -53,18 +54,48 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
   const handleTeamSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+=======
+    isActive: true,
+  });
+
+  const handleTeamSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      let imageUrl = editingTeamMember?.imageUrl || '';
+      if (selectedFile) {
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', selectedFile);
+        const uploadRes = await axios.post('http://localhost:5068/api/uploads', uploadFormData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        imageUrl = uploadRes.data.path;
+      }
+
+>>>>>>> upstream/main
       const formData = new FormData();
       formData.append('Name', teamFormData.name);
       formData.append('Position', teamFormData.position);
       formData.append('Type', teamFormData.type.toString());
       formData.append('Email', teamFormData.email || '');
       formData.append('OrderInd', teamFormData.orderInd.toString());
+<<<<<<< HEAD
       formData.append('IsTemporary', teamFormData.isTemporary.toString());
 
       if (selectedFile) {
         formData.append('Image', selectedFile);
       } else if (editingTeamMember) {
         formData.append('ImageUrl', editingTeamMember.imageUrl || '');
+=======
+      formData.append('IsActive', teamFormData.isActive.toString());
+
+      if (selectedFile) {
+        formData.append('Image', selectedFile);
+      } else {
+        formData.append('ImageUrl', imageUrl);
+>>>>>>> upstream/main
       }
 
       const headers = {
@@ -73,9 +104,19 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
       };
 
       if (editingTeamMember) {
+<<<<<<< HEAD
         await axios.put(`${import.meta.env.VITE_API_URL}/api/team/${editingTeamMember.id}`, formData, { headers });
       } else {
         await axios.post(`${import.meta.env.VITE_API_URL}/api/team`, formData, { headers });
+=======
+        await axios.put(`http://localhost:5068/api/team/${editingTeamMember.id}`, formData, { headers });
+      } else {
+        if (teamFormData.orderInd === 0) {
+          const maxOrder = Math.max(...data.map(m => m.orderInd), 0);
+          formData.set('OrderInd', (maxOrder + 1).toString());
+        }
+        await axios.post('http://localhost:5068/api/team', formData, { headers });
+>>>>>>> upstream/main
       }
 
       await fetchData();
@@ -89,7 +130,11 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
   const handleDeleteTeamMember = async (id: number) => {
     if (confirm('Ви впевнені, що хочете видалити цього члена команди?')) {
       try {
+<<<<<<< HEAD
         await axios.delete(`${import.meta.env.VITE_API_URL}/api/team/${id}`, {
+=======
+        await axios.delete(`http://localhost:5068/api/team/${id}`, {
+>>>>>>> upstream/main
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -111,9 +156,14 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
       email: member.email || '',
       imageUrl: member.imageUrl || '',
       orderInd: member.orderInd,
+<<<<<<< HEAD
       isTemporary: member.isTemporary,
     });
     setSelectedFile(null);
+=======
+      isActive: member.isActive,
+    });
+>>>>>>> upstream/main
     setShowAddModal(true);
   };
 
@@ -128,10 +178,18 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
       email: '',
       imageUrl: '',
       orderInd: 0,
+<<<<<<< HEAD
       isTemporary: false,
     });
   };
 
+=======
+      isActive: true,
+    });
+  };
+
+  // Фільтруємо та сортуємо дані перед відображенням
+>>>>>>> upstream/main
   const filteredData = data
     .filter(member => member.type === filterType)
     .sort((a, b) => a.orderInd - b.orderInd);
@@ -139,6 +197,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
   return (
     <>
       <div className="flex justify-between items-center mb-6">
+<<<<<<< HEAD
         <div className="flex items-center">
           <h2 className="text-lg font-medium text-gray-900">Управління командою</h2>
           <select
@@ -154,6 +213,11 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
 
         <button
           onClick={handleOpenAddModal}
+=======
+        <h2 className="text-lg font-medium text-gray-900">Управління командою</h2>
+        <button
+          onClick={() => setShowAddModal(true)}
+>>>>>>> upstream/main
           className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
         >
           <UserPlus className="h-5 w-5" />
@@ -161,12 +225,31 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
         </button>
       </div>
 
+<<<<<<< HEAD
+=======
+      <div className="flex items-center mb-4 space-x-4">
+        <label className="text-sm font-medium text-gray900">Фільтр за типом:</label>
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(parseInt(e.target.value))}
+          className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value={0}>Апарат</option>
+          <option value={1}>Профбюро</option>
+          <option value={2}>Відділ</option>
+        </select>
+      </div>
+
+>>>>>>> upstream/main
       <TeamTable
         data={filteredData}
         loading={loading}
         onEdit={handleEditTeamMember}
         onDelete={handleDeleteTeamMember}
+<<<<<<< HEAD
         filterType={filterType}
+=======
+>>>>>>> upstream/main
       />
 
       {showAddModal && (

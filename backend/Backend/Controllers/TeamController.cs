@@ -50,7 +50,11 @@ namespace ProfkomBackend.Controllers
             // Обробка файлу, якщо він наданий
             if (formData.Image != null && formData.Image.Length > 0)
             {
+<<<<<<< HEAD
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "team");
+=======
+                var uploadsDir = Path.Combine(_env.ContentRootPath, "Uploads");
+>>>>>>> upstream/main
                 if (!Directory.Exists(uploadsDir))
                 {
                     Directory.CreateDirectory(uploadsDir);
@@ -64,7 +68,11 @@ namespace ProfkomBackend.Controllers
                     await formData.Image.CopyToAsync(stream);
                 }
 
+<<<<<<< HEAD
                 imageUrl = $"/uploads/team/{fileName}";
+=======
+                imageUrl = $"/Uploads/{fileName}";
+>>>>>>> upstream/main
             }
 
             var member = new Team
@@ -74,7 +82,11 @@ namespace ProfkomBackend.Controllers
                 Type = formData.Type,
                 Email = formData.Email,
                 OrderInd = formData.OrderInd,
+<<<<<<< HEAD
                 IsTemporary = formData.IsTemporary,
+=======
+                IsActive = formData.IsActive,
+>>>>>>> upstream/main
                 ImageUrl = imageUrl ?? formData.ImageUrl,
                 IsChoosed = formData.IsChoosed,
                 CreatedAt = DateTime.UtcNow
@@ -92,14 +104,24 @@ namespace ProfkomBackend.Controllers
         {
             var member = await _db.Team.FindAsync(id);
             if (member == null) return NotFound();
+<<<<<<< HEAD
 
             string? oldImageUrl = member.ImageUrl;
             string? newImageUrl = member.ImageUrl;
+=======
+            if (id != member.Id) return BadRequest();
+
+            string? imageUrl = member.ImageUrl;
+>>>>>>> upstream/main
 
             // Обробка нового файлу, якщо наданий
             if (formData.Image != null && formData.Image.Length > 0)
             {
+<<<<<<< HEAD
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "team");
+=======
+                var uploadsDir = Path.Combine(_env.ContentRootPath, "Uploads");
+>>>>>>> upstream/main
                 if (!Directory.Exists(uploadsDir))
                 {
                     Directory.CreateDirectory(uploadsDir);
@@ -113,6 +135,7 @@ namespace ProfkomBackend.Controllers
                     await formData.Image.CopyToAsync(stream);
                 }
 
+<<<<<<< HEAD
                 newImageUrl = $"/uploads/team/{fileName}";
 
                 //видалення старої фотки
@@ -124,6 +147,9 @@ namespace ProfkomBackend.Controllers
                         System.IO.File.Delete(oldFilePath);
                     }
                 }
+=======
+                imageUrl = $"/Uploads/{fileName}";
+>>>>>>> upstream/main
             }
 
             member.Name = formData.Name;
@@ -131,10 +157,17 @@ namespace ProfkomBackend.Controllers
             member.Type = formData.Type;
             member.Email = formData.Email;
             member.OrderInd = formData.OrderInd;
+<<<<<<< HEAD
             member.IsTemporary = formData.IsTemporary;
             member.ImageUrl = newImageUrl ?? formData.ImageUrl;
             member.IsChoosed = formData.IsChoosed;
             member.UpdatedAt = DateTime.UtcNow;
+=======
+            member.IsActive = formData.IsActive;
+            member.ImageUrl = imageUrl ?? formData.ImageUrl;
+            member.IsChoosed = formData.IsChoosed;
+            member.CreatedAt = DateTime.UtcNow;
+>>>>>>> upstream/main
 
             _db.Entry(member).State = EntityState.Modified;
             await _db.SaveChangesAsync();
@@ -149,6 +182,7 @@ namespace ProfkomBackend.Controllers
             var member = await _db.Team.FindAsync(id);
             if (member == null) return NotFound();
 
+<<<<<<< HEAD
             //видалення фотки при видаленні запису
             if (!string.IsNullOrEmpty(member.ImageUrl))
             {
@@ -159,6 +193,8 @@ namespace ProfkomBackend.Controllers
                 }
             }
 
+=======
+>>>>>>> upstream/main
             _db.Team.Remove(member);
             await _db.SaveChangesAsync();
             return NoContent();
@@ -173,7 +209,11 @@ namespace ProfkomBackend.Controllers
         public MemberType Type { get; set; }
         public string? Email { get; set; }
         public int OrderInd { get; set; }
+<<<<<<< HEAD
         public bool IsTemporary { get; set; }
+=======
+        public bool IsActive { get; set; }
+>>>>>>> upstream/main
         public string? ImageUrl { get; set; }
         public IFormFile? Image { get; set; }
         public bool IsChoosed { get; set; } = false;

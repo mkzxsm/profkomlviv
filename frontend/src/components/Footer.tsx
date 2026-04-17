@@ -31,9 +31,15 @@ const Footer: React.FC = () => {
                   Про організацію
                 </h3>
                 <p className="text-gray-300 leading-relaxed text-sm">
+<<<<<<< HEAD
                   Первинна профспілкова організація студентів Львівського національного університету ім. Івана Франка працює з 1957 року 🫶
 
                   Студентська Профспілка — неприбуткова громадська організація, яка працює над створенням можливостей усебічного поступу, захистом прав та представництвом інтересів студентів та аспірантів, які є членами Профспілки 💙
+=======
+                  Профспілкова організація студентів ЛНУ імені Івана Франка працює з 1957 року. 
+                  Ми захищаємо права та інтереси студентів, надаємо соціальну підтримку, 
+                  організовуємо культурно-освітні заходи та сприяємо розвитку студентської спільноти.
+>>>>>>> upstream/main
                 </p>
               </div>
             </div>
@@ -84,10 +90,17 @@ const Footer: React.FC = () => {
                       </div>
                       <div>
                         <a 
+<<<<<<< HEAD
                           href="tel:+38032-239-42-71" 
                           className="text-gray-300 hover:text-blue-600 transition-colors"
                         >
                           +380 32-239-42-71
+=======
+                          href="tel:+380322394132" 
+                          className="text-gray-300 hover:text-blue-600 transition-colors"
+                        >
+                          +380 32 239-41-32
+>>>>>>> upstream/main
                         </a>
                       </div>
                     </div>
@@ -100,10 +113,17 @@ const Footer: React.FC = () => {
                       </div>
                       <div>
                         <a 
+<<<<<<< HEAD
                           href="mailto:stud.profkom@lnu.edu.ua" 
                           className="text-gray-300 hover:text-blue-600 transition-colors"
                         >
                           stud.profkom@lnu.edu.ua
+=======
+                          href="mailto:profkom@lnu.edu.ua" 
+                          className="text-gray-300 hover:text-blue-600 transition-colors"
+                        >
+                          profkom@lnu.edu.ua
+>>>>>>> upstream/main
                         </a>
                       </div>
                     </div>
@@ -125,8 +145,12 @@ const Footer: React.FC = () => {
             
             {/* Текст (великий екран) */}
             <p className="hidden text-gray-300 text-sm text-center sm:text-left sm:block">
+<<<<<<< HEAD
               © {new Date().getFullYear()} ППОС ЛНУ ім. Івана Франка. Всі права захищені.
               Розробники: Юрій Мазур, Богуслав Мазурик
+=======
+              © {new Date().getFullYear()} Профком студентів ЛНУ імені Івана Франка. Всі права захищені.
+>>>>>>> upstream/main
             </p>
             
             {/* Іконки */}

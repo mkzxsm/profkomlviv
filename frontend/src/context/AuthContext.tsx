@@ -38,7 +38,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (username: string, password: string) => {
+<<<<<<< HEAD
     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/login`, {
+=======
+    const res = await fetch("http://localhost:5068/api/admin/login", {
+>>>>>>> upstream/main
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),

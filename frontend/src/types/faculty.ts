@@ -7,6 +7,7 @@ export interface FacultyFormData {
   room: string;
   schedule: string;
   summary: string;
+<<<<<<< HEAD
   instagram_Link: string;
   telegram_Link: string;
   isActive: boolean;
@@ -15,6 +16,14 @@ export interface FacultyFormData {
 }
 
 export interface Faculty {
+=======
+  instagram_link: string;
+  telegram_link: string;
+  isActive: boolean;
+}
+
+export interface FacultyUnion {
+>>>>>>> upstream/main
   id: number;
   name: string;
   headId: number | null;
@@ -24,8 +33,14 @@ export interface Faculty {
   room?: string;
   schedule?: string;
   summary?: string;
+<<<<<<< HEAD
   instagram_Link?: string;
   telegram_Link?: string;
   isActive: boolean;
   isCollege: boolean;
+=======
+  instagram_link?: string;
+  telegram_link?: string;
+  isActive: boolean;
+>>>>>>> upstream/main
 }

@@ -15,6 +15,7 @@ const getInitials = (name: string): string => {
 };
 
 const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
+<<<<<<< HEAD
   const getFullImageUrl = (url?: string): string | undefined => {
     if (!url) {
       return undefined;
@@ -27,6 +28,8 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
 
   const imageUrl = getFullImageUrl(member.imageUrl);
 
+=======
+>>>>>>> upstream/main
   return (
     <div className="group flex flex-col overflow-visible bg-white hover:bg-blue-50 rounded-xl transition-all duration-300 hover:-translate-y-2 shadow-sm hover:shadow-lg border border-gray-200 hover:border-blue-300">
       {/* Фото або ініціали */}
@@ -36,7 +39,11 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
           {member.imageUrl ? (
             <div className="w-full h-full p-4">
               <img
+<<<<<<< HEAD
                 src={imageUrl}
+=======
+                src={`http://localhost:5068${member.imageUrl}`}
+>>>>>>> upstream/main
                 alt={member.name}
                 className="w-full h-full object-cover rounded-md"
                 loading="lazy"
@@ -59,11 +66,17 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
         <h3 className="text-2xl font-bold text-[#1E2A5A] w-full truncate group-hover:text-blue-600">
           {member.name}
         </h3>
+<<<<<<< HEAD
         <p className="mt-1 text-lg italic text-[#1E2A5A] w-full">
           {member.isTemporary 
             ? member.position.replace("Керівник", "В.О. Керівника") 
             : member.position}
           </p>
+=======
+        <p className="mt-1 text-xl italic text-[#1E2A5A] w-full truncate">
+          {member.position}
+        </p>
+>>>>>>> upstream/main
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ namespace ProfkomBackend.Data
     {
         public static void Seed(AppDbContext db)
         {
+<<<<<<< HEAD
             var adminsToAdd = new List<Admin>
             {
                 new Admin
@@ -68,6 +69,19 @@ namespace ProfkomBackend.Data
             }
 
             db.SaveChanges();
+=======
+            if (!db.Admins.Any()) //додаємо адміна якщо таблиця пуста
+            {
+                var hash = BCrypt.Net.BCrypt.HashPassword("@Admin123");
+                db.Admins.Add(new Admin
+                {
+                    Username = "admin@gmail.com",
+                    PasswordHash = hash,
+                    Role = "admin"
+                });
+                db.SaveChanges();
+            }
+>>>>>>> upstream/main
         }
     }
 }

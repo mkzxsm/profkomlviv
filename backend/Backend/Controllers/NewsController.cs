@@ -1,9 +1,18 @@
 using Microsoft.AspNetCore.Authorization;
+<<<<<<< HEAD
+=======
+using Microsoft.AspNetCore.Hosting;
+>>>>>>> upstream/main
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
 using System.ComponentModel.DataAnnotations;
+<<<<<<< HEAD
+=======
+using System.IO;
+using System.Threading.Tasks;
+>>>>>>> upstream/main
 
 namespace ProfkomBackend.Controllers
 {
@@ -11,8 +20,12 @@ namespace ProfkomBackend.Controllers
     [Route("api/[controller]")]
     public class NewsController : ControllerBase
     {
+<<<<<<< HEAD
         private readonly AppDbContext _db;
         private readonly IWebHostEnvironment _env;
+=======
+        private readonly AppDbContext _db; private readonly IWebHostEnvironment _env;
+>>>>>>> upstream/main
 
         public NewsController(AppDbContext db, IWebHostEnvironment env)
         {
@@ -21,6 +34,7 @@ namespace ProfkomBackend.Controllers
         }
 
         [HttpGet]
+<<<<<<< HEAD
         public async Task<IActionResult> GetAll()
         {
             // .Include(n => n.Images) обов'язково, щоб отримати масив картинок
@@ -30,14 +44,21 @@ namespace ProfkomBackend.Controllers
                 .ToListAsync();
             return Ok(news);
         }
+=======
+        public async Task<IActionResult> GetAll() => Ok(await _db.News.OrderByDescending(n => n.PublishedAt).ToListAsync());
+>>>>>>> upstream/main
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
+<<<<<<< HEAD
             var item = await _db.News
                 .Include(n => n.Images)
                 .FirstOrDefaultAsync(n => n.Id == id);
 
+=======
+            var item = await _db.News.FindAsync(id);
+>>>>>>> upstream/main
             if (item == null) return NotFound();
             return Ok(item);
         }
@@ -46,7 +67,14 @@ namespace ProfkomBackend.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] NewsDto newsDto)
         {
+<<<<<<< HEAD
             if (!ModelState.IsValid) return BadRequest(ModelState);
+=======
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+>>>>>>> upstream/main
 
             var news = new News
             {
@@ -56,6 +84,7 @@ namespace ProfkomBackend.Controllers
                 PublishedAt = DateTime.UtcNow
             };
 
+<<<<<<< HEAD
             // Логіка збереження кількох картинок
             if (newsDto.Images != null && newsDto.Images.Count > 0)
             {
@@ -80,6 +109,23 @@ namespace ProfkomBackend.Controllers
                         });
                     }
                 }
+=======
+            if (newsDto.Image != null && newsDto.Image.Length > 0)
+            {
+                var uploads = Path.Combine(_env.ContentRootPath, "Uploads");
+                if (!Directory.Exists(uploads))
+                {
+                    Directory.CreateDirectory(uploads);
+                }
+
+                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(newsDto.Image.FileName)}";
+                var filePath = Path.Combine(uploads, fileName);
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    await newsDto.Image.CopyToAsync(stream);
+                }
+                news.ImageUrl = $"/Uploads/{fileName}"; // �������� �������� ���� � ��
+>>>>>>> upstream/main
             }
 
             _db.News.Add(news);
@@ -91,16 +137,30 @@ namespace ProfkomBackend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromForm] NewsDto newsDto)
         {
+<<<<<<< HEAD
             var existingNews = await _db.News
                 .Include(n => n.Images)
                 .FirstOrDefaultAsync(n => n.Id == id);
 
             if (existingNews == null) return NotFound();
+=======
+            if (id != newsDto.Id)
+            {
+                return BadRequest("ID � URL �� ������� ID � �����");
+            }
+
+            var existingNews = await _db.News.FindAsync(id);
+            if (existingNews == null)
+            {
+                return NotFound();
+            }
+>>>>>>> upstream/main
 
             existingNews.Title = newsDto.Title;
             existingNews.Content = newsDto.Content;
             existingNews.IsImportant = newsDto.IsImportant;
 
+<<<<<<< HEAD
             // Додаємо нові картинки до існуючих (старі не видаляються, поки їх явно не видалити)
             if (newsDto.Images != null && newsDto.Images.Count > 0)
             {
@@ -129,12 +189,35 @@ namespace ProfkomBackend.Controllers
 
             await _db.SaveChangesAsync();
             return Ok(existingNews);
+=======
+            if (newsDto.Image != null && newsDto.Image.Length > 0)
+            {
+                var uploads = Path.Combine(_env.ContentRootPath, "Uploads");
+                if (!Directory.Exists(uploads))
+                {
+                    Directory.CreateDirectory(uploads);
+                }
+
+                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(newsDto.Image.FileName)}";
+                var filePath = Path.Combine(uploads, fileName);
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    await newsDto.Image.CopyToAsync(stream);
+                }
+                existingNews.ImageUrl = $"/Uploads/{fileName}"; // ��������� ���� � ��
+            }
+
+            _db.Entry(existingNews).State = EntityState.Modified;
+            await _db.SaveChangesAsync();
+            return NoContent();
+>>>>>>> upstream/main
         }
 
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
+<<<<<<< HEAD
             var news = await _db.News
                 .Include(n => n.Images)
                 .FirstOrDefaultAsync(n => n.Id == id);
@@ -149,12 +232,19 @@ namespace ProfkomBackend.Controllers
                 {
                     System.IO.File.Delete(filePath);
                 }
+=======
+            var news = await _db.News.FindAsync(id);
+            if (news == null)
+            {
+                return NotFound();
+>>>>>>> upstream/main
             }
 
             _db.News.Remove(news);
             await _db.SaveChangesAsync();
             return NoContent();
         }
+<<<<<<< HEAD
 
         // Окремий метод для видалення конкретної картинки (наприклад, адмін хоче видалити одне фото з новини)
         [Authorize(Roles = "admin")]
@@ -188,4 +278,18 @@ namespace ProfkomBackend.Controllers
 
         public bool IsImportant { get; set; }
     }
+=======
+    }
+
+    public class NewsDto
+    {
+        public int Id { get; set; }
+        [Required]
+        public string Title { get; set; } = string.Empty;
+        public string? Content { get; set; }
+        public IFormFile? Image { get; set; }
+        public bool IsImportant { get; set; }
+    }
+
+>>>>>>> upstream/main
 }

@@ -15,7 +15,11 @@
     "@ckeditor/ckeditor5-react": "^11.0.0",
     "@supabase/supabase-js": "^2.54.0",
     "@tinymce/tinymce-react": "^6.3.0",
+<<<<<<< HEAD
     "axios": "^1.13.2",
+=======
+    "axios": "^1.12.2",
+>>>>>>> upstream/main
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dompurify": "^3.2.7",
@@ -47,6 +51,10 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.3.0",
+<<<<<<< HEAD
     "vite": "^7.1.9"
+=======
+    "vite": "^7.1.7"
+>>>>>>> upstream/main
   }
 }

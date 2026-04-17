@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { Search, Filter, Calendar, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, ChevronDown } from 'lucide-react';
+=======
+import { Search, Filter, Calendar, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight } from 'lucide-react';
+>>>>>>> upstream/main
 import NewsCard from '../components/NewsCard';
 import axios from 'axios';
 
@@ -19,12 +23,15 @@ const NewsPage: React.FC = () => {
   const [filterType, setFilterType] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const newsPerPage = 6;
+<<<<<<< HEAD
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const filterOptions = [
     { id: 'all', label: 'Всі новини' },
     { id: 'important', label: 'Важливі' },
     { id: 'regular', label: 'Звичайні' }
   ];
+=======
+>>>>>>> upstream/main
 
   useEffect(() => {
     fetchNews();
@@ -40,7 +47,11 @@ const NewsPage: React.FC = () => {
 
   const fetchNews = async () => {
     try {
+<<<<<<< HEAD
       const response = await axios.get<News[]>(`${import.meta.env.VITE_API_URL}/api/news`, {
+=======
+      const response = await axios.get<News[]>('http://localhost:5068/api/news', {
+>>>>>>> upstream/main
         params: {
           orderBy: 'publishedAt',
           order: 'desc',
@@ -179,6 +190,7 @@ const NewsPage: React.FC = () => {
         </div>
       </section>
 
+<<<<<<< HEAD
 {/* Search & Filter */}
       <section className="bg-white py-8 shadow-sm relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -263,6 +275,42 @@ const NewsPage: React.FC = () => {
               )}
             </div>
 
+=======
+      {/* Search & Filter */}
+      <section className="bg-white py-8 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                type="text"
+                placeholder="Пошук новин..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            <div className="relative">
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white min-w-[200px]"
+              >
+                <option value="all">Всі новини</option>
+                <option value="important">Важливі</option>
+                <option value="regular">Звичайні</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="mt-4 text-sm text-gray-600">
+            Знайдено новин: {filteredNews.length}
+            {totalPages > 1 && (
+              <span className="ml-2">(сторінка {currentPage} з {totalPages})</span>
+            )}
+>>>>>>> upstream/main
           </div>
         </div>
       </section>
