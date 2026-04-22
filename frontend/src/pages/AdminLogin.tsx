@@ -4,7 +4,7 @@ import { Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const AdminLogin: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -17,12 +17,12 @@ const AdminLogin: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
+    
     try {
-      await login(email, password);
+      await login(username, password);
       navigate('/admin/dashboard');
     } catch (err) {
-      setError('Невірний email або пароль');
+      setError('Невірний логін або пароль');
     } finally {
       setLoading(false);
     }
@@ -58,8 +58,8 @@ const AdminLogin: React.FC = () => {
                   type="email"
                   autoComplete="email"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="pl-10 block w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="admin@lnu.edu.ua"
                 />

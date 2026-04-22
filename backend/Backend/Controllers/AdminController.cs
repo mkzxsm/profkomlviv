@@ -29,11 +29,6 @@ namespace ProfkomBackend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(AuthRequest req)
         {
-            if (!IsValidPassword(req.Password))
-            {
-                return BadRequest(new { message = "Пароль повинен містити мінімум 8 символів, хоча б одну велику літеру, одну цифру і один спеціальний символ." });
-            }
-
             var admin = await _db.Admins.FirstOrDefaultAsync(a => a.Username == req.Username);
             if (admin == null) return Unauthorized(new { message = "Invalid username or password" });
 

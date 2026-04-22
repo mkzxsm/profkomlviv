@@ -50,7 +50,7 @@ namespace ProfkomBackend.Controllers
             // Обробка файлу, якщо він наданий
             if (formData.Image != null && formData.Image.Length > 0)
             {
-                var uploadsDir = Path.Combine(_env.ContentRootPath, "Uploads");
+                var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "team");
                 if (!Directory.Exists(uploadsDir))
                 {
                     Directory.CreateDirectory(uploadsDir);
@@ -64,7 +64,7 @@ namespace ProfkomBackend.Controllers
                     await formData.Image.CopyToAsync(stream);
                 }
 
-                imageUrl = $"/Uploads/{fileName}";
+                imageUrl = $"/uploads/team/{fileName}";
             }
 
             var member = new Team
@@ -74,7 +74,7 @@ namespace ProfkomBackend.Controllers
                 Type = formData.Type,
                 Email = formData.Email,
                 OrderInd = formData.OrderInd,
-                IsActive = formData.IsActive,
+                IsTemporary = formData.IsTemporary,
                 ImageUrl = imageUrl ?? formData.ImageUrl,
                 IsChoosed = formData.IsChoosed,
                 CreatedAt = DateTime.UtcNow
@@ -92,14 +92,14 @@ namespace ProfkomBackend.Controllers
         {
             var member = await _db.Team.FindAsync(id);
             if (member == null) return NotFound();
-            if (id != member.Id) return BadRequest();
 
-            string? imageUrl = member.ImageUrl;
+            string? oldImageUrl = member.ImageUrl;
+            string? newImageUrl = member.ImageUrl;
 
             // Обробка нового файлу, якщо наданий
             if (formData.Image != null && formData.Image.Length > 0)
             {
-                var uploadsDir = Path.Combine(_env.ContentRootPath, "Uploads");
+                var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "team");
                 if (!Directory.Exists(uploadsDir))
                 {
                     Directory.CreateDirectory(uploadsDir);
@@ -113,7 +113,17 @@ namespace ProfkomBackend.Controllers
                     await formData.Image.CopyToAsync(stream);
                 }
 
-                imageUrl = $"/Uploads/{fileName}";
+                newImageUrl = $"/uploads/team/{fileName}";
+
+                //видалення старої фотки
+                if (!string.IsNullOrEmpty(oldImageUrl))
+                {
+                    var oldFilePath = Path.Combine(_env.ContentRootPath, oldImageUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
             }
 
             member.Name = formData.Name;
@@ -121,10 +131,10 @@ namespace ProfkomBackend.Controllers
             member.Type = formData.Type;
             member.Email = formData.Email;
             member.OrderInd = formData.OrderInd;
-            member.IsActive = formData.IsActive;
-            member.ImageUrl = imageUrl ?? formData.ImageUrl;
+            member.IsTemporary = formData.IsTemporary;
+            member.ImageUrl = newImageUrl ?? formData.ImageUrl;
             member.IsChoosed = formData.IsChoosed;
-            member.CreatedAt = DateTime.UtcNow;
+            member.UpdatedAt = DateTime.UtcNow;
 
             _db.Entry(member).State = EntityState.Modified;
             await _db.SaveChangesAsync();
@@ -138,6 +148,16 @@ namespace ProfkomBackend.Controllers
         {
             var member = await _db.Team.FindAsync(id);
             if (member == null) return NotFound();
+
+            //видалення фотки при видаленні запису
+            if (!string.IsNullOrEmpty(member.ImageUrl))
+            {
+                var filePath = Path.Combine(_env.ContentRootPath, member.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
 
             _db.Team.Remove(member);
             await _db.SaveChangesAsync();
@@ -153,7 +173,7 @@ namespace ProfkomBackend.Controllers
         public MemberType Type { get; set; }
         public string? Email { get; set; }
         public int OrderInd { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsTemporary { get; set; }
         public string? ImageUrl { get; set; }
         public IFormFile? Image { get; set; }
         public bool IsChoosed { get; set; } = false;

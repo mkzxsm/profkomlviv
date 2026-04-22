@@ -105,7 +105,38 @@ namespace Backend.Migrations
 
                     b.HasIndex("HeadId");
 
-                    b.ToTable("Department");
+                    b.ToTable("Departments");
+                });
+
+            modelBuilder.Entity("ProfkomBackend.Models.Document", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Documents");
                 });
 
             modelBuilder.Entity("ProfkomBackend.Models.Event", b =>
@@ -140,34 +171,7 @@ namespace Backend.Migrations
                     b.ToTable("Events");
                 });
 
-            modelBuilder.Entity("ProfkomBackend.Models.News", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("IsImportant")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<DateTime>("PublishedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("News");
-                });
-
-            modelBuilder.Entity("ProfkomBackend.Models.Prof", b =>
+            modelBuilder.Entity("ProfkomBackend.Models.Faculty", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -189,6 +193,9 @@ namespace Backend.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsCollege")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
@@ -214,7 +221,51 @@ namespace Backend.Migrations
 
                     b.HasIndex("HeadId");
 
-                    b.ToTable("Prof");
+                    b.ToTable("Faculties");
+                });
+
+            modelBuilder.Entity("ProfkomBackend.Models.News", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsImportant")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("PublishedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("News");
+                });
+
+            modelBuilder.Entity("ProfkomBackend.Models.NewsImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("NewsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NewsId");
+
+                    b.ToTable("NewsImages");
                 });
 
             modelBuilder.Entity("ProfkomBackend.Models.Team", b =>
@@ -232,10 +283,10 @@ namespace Backend.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsChoosed")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<bool>("IsChoosed")
+                    b.Property<bool>("IsTemporary")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
@@ -251,6 +302,9 @@ namespace Backend.Migrations
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
@@ -300,13 +354,30 @@ namespace Backend.Migrations
                     b.Navigation("Head");
                 });
 
-            modelBuilder.Entity("ProfkomBackend.Models.Prof", b =>
+            modelBuilder.Entity("ProfkomBackend.Models.Faculty", b =>
                 {
                     b.HasOne("ProfkomBackend.Models.Team", "Head")
                         .WithMany()
-                        .HasForeignKey("HeadId");
+                        .HasForeignKey("HeadId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Head");
+                });
+
+            modelBuilder.Entity("ProfkomBackend.Models.NewsImage", b =>
+                {
+                    b.HasOne("ProfkomBackend.Models.News", "News")
+                        .WithMany("Images")
+                        .HasForeignKey("NewsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("News");
+                });
+
+            modelBuilder.Entity("ProfkomBackend.Models.News", b =>
+                {
+                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

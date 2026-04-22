@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Users, Building, HandCoins, CreditCard, TentTree } from 'lucide-react';
 import NewsCard from '../components/NewsCard';
-import  axios  from 'axios';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -32,17 +32,20 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [scrollY, setScrollY] = useState(0);
   const [showBackground, setShowBackground] = useState(false);
+  
+  // Стан для пасхалки (Dino game)
+  const [secretClickCount, setSecretClickCount] = useState(0);
+  
   const navigate = useNavigate();
 
-//hero section functions
-
-    const heroSlides: HeroSlide[] = [
+  // hero section functions
+  const heroSlides: HeroSlide[] = [
     {
       id: 1,
       image: "/home_page/university.JPG",
       title: 'Профком студентів',
       subtitle: 'Львівський національний університет імені Івана Франка',
-      description: 'Захищаємо права студентів, надаємо підтримку та створюємо можливості для розвитку'
+      description: 'Це про можливості всебічного поступу, захист прав та представництво інтересів студентів та аспірантів'
     },
     {
       id: 2,
@@ -54,9 +57,9 @@ const HomePage: React.FC = () => {
     {
       id: 3,
       image: '/home_page/entertainment.jpg',
-      title: 'Культурне життя',
-      subtitle: 'Фестивалі та творчі заходи',
-      description: 'Організовуємо яскраві культурно-освітні події для всіх студентів'
+      title: 'Дозвілля',
+      subtitle: 'Посвяти, фестивалі та інші заходи',
+      description: 'Це про незабутні події, які роблять твоє студентське життя вайбовим'
     },
     {
       id: 4,
@@ -111,8 +114,7 @@ const HomePage: React.FC = () => {
     startAutoPlay();
   };
 
- //service scrollbar functions
-
+  // service scrollbar functions
   const services = [
     {
       icon: <Building className="h-8 w-8" />,
@@ -220,7 +222,7 @@ const HomePage: React.FC = () => {
   const fetchNews = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5068/api/news');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/news`);
       setNews(response.data.slice(0, 6)); // Обмежуємо до 6 новин
     } catch (error) {
       console.error('Помилка при отриманні новин:', error);
@@ -229,6 +231,18 @@ const HomePage: React.FC = () => {
     }
   };
 
+  // Функція обробки кліку для пасхалки
+  const handleSecretLogoClick = () => {
+    const newCount = secretClickCount + 1;
+    setSecretClickCount(newCount);
+
+    if (newCount === 5) {
+      // Відкриваємо гру
+      window.open('https://chromedino.com/', '_blank');
+      // Скидаємо лічильник
+      setSecretClickCount(0);
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -248,7 +262,7 @@ const HomePage: React.FC = () => {
                 backgroundImage: `url(${slide.image})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                maxWidth: '1920px', // обмеження максимальної ширини
+                maxWidth: '1920px',
                 width: '100%',
                 height: '100%',
               }}
@@ -272,8 +286,10 @@ const HomePage: React.FC = () => {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-              <button className="border-2 border-white text-white hover:bg-white hover:text-blue-800 px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 backdrop-blur-sm"
-                onClick={() => navigate('/about-us')}>
+              <button 
+                onClick={() => navigate('/services')}
+                className="transform rounded-lg border-2 border-white px-8 py-3 font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:bg-white hover:text-blue-800"
+              >
                 Дізнатися більше
               </button>
             </div>
@@ -326,11 +342,18 @@ const HomePage: React.FC = () => {
                     Ми надаємо комплексну підтримку студентам у різних сферах життя. 
                     Від соціальної допомоги до правового захисту — завжди поруч з вами.
                   </p>
-                  <div className="flex gap-4">
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
-                      Дізнатися більше
-                    </button>
-                  </div>
+<div className="flex gap-4">
+  <button 
+    onClick={() => navigate('/services')}
+    className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-300 rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2">
+    <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 group-hover:from-blue-500 group-hover:via-blue-600 group-hover:to-indigo-700 transition-all duration-300"></span>
+    <span className="absolute -inset-1 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-600 opacity-30 group-hover:opacity-60 blur-md transition-opacity duration-300"></span>
+    <span className="relative flex items-center gap-2 transform group-hover:scale-105 transition-transform duration-300">
+      Дізнатися більше
+      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+    </span>
+  </button>
+</div>
                 </div>
               </div>
 
@@ -340,14 +363,14 @@ const HomePage: React.FC = () => {
                   <img 
                     src="/under_cards.png" 
                     alt="background"
-                    className="absolute left-1/2 -translate-x-1/2 w-80 h-80 pointer-events-none"
+                    className="absolute left-1/2 -translate-x-1/2 w-80 h-80 cursor-pointer pointer-events-auto transition-transform active:scale-95 select-none"
+                    onClick={handleSecretLogoClick}
                   />
                 )}
-
                 {services.map((service, index) => (
                   <div
                     key={index}
-                    className={`stack-card absolute w-80 h-80 rounded-3xl shadow-md transition-all duration-500 ease-in-out cursor-pointer bg-gradient-to-br ${service.color}`}
+                    className={`stack-card absolute w-80 h-80 rounded-3xl shadow-md transition-all duration-500 ease-in-out cursor-pointer bg-gradient-to-br ${service.color} group hover:shadow-xl hover:-translate-y-1`}
                     style={{
                       top: 'calc(50% - 160px)',
                       left: 'calc(50% - 160px)',
@@ -366,9 +389,25 @@ const HomePage: React.FC = () => {
                         <h3 className="text-3xl font-bold leading-tight mb-4">
                           {service.title}
                         </h3>
-                        <p className="text-sm opacity-90 leading-relaxed">
-                          {service.description}
-                        </p>
+                        <div className="flex justify-between items-center mt-4">
+                          <p className="text-sm opacity-90 leading-relaxed mr-4">
+                            {service.description}
+                          </p>
+                          <svg 
+                              className="w-10 h-10 transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0"
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24" 
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth="2" 
+                                d="M14 5l7 7m0 0l-7 7m7-7H3"
+                              />
+                            </svg>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -401,88 +440,87 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* News Section */}
-      {/* News Section */}
-<section className="bg-gray-50 py-12 sm:py-16">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    {/* Header */}
-    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 sm:mb-10">
-      <div>
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-          Останні новини
-        </h2>
-        <p className="text-base sm:text-lg text-gray-600">
-          Будьте в курсі всіх подій нашого університету
-        </p>
-      </div>
-
-      <Link
-        to="/news"
-        className="hidden sm:inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200"
-      >
-        Всі новини
-        <ArrowRight className="ml-2 h-5 w-5" />
-      </Link>
-    </div>
-
-    {/* Loader / News */}
-    {loading ? (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-xl shadow-sm overflow-hidden animate-pulse"
-            style={{ animationDelay: `${i * 100}ms` }}
-          >
-            <div className="h-40 bg-gray-200"></div>
-            <div className="p-5">
-              <div className="h-4 bg-gray-200 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded mb-4 w-3/4"></div>
-              <div className="h-3 bg-gray-200 rounded mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+      <section className="bg-gray-50 py-12 sm:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 sm:mb-10">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                Останні новини
+              </h2>
+              <p className="text-base sm:text-lg text-gray-600">
+                Будьте в курсі всіх подій нашого університету
+              </p>
             </div>
-          </div>
-        ))}
-      </div>
-    ) : (
-      <Swiper
-        modules={[Autoplay]}
-        spaceBetween={16}
-        slidesPerView={1}
-        breakpoints={{
-          640: { slidesPerView: 2, spaceBetween: 20 },
-          1024: { slidesPerView: 3, spaceBetween: 24 },
-        }}
-        loop
-        speed={700}
-        autoplay={{ delay: 5000, disableOnInteraction: false }}
-        className="pb-4"
-      >
-        {news.slice(0, 6).map((article, index) => (
-          <SwiperSlide key={article.id}>
-            <div
-              className="cursor-pointer h-full"
-              style={{ animationDelay: `${index * 150}ms` }}
-              onClick={() => navigate(`/news/${article.id}`)}
+
+            <Link
+              to="/news"
+              className="hidden sm:inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200"
             >
-              <NewsCard news={article} />
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    )}
+              Усі новини
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </div>
 
-    {/* Mobile link */}
-    <div className="text-center mt-6 sm:hidden">
-      <Link
-        to="/news"
-        className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200"
-      >
-        Всі новини
-        <ArrowRight className="ml-2 h-5 w-5" />
-      </Link>
-    </div>
-  </div>
-</section>
+          {/* Loader / News */}
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-xl shadow-sm overflow-hidden animate-pulse"
+                  style={{ animationDelay: `${i * 100}ms` }}
+                >
+                  <div className="h-40 bg-gray-200"></div>
+                  <div className="p-5">
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-4 w-3/4"></div>
+                    <div className="h-3 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Swiper
+              modules={[Autoplay]}
+              spaceBetween={16}
+              slidesPerView={1}
+              breakpoints={{
+                640: { slidesPerView: 2, spaceBetween: 20 },
+                1024: { slidesPerView: 3, spaceBetween: 24 },
+              }}
+              loop
+              speed={700}
+              autoplay={{ delay: 5000, disableOnInteraction: false }}
+              className="pb-4 pt-2"
+            >
+              {news.slice(0, 6).map((article, index) => (
+                <SwiperSlide key={article.id}>
+                  <div
+                    className="cursor-pointer h-full"
+                    style={{ animationDelay: `${index * 150}ms` }}
+                    onClick={() => navigate(`/news/${article.id}`)}
+                  >
+                    <NewsCard news={article} />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+
+          {/* Mobile link */}
+          <div className="text-center mt-6 sm:hidden">
+            <Link
+              to="/news"
+              className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200"
+            >
+              Всі новини
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <style>{`
         /* News Cards Animation */

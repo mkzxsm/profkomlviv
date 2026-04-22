@@ -1,34 +1,30 @@
 import React from 'react';
-import { MapPin, Phone, Mail, Clock, User, MessageSquare } from 'lucide-react';
+import { MapPin, Phone, Mail, User, MessageSquare } from 'lucide-react';
 
 const ContactsPage: React.FC = () => {
   const contacts = [
     {
       name: "Микола Спересенко",
       position: "Голова профкому",
-      phone: "+38 (032) 239-41-32",
-      email: "profkomhead@lnu.edu.ua",
+      email: "mykola.Speresenko@lnu.edu.ua",
       office: "Головний корпус, аудиторія 125"
     },
     {
-      name: "Катерина Старушенко",
-      position: "Заступниця з соціальних питань",
-      phone: "+38 (099) 201-01-30",
-      email: "social@lnu.edu.ua",
+      name: "Денис Фещук",
+      position: "Заступник з організаційної роботи, комунікацій та інновацій",
+      email: "denys.feshchuk@lnu.edu.ua",
       office: "Головний корпус, аудиторія 125"
     },
     {
-      name: "Дарина Плитус",
-      position: "Заступниця з розвитку та співпраці",
-      phone: "+38 (066) 129-06-71",
-      email: "partnership@lnu.edu.ua",
+      name: "Марія-Уляна Кульчицька",
+      position: "Заступниця з проєктної діяльності та фандрайзенгу",
+      email: "mariia-uliana.kulchytska@lnu.edu.ua",
       office: "Головний корпус, аудиторія 125"
     },
     {
-      name: "Марія Тацинець",
-      position: "Заступниця з медіа та комунікацій",
-      phone: "+38 (098) 439-71-54",
-      email: "media@lnu.edu.ua",
+      name: "Тарас Щерба",
+      position: "Заступник з соціально-гуманітарної роботи",
+      email: "taras.shcherba@lnu.edu.ua",
       office: "Головний корпус, аудиторія 125"
     }
   ];
@@ -84,7 +80,7 @@ const ContactsPage: React.FC = () => {
         <Phone className="h-6 w-6 text-blue-600" />
       </div>
       <p className="text-gray-600">
-        +38 (032) 239-41-32
+        +38 (032) 239-42-71
       </p>
     </div>
 
@@ -94,19 +90,7 @@ const ContactsPage: React.FC = () => {
         <Mail className="h-6 w-6 text-blue-600" />
       </div>
       <p className="text-gray-600">
-        profkom@lnu.edu.ua<br />
-        info@lnu.edu.ua
-      </p>
-    </div>
-
-    {/* Режим роботи */}
-    <div className="flex items-center space-x-4">
-      <div className="bg-blue-100 p-3 rounded-lg">
-        <Clock className="h-6 w-6 text-blue-600" />
-      </div>
-      <p className="text-gray-600">
-        Пн-Пт: 10:00 - 16:00<br />
-        Сб-Нд: вихідні
+        stud.profkom@lnu.edu.ua<br />
       </p>
     </div>
   </div>
@@ -130,10 +114,6 @@ const ContactsPage: React.FC = () => {
                         <p className="text-blue-600 font-medium mb-3">{contact.position}</p>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-600">
-                          <div className="flex items-center">
-                            <Phone className="h-4 w-4 mr-2" />
-                            {contact.phone}
-                          </div>
                           <div className="flex items-center">
                             <Mail className="h-4 w-4 mr-2" />
                             {contact.email}
