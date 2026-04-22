@@ -53,8 +53,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // === EF Core ===
-var conn = builder.Configuration.GetConnectionString("DefaultConnection") ??
-           "Server=localhost;port=3306;database=profkomdb;username=root;password=root;";
+var conn = builder.Configuration.GetConnectionString("DefaultConnection");
            /*"Server=profkomlnu-server.mysql.database.azure.com;port=3306;database=profkomdb;username=seavotgupm;password=DBkN9Ww8Lra$jKjC;";*/
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -75,8 +74,8 @@ builder.Services.AddCors(options =>
 });
 
 // === JWT Authentication ===
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "profkomoflvivuniarethebestprofkominworld";
-var key = Encoding.UTF8.GetBytes(jwtKey);
+var jwtSecret = builder.Configuration["JwtSettings:SecretKey"];
+var key = Encoding.ASCII.GetBytes(jwtSecret);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
