@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { ArrowRight, Search, ChevronDown } from "lucide-react";
+import { ArrowRight, Search, ChevronDown, Star } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -108,34 +108,42 @@ const TeamPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-  {/* Header Section */}
-  <section className="bg-gradient-to-r from-blue-600 to-blue-800 min-h-[75vh] flex flex-col justify-center relative py-16 text-white">
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-      <div className="text-center">
-        <h1 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">Наша команда</h1>
-        <p className="mx-auto max-w-3xl text-lg md:text-xl text-blue-100 leading-relaxed">
-          Познайомтеся зі студентами, які об'єдналися, щоб робити життя університетської спільноти яскравішим, справедливішим і насиченим новими можливостями.
-          Ми працюємо разом, щоб підтримувати, надихати та створювати простір, де кожен може реалізувати свої ідеї.
-        </p>
-      </div>
-    </div>
-    
-    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-70">
-      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-      </svg>
-    </div>
-  </section>
+{/* Header Section */}
+      <section className="relative bg-[#10183a] pt-20 pb-32 text-white overflow-hidden w-full">
+        {/* Фонововідблиски (адаптивні) */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+          <div className="absolute top-[5%] -left-[10%] w-[50%] h-[80%] rounded-full bg-[#1e3a8a]/40 blur-[120px]" />
+          <div className="absolute top-[25%] -right-[5%] w-[45%] h-[75%] rounded-full bg-[#ca8a04]/20 blur-[130px]" />
+          <div className="absolute -bottom-[25%] -left-[10%] w-[50%] h-[80%] rounded-full bg-[#ca8a04]/15 blur-[140px]" />
+        </div>
 
-      {/* Search Section */}
-      <section className="bg-white py-8 shadow-sm">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center gap-4 md:flex-row">
-            <div className="relative">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
+          <div className="text-center flex flex-col items-center">
+            {/* Декоративна іконка */}
+            <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-2xl mb-6 backdrop-blur-sm border border-white/10">
+              <Star className="w-8 h-8 text-[#facc15]" /> 
+            </div>
+            
+            <h1 className="mb-6 text-4xl font-extrabold md:text-5xl lg:text-6xl tracking-tight">
+              Наша команда
+            </h1>
+            <p className="mx-auto max-w-3xl text-lg md:text-xl text-slate-300 leading-relaxed">
+              Познайомтеся зі студентами, які об'єдналися, щоб робити життя університетської спільноти яскравішим, справедливішим і насиченим новими можливостями.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Search Section (Накладається на Header) */}
+      <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12">
+        <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-4 sm:p-6 border border-gray-100">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            
+            <div className="relative w-full md:w-64">
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center justify-between w-64 h-[42px] bg-white border border-gray-300 rounded-lg px-4 text-[#1E2A5A] font-medium transition-all duration-300 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="flex items-center justify-between w-full h-[46px] bg-white border border-gray-300 rounded-lg px-4 text-[#1E2A5A] font-medium transition-all duration-300 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
                 <span className="truncate pr-2 text-sm md:text-base">
                   {teamRoles.find(role => role.id === selectedType)?.label}
@@ -180,20 +188,20 @@ const TeamPage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="relative flex-1 max-w-md w-full">
+
+            <div className="relative flex-1 w-full">
               <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 placeholder="Пошук членів команди"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full h-[42px] rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                className="w-full h-[46px] rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
               />
             </div>
 
-            <div className="text-sm text-gray-600 whitespace-nowrap">
-              Знайдено: <span className="font-semibold">{displayMembers.length}</span>{" "}
-              {displayMembers.length === 0 ? "людей" : displayMembers.length === 1 ? "людину" : displayMembers.length < 5 ? "людини" : "людей"}
+            <div className="text-sm text-gray-600 whitespace-nowrap hidden sm:block">
+              Знайдено: <span className="font-semibold text-gray-900 bg-gray-100 px-2 py-0.5 rounded-md ml-1">{displayMembers.length}</span>
             </div>
 
           </div>

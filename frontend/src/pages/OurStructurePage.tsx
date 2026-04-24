@@ -204,29 +204,42 @@ const StructurePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
+{/* Header Section */}
+      <section className="relative bg-[#10183a] text-white pt-20 pb-32 overflow-hidden w-full">
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+          <div className="absolute -top-[10%] right-[10%] w-[35%] h-[70%] rounded-full bg-[#ca8a04]/20 blur-[130px]" />
+          <div className="absolute -bottom-[20%] -left-[5%] w-[40%] h-[80%] rounded-full bg-[#ca8a04]/15 blur-[140px]" />
+          <div className="absolute -bottom-[30%] right-[20%] w-[50%] h-[90%] rounded-full bg-[#ca8a04]/20 blur-[120px]" />
+          <div className="absolute top-[20%] -left-[10%] w-[50%] h-[80%] rounded-full bg-[#1e3a8a]/30 blur-[120px]" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
+          {/* Декоративна іконка в стилі Glassmorphism */}
+          <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-2xl mb-6 backdrop-blur-sm border border-white/10">
+            <Users className="w-8 h-8 text-[#facc15]" />
+          </div>
+          
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
             Наша Структура
           </h1>
-          <p className="text-lg md:text-xl text-blue-200 max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
             Ознайомтеся з профспілковими організаціями факультетів та відділами, 
             які формують нашу спільноту.
           </p>
         </div>
       </section>
       
-{/* Search & Filter Section */}
-      <section className="bg-white py-6 md:py-8 shadow-sm relative z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row gap-4 items-center">
+      {/* Search & Filter Section (Накладається на Header) */}
+      <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12">
+        <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-4 sm:p-6 border border-gray-100">
+          <div className="flex flex-col md:flex-row gap-4 items-center w-full">
             
             {/* 1. Кастомний Дропдаун */}
-            <div className="relative w-full sm:w-auto">
+            <div className="relative w-full md:w-auto">
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center justify-between w-full sm:w-72 h-[46px] bg-white border border-gray-300 rounded-lg px-4 text-[#1E2A5A] font-medium transition-all duration-300 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm"
+                className="flex items-center justify-between w-full md:w-72 h-[46px] bg-white border border-gray-300 rounded-lg px-4 text-[#1E2A5A] font-medium transition-all duration-300 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm"
               >
                 <span className="truncate pr-2 text-sm md:text-base">
                   {structureTypes.find(type => type.id === selectedType)?.label}
@@ -275,7 +288,7 @@ const StructurePage: React.FC = () => {
             </div>
 
             {/* 2. Пошук */}
-            <div className="relative flex-1 w-full sm:max-w-md shadow-sm">
+            <div className="relative flex-1 w-full md:max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
               <input
                 type="text"
@@ -289,14 +302,14 @@ const StructurePage: React.FC = () => {
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full pl-10 pr-4 h-[46px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none"
+                className="w-full pl-10 pr-4 h-[46px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none shadow-sm"
               />
             </div>
             
             {/* 3. Лічильник */}
-            <div className="text-sm text-gray-600 flex items-center gap-1 sm:ml-auto">
+            <div className="text-sm text-gray-600 flex items-center gap-1 md:ml-auto">
               <span>Знайдено:</span>
-              <span className="font-semibold">{filteredData.length}</span>
+              <span className="font-semibold text-gray-900 bg-gray-100 px-2 py-0.5 rounded-md ml-1">{filteredData.length}</span>
               <span>{getCountWord(filteredData.length)}</span>
             </div>
 

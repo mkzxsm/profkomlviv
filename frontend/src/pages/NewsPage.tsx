@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Search,
   Filter,
-  Calendar,
   ChevronLeft,
   ChevronsLeft,
   ChevronRight,
@@ -81,13 +80,13 @@ const NewsPage: React.FC = () => {
     currentPage * newsPerPage,
   );
 
-  // Функція пагінації (залишив без змін, вона працює чудово)
+// Оновлена красива пагінація
   const renderPaginationButtons = () => {
     if (totalPages <= 1) return null;
     const maxVisibleButtons = 5;
     let startPage = Math.max(
       1,
-      currentPage - Math.floor(maxVisibleButtons / 2),
+      currentPage - Math.floor(maxVisibleButtons / 2)
     );
     let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
     if (endPage - startPage + 1 < maxVisibleButtons) {
@@ -95,29 +94,32 @@ const NewsPage: React.FC = () => {
     }
 
     return (
-      <div className="flex justify-center items-center gap-2 mt-12">
-        <div className="flex gap-1">
+      <div className="flex justify-center items-center gap-2 sm:gap-3 mt-14 mb-4">
+        
+        {/* Лівий блок (Назад) */}
+        <div className="flex gap-1 bg-white p-1.5 rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100">
           {totalPages > 5 && (
             <button
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
-              className="w-10 h-10 flex justify-center items-center rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 disabled:opacity-50 transition-all"
+              className="w-10 h-10 flex justify-center items-center rounded-xl text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
             >
-              <ChevronsLeft className="h-4 w-4" />
+              <ChevronsLeft className="h-5 w-5" />
             </button>
           )}
           {totalPages > 1 && (
             <button
               onClick={() => setCurrentPage((prev) => prev - 1)}
               disabled={currentPage === 1}
-              className="w-10 h-10 flex justify-center items-center rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 disabled:opacity-50 transition-all"
+              className="w-10 h-10 flex justify-center items-center rounded-xl text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5" />
             </button>
           )}
         </div>
 
-        <div className="flex gap-1">
+        {/* Центральний блок (Номери сторінок) - ховається на малих екранах */}
+        <div className="hidden sm:flex gap-1 bg-white p-1.5 rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100">
           {Array.from({ length: endPage - startPage + 1 }, (_, idx) => {
             const page = startPage + idx;
             return (
@@ -126,8 +128,8 @@ const NewsPage: React.FC = () => {
                 onClick={() => setCurrentPage(page)}
                 className={`w-10 h-10 flex justify-center items-center rounded-xl font-semibold transition-all duration-300 ${
                   page === currentPage
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
-                    : "bg-white border border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50"
+                    ? "bg-blue-600 text-white shadow-[0_4px_12px_rgba(37,99,235,0.3)] scale-105"
+                    : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
                 }`}
               >
                 {page}
@@ -136,26 +138,33 @@ const NewsPage: React.FC = () => {
           })}
         </div>
 
-        <div className="flex gap-1">
+        {/* Лічильник для мобільних пристроїв */}
+        <div className="flex sm:hidden bg-white px-5 h-[52px] items-center justify-center rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100 text-sm font-semibold text-gray-700">
+          <span className="text-gray-400 mr-1">Стор.</span> {currentPage} / {totalPages}
+        </div>
+
+        {/* Правий блок (Вперед) */}
+        <div className="flex gap-1 bg-white p-1.5 rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100">
           {totalPages > 1 && (
             <button
               onClick={() => setCurrentPage((prev) => prev + 1)}
               disabled={currentPage === totalPages}
-              className="w-10 h-10 flex justify-center items-center rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 disabled:opacity-50 transition-all"
+              className="w-10 h-10 flex justify-center items-center rounded-xl text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5" />
             </button>
           )}
           {totalPages > 5 && (
             <button
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
-              className="w-10 h-10 flex justify-center items-center rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 disabled:opacity-50 transition-all"
+              className="w-10 h-10 flex justify-center items-center rounded-xl text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
             >
-              <ChevronsRight className="h-4 w-4" />
+              <ChevronsRight className="h-5 w-5" />
             </button>
           )}
         </div>
+        
       </div>
     );
   };
