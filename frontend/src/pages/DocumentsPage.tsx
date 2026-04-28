@@ -1,13 +1,20 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { FileText, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { Document } from '../types/documents';
-import DocumentCard from '../components/DocumentCard';
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  FileText,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Document } from "../types/documents";
+import DocumentCard from "../components/DocumentCard";
 
 const DocumentsPage: React.FC = () => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,7 +24,9 @@ const DocumentsPage: React.FC = () => {
     const fetchDocuments = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/documents`);
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/documents`,
+        );
         setDocuments(response.data);
       } catch (error) {
         console.error("Error fetching documents:", error);
@@ -29,15 +38,20 @@ const DocumentsPage: React.FC = () => {
   }, []);
 
   const filteredDocuments = useMemo(() => {
-    return documents.filter(doc =>
-      doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (doc.description && doc.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    return documents.filter(
+      (doc) =>
+        doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (doc.description &&
+          doc.description.toLowerCase().includes(searchTerm.toLowerCase())),
     );
   }, [documents, searchTerm]);
 
   const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentData = filteredDocuments.slice(startIndex, startIndex + itemsPerPage);
+  const currentData = filteredDocuments.slice(
+    startIndex,
+    startIndex + itemsPerPage,
+  );
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages) return;
@@ -49,7 +63,10 @@ const DocumentsPage: React.FC = () => {
     if (totalPages <= 1) return null;
     const maxVisibleButtons = 5;
 
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisibleButtons / 2));
+    let startPage = Math.max(
+      1,
+      currentPage - Math.floor(maxVisibleButtons / 2),
+    );
     let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
     if (endPage - startPage + 1 < maxVisibleButtons) {
       startPage = Math.max(1, endPage - maxVisibleButtons + 1);
@@ -134,15 +151,18 @@ const DocumentsPage: React.FC = () => {
   const renderLoadingSkeleton = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {[...Array(itemsPerPage)].map((_, idx) => (
-        <div key={idx} className="bg-white rounded-xl shadow-md p-6 animate-pulse">
+        <div
+          key={idx}
+          className="bg-white rounded-xl shadow-md p-6 animate-pulse"
+        >
           <div className="flex items-start justify-between mb-4">
-            <div className="h-8 w-8 bg-gray-300 rounded"/>
-            <div className="h-4 w-12 bg-gray-300 rounded"/>
+            <div className="h-8 w-8 bg-gray-300 rounded" />
+            <div className="h-4 w-12 bg-gray-300 rounded" />
           </div>
-          <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"/>
-          <div className="h-4 bg-gray-300 rounded mb-4"/>
-          <div className="h-4 bg-gray-300 rounded w-1/2 mb-6"/>
-          <div className="h-10 bg-gray-300 rounded-md w-full"/>
+          <div className="h-6 bg-gray-300 rounded w-3/4 mb-2" />
+          <div className="h-4 bg-gray-300 rounded mb-4" />
+          <div className="h-4 bg-gray-300 rounded w-1/2 mb-6" />
+          <div className="h-10 bg-gray-300 rounded-md w-full" />
         </div>
       ))}
     </div>
@@ -150,7 +170,7 @@ const DocumentsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-{/* Header Section */}
+      {/* Header Section */}
       <section className="relative bg-[#10183a] text-white pt-20 pb-32 overflow-hidden w-full">
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
           <div className="absolute top-[10%] -left-[10%] w-[60%] h-[100%] rounded-full bg-[#1e3a8a]/40 blur-[120px]" />
@@ -162,12 +182,13 @@ const DocumentsPage: React.FC = () => {
           <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-2xl mb-6 backdrop-blur-sm border border-white/10">
             <FileText className="w-8 h-8 text-[#facc15]" />
           </div>
-          
+
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
             Документи
           </h1>
           <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            Знайдіть всі необхідні документи, форми та положення для взаємодії з профкомом
+            Знайдіть всі необхідні документи, форми та положення для взаємодії з
+            профкомом
           </p>
         </div>
       </section>
@@ -175,7 +196,6 @@ const DocumentsPage: React.FC = () => {
       {/* Search Section (Накладається на Header) */}
       <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12">
         <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-4 sm:p-6 border border-gray-100 flex flex-col sm:flex-row gap-4 items-center">
-          
           {/* Пошук */}
           <div className="relative flex-1 w-full">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -199,7 +219,6 @@ const DocumentsPage: React.FC = () => {
             </span>
             <span>документів</span>
           </div>
-
         </div>
       </section>
 
@@ -223,10 +242,7 @@ const DocumentsPage: React.FC = () => {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 will-change-transform">
                 {currentData.map((document) => (
-                  <DocumentCard
-                    key={document.id}
-                    document={document}
-                  />
+                  <DocumentCard key={document.id} document={document} />
                 ))}
               </div>
               {renderPaginationButtons()}
@@ -235,7 +251,7 @@ const DocumentsPage: React.FC = () => {
         </div>
       </section>
 
-{/* Banner Section */}
+      {/* Banner Section */}
       <section className="py-12 md:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="bg-gradient-to-br from-[#10183a] to-blue-800 text-white rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden text-center">
           {/* Декоративні відблиски для ефекту глибини */}
@@ -246,28 +262,28 @@ const DocumentsPage: React.FC = () => {
             Не знайшли потрібний документ?
           </h2>
           <p className="text-blue-100 mb-8 max-w-2xl mx-auto text-lg relative z-10 leading-relaxed">
-            Зв'яжіться з нами, і ми допоможемо знайти необхідну інформацію або документ
+            Зв'яжіться з нами, і ми допоможемо знайти необхідну інформацію або
+            документ
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
             {/* Primary Button */}
-            <button 
-              className="bg-white text-[#1E2A5A] py-3 px-8 rounded-xl font-semibold hover:bg-gray-50 hover:scale-[1.02] transition-all duration-300 shadow-sm"
-              onClick={() => { navigate('/contacts'); }}
+            <button
+              className="border border-white/30 bg-white/10 backdrop-blur-sm text-white py-3 px-8 rounded-xl font-semibold hover:bg-white/20 hover:scale-[1.02] transition-all duration-300 shadow-sm"
+              onClick={() => {
+                navigate("/contacts");
+              }}
             >
               Зв'язатися з нами
             </button>
-            
+
             {/* Glassmorphism Button */}
-            <button 
-              className="border border-white/30 bg-white/10 backdrop-blur-sm text-white py-3 px-8 rounded-xl font-semibold hover:bg-white/20 hover:scale-[1.02] transition-all duration-300 shadow-sm"
-            >
+            <button className="hidden border border-white/30 bg-white/10 backdrop-blur-sm text-white py-3 px-8 rounded-xl font-semibold hover:bg-white/20 hover:scale-[1.02] transition-all duration-300 shadow-sm">
               Задати питання
             </button>
           </div>
         </div>
       </section>
-
     </div>
   );
 };
