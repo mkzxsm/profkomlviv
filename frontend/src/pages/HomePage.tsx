@@ -229,7 +229,7 @@ const HomePage: React.FC = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/api/news`,
       );
-      setNews(response.data.slice(0, 6));
+      setNews(response.data.slice(0, 3));
     } catch (error) {
       console.error("Помилка при отриманні новин:", error);
     } finally {
@@ -248,7 +248,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] overflow-x-clip">
       {/* Hero Section */}
       <section
         className="relative overflow-hidden bg-[#0f172a]"
@@ -419,7 +419,6 @@ const HomePage: React.FC = () => {
                       top: "calc(50% - 160px)",
                       left: "calc(50% - 160px)",
                       transformOrigin: "bottom left",
-                      /* ВАЖЛИВО: Анімуємо тільки transform і opacity. Ніяких all або z-index! */
                       transition:
                         "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease-out",
                     }}
@@ -444,7 +443,7 @@ const HomePage: React.FC = () => {
                           <p className="text-sm opacity-90 leading-relaxed mr-4">
                             {service.description}
                           </p>
-                          <div className="bg-white/20 p-2 rounded-full backdrop-blur-sm transform translate-x-0 group-hover:translate-x-2 transition-transform duration-300">
+                          <div className="bg-white/20 p-2 rounded-full backdrop-blur-sm transform translate-x-0 group-hover:translate-x-2 transition-transform duration-500">
                             <ArrowRight className="w-6 h-6" />
                           </div>
                         </div>
@@ -456,7 +455,7 @@ const HomePage: React.FC = () => {
             </div>
 
             <style>{`
-              html {
+              html, body {
                 scroll-behavior: smooth;
               }
               .stack-area {
@@ -483,7 +482,7 @@ const HomePage: React.FC = () => {
 
             <Link
               to="/news"
-              className="hidden sm:inline-flex items-center justify-center px-6 py-2.5 rounded-xl font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-300 group"
+              className="hidden sm:inline-flex items-center justify-center px-6 py-2.5 rounded-xl font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-500 group"
             >
               Усі новини
               <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
@@ -523,10 +522,10 @@ const HomePage: React.FC = () => {
               autoplay={{ delay: 4000, disableOnInteraction: false }}
               className="pb-8 pt-4 !overflow-visible"
             >
-              {news.slice(0, 6).map((article, index) => (
+              {news.slice(0, 3).map((article, index) => (
                 <SwiperSlide key={article.id}>
                   <div
-                    className="cursor-pointer h-full transition-transform duration-300 hover:-translate-y-2"
+                    className="cursor-pointer h-full transition-transform duration-500 hover:-translate-y-2"
                     style={{ animationDelay: `${index * 150}ms` }}
                     onClick={() => navigate(`/news/${article.id}`)}
                   >

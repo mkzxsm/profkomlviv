@@ -105,7 +105,7 @@ const NotFoundPage: React.FC = () => {
         {/*<div className="inline-flex items-center justify-center p-4 bg-white/10 rounded-3xl mb-8 backdrop-blur-sm border border-white/10 shadow-xl">
           <Search className="w-10 h-10 text-[#facc15]" />
         </div>
-    /}        
+    1/}        
 
         {/* Клікабельний текст 404 */}
         <h1

@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
   const navigation = [
-    { name: 'Головна', href: '/' },
-    { name: 'Про нас', href: '/about-us' },
-    { name: 'Наша структура', href: '/structure' },
-    { name: 'Сервіси', href: '/services' },
-    { name: 'Документи', href: '/documents' },
-    { name: 'Новини', href: '/news' },
-    { name: 'Контакти', href: '/contacts' },
+    { name: "Головна", href: "/" },
+    { name: "Про нас", href: "/about-us" },
+    { name: "Наша структура", href: "/structure" },
+    { name: "Сервіси", href: "/services" },
+    { name: "Документи", href: "/documents" },
+    { name: "Новини", href: "/news" },
+    { name: "Контакти", href: "/contacts" },
   ];
 
   const isActive = (path: string) => {
-    if (path === '/') return location.pathname === '/';
+    if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
   };
 
@@ -28,7 +28,6 @@ const Header: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Зменшена висота: h-14 (56px) для мобільних, h-16 (64px) для десктопу */}
           <div className="flex justify-between items-center h-14 md:h-16">
-            
             {/* Логотип */}
             <Link to="/" className="flex items-center space-x-2.5 group">
               <img
@@ -37,8 +36,10 @@ const Header: React.FC = () => {
                 /* Пропорційно зменшений логотип */
                 className="h-10 w-10 md:h-12 md:w-12 object-contain transition-transform duration-300 group-hover:scale-105"
                 onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  e.currentTarget.style.display = "none";
+                  e.currentTarget.nextElementSibling?.classList.remove(
+                    "hidden",
+                  );
                 }}
               />
               {/* Заглушка, якщо логотип не завантажився */}
@@ -46,8 +47,12 @@ const Header: React.FC = () => {
                 ЛНУ
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-sm md:text-base font-bold text-slate-900 tracking-tight leading-tight">Профком студентів</h1>
-                <p className="text-[11px] md:text-xs text-slate-600 font-medium">ЛНУ ім. Івана Франка</p>
+                <h1 className="text-sm md:text-base font-bold text-slate-900 tracking-tight leading-tight">
+                  Профком студентів
+                </h1>
+                <p className="text-[11px] md:text-xs text-slate-600 font-medium">
+                  ЛНУ ім. Івана Франка
+                </p>
               </div>
             </Link>
 
@@ -61,9 +66,10 @@ const Header: React.FC = () => {
                     to={item.href}
                     /* Трохи менші вертикальні відступи (py-1.5) для вужчого хедера */
                     className={`relative px-3.5 py-1.5 rounded-xl text-sm font-semibold transition-all duration-300 ease-out border
-                      ${active
-                        ? 'text-blue-700 bg-white border-white/80 shadow-[0_4px_12px_rgba(0,0,0,0.06)] scale-105'
-                        : 'text-slate-600 border-transparent hover:text-blue-600 hover:bg-white/60 hover:border-white/50 hover:shadow-sm'
+                      ${
+                        active
+                          ? "text-blue-700 bg-white border-white/80 shadow-[0_4px_12px_rgba(0,0,0,0.06)]"
+                          : "text-slate-600 border-transparent hover:text-blue-600 hover:bg-white/60 hover:border-white/50 hover:shadow-sm"
                       }`}
                   >
                     {item.name}
@@ -81,12 +87,16 @@ const Header: React.FC = () => {
                 <div className="relative w-5 h-5">
                   <Menu
                     className={`absolute inset-0 h-5 w-5 transform transition-all duration-300 ${
-                      isMenuOpen ? 'opacity-0 rotate-90 scale-75' : 'opacity-100 rotate-0 scale-100'
+                      isMenuOpen
+                        ? "opacity-0 rotate-90 scale-75"
+                        : "opacity-100 rotate-0 scale-100"
                     }`}
                   />
                   <X
                     className={`absolute inset-0 h-5 w-5 transform text-blue-600 transition-all duration-300 ${
-                      isMenuOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-75'
+                      isMenuOpen
+                        ? "opacity-100 rotate-0 scale-100"
+                        : "opacity-0 -rotate-90 scale-75"
                     }`}
                   />
                 </div>
@@ -100,7 +110,7 @@ const Header: React.FC = () => {
       <div
         /* Висота відступу адаптована під нову висоту хедера (56px та 64px) */
         className={`lg:hidden fixed top-[56px] md:top-[64px] left-0 w-full bg-white/85 backdrop-blur-xl border-t border-gray-100 shadow-2xl overflow-hidden transition-all duration-400 ease-in-out z-40 ${
-          isMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+          isMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <div className="px-4 py-3 space-y-1.5">
@@ -113,8 +123,8 @@ const Header: React.FC = () => {
                 onClick={() => setIsMenuOpen(false)}
                 className={`block px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-300 border ${
                   active
-                    ? 'text-blue-700 bg-white border-white shadow-[0_4px_12px_rgba(0,0,0,0.06)] translate-x-2'
-                    : 'text-slate-700 border-transparent hover:bg-white/60 hover:text-blue-600 hover:translate-x-1'
+                    ? "text-blue-700 bg-white border-white shadow-[0_4px_12px_rgba(0,0,0,0.06)] translate-x-2"
+                    : "text-slate-700 border-transparent hover:bg-white/60 hover:text-blue-600 hover:translate-x-1"
                 }`}
               >
                 {item.name}
