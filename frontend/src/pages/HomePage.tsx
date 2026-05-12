@@ -335,13 +335,13 @@ const HomePage: React.FC = () => {
               (currentSlide - 1 + heroSlides.length) % heroSlides.length,
             )
           }
-          className="hidden md:flex absolute left-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-300 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20"
+          className="hidden lg:flex absolute left-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-300 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20"
         >
           <ChevronLeft className="w-8 h-8" />
         </button>
         <button
           onClick={() => goToSlide((currentSlide + 1) % heroSlides.length)}
-          className="hidden md:flex absolute right-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-300 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20"
+          className="hidden lg:flex absolute right-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-300 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20"
         >
           <ChevronRight className="w-8 h-8" />
         </button>
