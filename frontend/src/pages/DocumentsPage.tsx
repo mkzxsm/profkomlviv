@@ -65,7 +65,6 @@ const DocumentsPage: React.FC = () => {
   const renderPaginationButtons = () => {
     if (totalPages <= 1) return null;
     const maxVisibleButtons = 5;
-
     let startPage = Math.max(
       1,
       currentPage - Math.floor(maxVisibleButtons / 2),
@@ -75,78 +74,77 @@ const DocumentsPage: React.FC = () => {
       startPage = Math.max(1, endPage - maxVisibleButtons + 1);
     }
 
-    const leftButtons = (
-      <div key="left" className="flex gap-1">
-        {totalPages > 5 && (
-          <button
-            onClick={() => handlePageChange(1)}
-            disabled={currentPage === 1}
-            className="w-8 h-8 flex justify-center items-center rounded-lg border border-gray-300 text-gray-700 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            <ChevronsLeft className="h-4 w-4" />
-          </button>
-        )}
-        {totalPages > 1 && (
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="w-8 h-8 flex justify-center items-center rounded-lg border border-gray-300 text-gray-700 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-        )}
-      </div>
-    );
-
-    const centerButtons = (
-      <div key="center" className="flex gap-1">
-        {Array.from({ length: endPage - startPage + 1 }, (_, idx) => {
-          const page = startPage + idx;
-          return (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`w-8 h-8 flex justify-center items-center rounded-lg border font-medium transition-colors duration-200 ${
-                page === currentPage
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
-              }`}
-            >
-              {page}
-            </button>
-          );
-        })}
-      </div>
-    );
-
-    const rightButtons = (
-      <div key="right" className="flex gap-1">
-        {totalPages > 1 && (
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="w-8 h-8 flex justify-center items-center rounded-lg border border-gray-300 text-gray-700 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        )}
-        {totalPages > 5 && (
-          <button
-            onClick={() => handlePageChange(totalPages)}
-            disabled={currentPage === totalPages}
-            className="w-8 h-8 flex justify-center items-center rounded-lg border border-gray-300 text-gray-700 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            <ChevronsRight className="h-4 w-4" />
-          </button>
-        )}
-      </div>
-    );
-
     return (
-      <div className="flex justify-center items-center gap-2 mt-8">
-        {leftButtons}
-        {centerButtons}
-        {rightButtons}
+      <div className="flex justify-center items-center gap-2 sm:gap-3 mt-14 mb-4">
+        {/* Лівий блок (Назад) */}
+        <div className="flex gap-1 bg-white p-1.5 rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100">
+          {totalPages > 5 && (
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              className="w-10 h-10 flex justify-center items-center rounded-xl text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
+            >
+              <ChevronsLeft className="h-5 w-5" />
+            </button>
+          )}
+          {totalPages > 1 && (
+            <button
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+              disabled={currentPage === 1}
+              className="w-10 h-10 flex justify-center items-center rounded-xl text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+
+        {/* Центральний блок (Номери сторінок) - ховається на малих екранах */}
+        <div className="hidden sm:flex gap-1 bg-white p-1.5 rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100">
+          {Array.from({ length: endPage - startPage + 1 }, (_, idx) => {
+            const page = startPage + idx;
+            return (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`w-10 h-10 flex justify-center items-center rounded-xl font-semibold transition-all duration-300 ${
+                  page === currentPage
+                    ? "bg-blue-600 text-white shadow-[0_4px_12px_rgba(37,99,235,0.3)] scale-105"
+                    : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+                }`}
+              >
+                {page}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Лічильник для мобільних пристроїв */}
+        <div className="flex sm:hidden bg-white px-5 h-[52px] items-center justify-center rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100 text-sm font-semibold text-gray-700">
+          <span className="text-gray-400 mr-1">Стор.</span> {currentPage} /{" "}
+          {totalPages}
+        </div>
+
+        {/* Правий блок (Вперед) */}
+        <div className="flex gap-1 bg-white p-1.5 rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100">
+          {totalPages > 1 && (
+            <button
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              disabled={currentPage === totalPages}
+              className="w-10 h-10 flex justify-center items-center rounded-xl text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          )}
+          {totalPages > 5 && (
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              className="w-10 h-10 flex justify-center items-center rounded-xl text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
+            >
+              <ChevronsRight className="h-5 w-5" />
+            </button>
+          )}
+        </div>
       </div>
     );
   };
