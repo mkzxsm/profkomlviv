@@ -15,37 +15,37 @@ const Footer: React.FC = () => {
       name: "Facebook",
       href: "https://www.facebook.com/pposlnu",
       icon: SiFacebook,
-      color: "hover:bg-blue-600",
+      color: "group-hover:bg-blue-600",
     },
     {
       name: "Instagram",
       href: "https://instagram.com/profkom_lnu",
       icon: SiInstagram,
-      color: "hover:bg-blue-600",
+      color: "group-hover:bg-blue-600",
     },
     {
       name: "YouTube",
       href: "https://www.youtube.com/channel/UC-q4zCHeNdLGN9XV166LPkw",
       icon: SiYoutube,
-      color: "hover:bg-blue-600",
+      color: "group-hover:bg-blue-600",
     },
     {
       name: "Telegram",
       href: "https://t.me/profkom_lnu",
       icon: SiTelegram,
-      color: "hover:bg-blue-600",
+      color: "group-hover:bg-blue-600",
     },
     {
       name: "TikTok",
       href: "https://tiktok.com/@profkom_lnu",
       icon: SiTiktok,
-      color: "hover:bg-blue-600",
+      color: "group-hover:bg-blue-600",
     },
     {
       name: "Linktree",
       href: "https://linktr.ee/profkom_lnu?fbclid=PAZXh0bgNhZW0CMTEAAae26D-DnoPLqxjtnCE6zvdowWD2_ASv2tcuDnfqkkuJtmJnKcLi-ecf_W-YTQ_aem_jBGPBwPhE8bONl0wqVDWdg",
       icon: SiLinktree,
-      color: "hover:bg-blue-600",
+      color: "group-hover:bg-blue-600",
     },
   ];
 
@@ -174,9 +174,13 @@ const Footer: React.FC = () => {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`group bg-white/10 backdrop-blur-sm rounded-xl border border-white/10 transition-all duration-500 hover:scale-105 hover:border-white/20 ${social.color} flex items-center justify-center w-10 h-10`}
+                    className="group block w-10 h-10 rounded-xl"
                   >
-                    <IconComponent className="w-5 h-5 text-gray-300 group-hover:text-white transition-colors duration-200" />
+                    <div
+                      className={`w-full h-full flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-xl border border-white/10 transition duration-500 transform-gpu backface-hidden group-hover:scale-105 group-hover:border-white/20 ${social.color}`}
+                    >
+                      <IconComponent className="w-5 h-5 text-gray-300 group-hover:text-white transition-colors duration-200" />
+                    </div>
                   </a>
                 );
               })}

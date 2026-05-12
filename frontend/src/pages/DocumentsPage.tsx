@@ -38,11 +38,14 @@ const DocumentsPage: React.FC = () => {
   }, []);
 
   const filteredDocuments = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query || query.length < 3) {
+      return documents;
+    }
     return documents.filter(
       (doc) =>
-        doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (doc.description &&
-          doc.description.toLowerCase().includes(searchTerm.toLowerCase())),
+        doc.title.toLowerCase().includes(query) ||
+        (doc.description && doc.description.toLowerCase().includes(query)),
     );
   }, [documents, searchTerm]);
 

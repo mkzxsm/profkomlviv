@@ -64,13 +64,19 @@ const NewsPage: React.FC = () => {
   };
 
   const filteredNews = news.filter((article) => {
+    const query = searchTerm.trim().toLowerCase();
+
     const matchesSearch =
-      article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      article.content.toLowerCase().includes(searchTerm.toLowerCase());
+      query.length < 3
+        ? true
+        : article.title.toLowerCase().includes(query) ||
+          article.content.toLowerCase().includes(query);
+
     const matchesFilter =
       filterType === "all" ||
       (filterType === "important" && article.isImportant) ||
       (filterType === "regular" && !article.isImportant);
+
     return matchesSearch && matchesFilter;
   });
 
@@ -80,13 +86,13 @@ const NewsPage: React.FC = () => {
     currentPage * newsPerPage,
   );
 
-// Оновлена красива пагінація
+  // Оновлена красива пагінація
   const renderPaginationButtons = () => {
     if (totalPages <= 1) return null;
     const maxVisibleButtons = 5;
     let startPage = Math.max(
       1,
-      currentPage - Math.floor(maxVisibleButtons / 2)
+      currentPage - Math.floor(maxVisibleButtons / 2),
     );
     let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
     if (endPage - startPage + 1 < maxVisibleButtons) {
@@ -95,7 +101,6 @@ const NewsPage: React.FC = () => {
 
     return (
       <div className="flex justify-center items-center gap-2 sm:gap-3 mt-14 mb-4">
-        
         {/* Лівий блок (Назад) */}
         <div className="flex gap-1 bg-white p-1.5 rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100">
           {totalPages > 5 && (
@@ -140,7 +145,8 @@ const NewsPage: React.FC = () => {
 
         {/* Лічильник для мобільних пристроїв */}
         <div className="flex sm:hidden bg-white px-5 h-[52px] items-center justify-center rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100 text-sm font-semibold text-gray-700">
-          <span className="text-gray-400 mr-1">Стор.</span> {currentPage} / {totalPages}
+          <span className="text-gray-400 mr-1">Стор.</span> {currentPage} /{" "}
+          {totalPages}
         </div>
 
         {/* Правий блок (Вперед) */}
@@ -164,7 +170,6 @@ const NewsPage: React.FC = () => {
             </button>
           )}
         </div>
-        
       </div>
     );
   };

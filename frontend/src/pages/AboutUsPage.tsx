@@ -82,15 +82,21 @@ const TeamPage: React.FC = () => {
 
   // Фільтруємо членів команди по типу та пошуку
   const displayMembers = useMemo(() => {
-    return teamMembers
-      .filter((member) => member.type === selectedType)
-      .filter(
-        (member) =>
-          member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          member.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (member.email &&
-            member.email.toLowerCase().includes(searchTerm.toLowerCase())),
-      );
+    const filteredByType = teamMembers.filter(
+      (member) => member.type === selectedType,
+    );
+
+    const query = searchTerm.trim().toLowerCase();
+
+    if (!query || query.length < 3) {
+      return filteredByType;
+    }
+    return filteredByType.filter(
+      (member) =>
+        member.name.toLowerCase().includes(query) ||
+        member.position.toLowerCase().includes(query) ||
+        (member.email && member.email.toLowerCase().includes(query)),
+    );
   }, [teamMembers, selectedType, searchTerm]);
 
   const startAutoPlay = useCallback(() => {

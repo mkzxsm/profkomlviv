@@ -80,9 +80,12 @@ const StructurePage: React.FC = () => {
   };
 
   const filteredData = useMemo(() => {
-    const q = searchTerm.toLowerCase();
-
+    const q = searchTerm.trim().toLowerCase();
     if (selectedType === FACULTY_TYPE) {
+      if (!q || q.length < 3) {
+        return faculties;
+      }
+
       return faculties.filter(
         (union) =>
           union.name.toLowerCase().includes(q) ||
@@ -90,6 +93,10 @@ const StructurePage: React.FC = () => {
           (union.summary && union.summary.toLowerCase().includes(q)),
       );
     } else {
+      if (!q || q.length < 3) {
+        return departments;
+      }
+
       return departments.filter(
         (dept) =>
           dept.name.toLowerCase().includes(q) ||
