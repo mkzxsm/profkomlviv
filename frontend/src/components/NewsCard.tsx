@@ -1,12 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import {
-  Calendar,
-  Star,
-  ChevronLeft,
-  ChevronRight,
-  Image as ImageIcon,
-} from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Calendar, Star, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 
 interface NewsImage {
   id: number;
@@ -30,10 +24,10 @@ interface NewsCardProps {
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString("uk-UA", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  return date.toLocaleDateString('uk-UA', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 };
 
@@ -42,7 +36,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
 
   const availableImages = React.useMemo(() => {
     if (news.images && news.images.length > 0) {
-      return news.images.map((img) => img.imagePath);
+      return news.images.map(img => img.imagePath);
     }
     if (news.imageUrl) {
       return [news.imageUrl];
@@ -53,7 +47,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
   const hasMultipleImages = availableImages.length > 1;
 
   const getImageUrl = (path: string) => {
-    if (path.startsWith("blob:") || path.startsWith("http")) return path;
+    if (path.startsWith('blob:') || path.startsWith('http')) return path;
     return `${import.meta.env.VITE_API_URL}${path}`;
   };
 
@@ -66,22 +60,17 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
   }, [hasMultipleImages, availableImages.length]);
 
   const handleNext = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     setCurrentImageIndex((prev) => (prev + 1) % availableImages.length);
   };
 
   const handlePrev = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setCurrentImageIndex(
-      (prev) => (prev - 1 + availableImages.length) % availableImages.length,
-    );
+    e.preventDefault(); e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + availableImages.length) % availableImages.length);
   };
 
   const handleDotClick = (e: React.MouseEvent, index: number) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     setCurrentImageIndex(index);
   };
 
@@ -92,7 +81,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
     return tmp.textContent || tmp.innerText || "";
   };
 
-  const className = `group flex flex-col bg-white rounded-3xl overflow-hidden transform transition-all duration-500 ease-in-out border border-gray-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.12)] hover:-translate-y-2 cursor-pointer h-full`;
+  const className = `group flex flex-col bg-white rounded-3xl overflow-hidden transition-all duration-500 border border-gray-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.12)] hover:-translate-y-1 cursor-pointer h-full`;
 
   const cardContent = (
     <>
@@ -113,9 +102,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
             {news.isImportant && (
               <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-red-500/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full shadow-lg z-20">
                 <Star className="h-3.5 w-3.5 fill-current" />
-                <span className="text-xs font-bold uppercase tracking-wider">
-                  Важливо
-                </span>
+                <span className="text-xs font-bold uppercase tracking-wider">Важливо</span>
               </div>
             )}
 
@@ -143,8 +130,8 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
                       onClick={(e) => handleDotClick(e, idx)}
                       className={`transition-all duration-300 rounded-full ${
                         currentImageIndex === idx
-                          ? "bg-white w-3 h-1.5" // Активний ширший
-                          : "bg-white/50 hover:bg-white/80 w-1.5 h-1.5"
+                          ? 'bg-white w-3 h-1.5' // Активний ширший
+                          : 'bg-white/50 hover:bg-white/80 w-1.5 h-1.5'
                       }`}
                     />
                   ))}
@@ -166,15 +153,15 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
           <Calendar className="h-3.5 w-3.5 mr-1.5" />
           {formatDate(news.publishedAt)}
         </div>
-
+        
         <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors">
           {news.title}
         </h3>
-
+        
         <p className="text-gray-500 text-sm leading-relaxed line-clamp-3 mb-6 flex-grow">
           {stripHtml(news.content)}
         </p>
-
+        
         {/* Футер карточки */}
         <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-50">
           <span className="text-sm font-semibold text-blue-600 flex items-center opacity-80 group-hover:opacity-100 transition-opacity">
@@ -189,9 +176,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
   return isPreview ? (
     <div className={className}>{cardContent}</div>
   ) : (
-    <Link to={`/news/${news.id}`} className={className}>
-      {cardContent}
-    </Link>
+    <Link to={`/news/${news.id}`} className={className}>{cardContent}</Link>
   );
 };
 
