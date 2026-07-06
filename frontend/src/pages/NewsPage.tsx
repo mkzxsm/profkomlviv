@@ -27,8 +27,10 @@ const NewsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const newsPerPage = 6;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
+  // Змінено на 12, щоб ідеально ділилося на сітку з 1, 2 або 3 колонок
+  const newsPerPage = 12; 
 
   const filterOptions = [
     { id: "all", label: "Всі новини" },
@@ -39,12 +41,10 @@ const NewsPage: React.FC = () => {
   useEffect(() => {
     fetchNews();
   }, []);
+
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, filterType]);
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentPage]);
 
   const fetchNews = async () => {
     try {
@@ -86,7 +86,13 @@ const NewsPage: React.FC = () => {
     currentPage * newsPerPage,
   );
 
-  // Оновлена красива пагінація
+  // Єдина функція для зміни сторінки зі скролом вгору
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const renderPaginationButtons = () => {
     if (totalPages <= 1) return null;
     const maxVisibleButtons = 5;
@@ -101,11 +107,11 @@ const NewsPage: React.FC = () => {
 
     return (
       <div className="flex justify-center items-center gap-2 sm:gap-3 mt-14 mb-4">
-        {/* Лівий блок (Назад) */}
+        {/* Лівий блок */}
         <div className="flex gap-1 bg-white p-1.5 rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100">
           {totalPages > 5 && (
             <button
-              onClick={() => setCurrentPage(1)}
+              onClick={() => handlePageChange(1)}
               disabled={currentPage === 1}
               className="w-10 h-10 flex justify-center items-center rounded-xl text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
             >
@@ -114,7 +120,7 @@ const NewsPage: React.FC = () => {
           )}
           {totalPages > 1 && (
             <button
-              onClick={() => setCurrentPage((prev) => prev - 1)}
+              onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
               className="w-10 h-10 flex justify-center items-center rounded-xl text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
             >
@@ -123,14 +129,14 @@ const NewsPage: React.FC = () => {
           )}
         </div>
 
-        {/* Центральний блок (Номери сторінок) - ховається на малих екранах */}
+        {/* Центральний блок */}
         <div className="hidden sm:flex gap-1 bg-white p-1.5 rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100">
           {Array.from({ length: endPage - startPage + 1 }, (_, idx) => {
             const page = startPage + idx;
             return (
               <button
                 key={page}
-                onClick={() => setCurrentPage(page)}
+                onClick={() => handlePageChange(page)}
                 className={`w-10 h-10 flex justify-center items-center rounded-xl font-semibold transition-all duration-300 ${
                   page === currentPage
                     ? "bg-blue-600 text-white shadow-[0_4px_12px_rgba(37,99,235,0.3)] scale-105"
@@ -143,17 +149,16 @@ const NewsPage: React.FC = () => {
           })}
         </div>
 
-        {/* Лічильник для мобільних пристроїв */}
+        {/* Мобільний лічильник */}
         <div className="flex sm:hidden bg-white px-5 h-[52px] items-center justify-center rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100 text-sm font-semibold text-gray-700">
-          <span className="text-gray-400 mr-1">Стор.</span> {currentPage} /{" "}
-          {totalPages}
+          <span className="text-gray-400 mr-1">Стор.</span> {currentPage} / {totalPages}
         </div>
 
-        {/* Правий блок (Вперед) */}
+        {/* Правий блок */}
         <div className="flex gap-1 bg-white p-1.5 rounded-2xl shadow-[0_2px_15px_rgb(0,0,0,0.04)] border border-gray-100">
           {totalPages > 1 && (
             <button
-              onClick={() => setCurrentPage((prev) => prev + 1)}
+              onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
               className="w-10 h-10 flex justify-center items-center rounded-xl text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
             >
@@ -162,7 +167,7 @@ const NewsPage: React.FC = () => {
           )}
           {totalPages > 5 && (
             <button
-              onClick={() => setCurrentPage(totalPages)}
+              onClick={() => handlePageChange(totalPages)}
               disabled={currentPage === totalPages}
               className="w-10 h-10 flex justify-center items-center rounded-xl text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
             >
@@ -176,21 +181,15 @@ const NewsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      {/* Декоративний Header */}
       <section className="relative bg-[#10183a] text-white pt-20 pb-32 overflow-hidden">
-        {/* Фонововідблиски */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-          {/* М'який синій відблиск зліва по центру (як на оригіналі) */}
           <div className="absolute top-[10%] -left-[10%] w-[60%] h-[100%] rounded-full bg-[#1e3a8a]/40 blur-[120px]" />
-
-          {/* Золотисто-жовтий відблиск у правому нижньому куті */}
           <div className="absolute -bottom-[40%] -right-[10%] w-[70%] h-[120%] rounded-full bg-[#ca8a04]/25 blur-[140px]" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-2xl mb-6 backdrop-blur-sm border border-white/10">
-            <Newspaper className="w-8 h-8 text-[#facc15]" />{" "}
-            {/* Змінив колір іконки на жовтий для гармонії */}
+            <Newspaper className="w-8 h-8 text-[#facc15]" />
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
             Всі новини
@@ -202,11 +201,9 @@ const NewsPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Пошук та Фільтри (Плаваюча панель) */}
       <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12">
         <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-4 sm:p-6 border border-gray-100">
           <div className="flex flex-col sm:flex-row gap-4 w-full">
-            {/* Пошук */}
             <div className="relative flex-1 group">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
@@ -220,7 +217,6 @@ const NewsPage: React.FC = () => {
               />
             </div>
 
-            {/* Дропдаун Фільтру */}
             <div className="relative w-full sm:w-[240px]">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                 <Filter
@@ -289,7 +285,6 @@ const NewsPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Grid Новин */}
       <section className="py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {loading ? (

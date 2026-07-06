@@ -57,7 +57,7 @@ var conn = builder.Configuration.GetConnectionString("DefaultConnection");
            /*"Server=profkomlnu-server.mysql.database.azure.com;port=3306;database=profkomdb;username=seavotgupm;password=DBkN9Ww8Lra$jKjC;";*/
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(conn, ServerVersion.AutoDetect(conn))
+    options.UseMySql(conn, new MariaDbServerVersion(new Version(10, 4, 32)))
            .EnableSensitiveDataLogging()
            .EnableDetailedErrors()
 );

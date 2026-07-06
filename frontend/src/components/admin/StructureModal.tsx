@@ -109,7 +109,7 @@ const StructureModal: React.FC<StructureModalProps> = ({
     summary: (formData as FacultyFormData).summary || 'Опис...',
     telegram_Link: (formData as FacultyFormData).telegram_Link || '',
     instagram_Link: (formData as FacultyFormData).instagram_Link || '',
-    isActive: formData.isActive || true,
+    isActive: formData.isActive ?? true,
     imageUrl: previewImageUrl,
     isCollege: (formData as FacultyFormData).isCollege || false,
   };
@@ -121,7 +121,7 @@ const StructureModal: React.FC<StructureModalProps> = ({
     head: previewHead || undefined,
     description: (formData as DepartmentFormData).description || 'Опис...',
     logoUrl: previewImageUrl,
-    isActive: formData.isActive || true,
+    isActive: formData.isActive ?? true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

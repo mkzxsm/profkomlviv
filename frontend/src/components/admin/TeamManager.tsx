@@ -6,16 +6,22 @@ import TeamModal from './TeamModal';
 import { TeamMember, TeamFormData } from '../../types/team';
 
 interface TeamManagerProps {
+  // Дані для відображення (вже відфільтровані за типом/пошуком і нарізані на сторінку)
   data: TeamMember[];
+  // ПОВНИЙ список членів команди (без фільтрів і пагінації).
+  // Потрібен, щоб правильно порахувати вільний orderInd в межах усього типу,
+  // а не лише в межах поточної сторінки.
+  allData: TeamMember[];
   loading: boolean;
   fetchData: () => Promise<void>;
+  // Тип, що зараз обраний фільтром на рівні AdminDashboard
+  filterType: number;
 }
 
-const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) => {
+const TeamManager: React.FC<TeamManagerProps> = ({ data, allData, loading, fetchData, filterType }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingTeamMember, setEditingTeamMember] = useState<TeamMember | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [filterType, setFilterType] = useState<number>(0);
   const [teamFormData, setTeamFormData] = useState<TeamFormData>({
     name: '',
     position: '',
@@ -27,7 +33,8 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
   });
 
   const handleOpenAddModal = () => {
-    const membersOfType = data.filter(m => m.type === filterType);
+    // Рахуємо вільний orderInd серед УСІХ членів цього типу, а не лише видимої сторінки
+    const membersOfType = allData.filter(m => m.type === filterType);
     const indicesSet = new Set(membersOfType.map(member => member.orderInd));
 
     let nextOrderInd = 0;
@@ -81,8 +88,9 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
       await fetchData();
       handleCloseModal();
     } catch (error) {
-      const axiosError = error as AxiosError;
+      const axiosError = error as AxiosError<any>;
       console.error('Error saving team member:', axiosError.response?.data || axiosError.message);
+      alert(axiosError.response?.data?.message || 'Помилка збереження члена команди');
     }
   };
 
@@ -98,6 +106,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
       } catch (error) {
         const axiosError = error as AxiosError;
         console.error('Error deleting team member:', axiosError.response?.data || axiosError.message);
+        alert('Не вдалося видалити члена команди.');
       }
     }
   };
@@ -132,25 +141,10 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
     });
   };
 
-  const filteredData = data
-    .filter(member => member.type === filterType)
-    .sort((a, b) => a.orderInd - b.orderInd);
-
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center">
-          <h2 className="text-lg font-medium text-gray-900">Управління командою</h2>
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(parseInt(e.target.value))}
-            className="border border-gray-300 rounded-lg px-3 py-2 ml-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value={0}>Члени Президії</option>
-            <option value={1}>Голови Профбюро Студентів</option>
-            <option value={2}>Голови Відділів</option>
-          </select>
-        </div>
+        <h2 className="text-lg font-medium text-gray-900">Управління командою</h2>
 
         <button
           onClick={handleOpenAddModal}
@@ -162,7 +156,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, loading, fetchData }) =
       </div>
 
       <TeamTable
-        data={filteredData}
+        data={data}
         loading={loading}
         onEdit={handleEditTeamMember}
         onDelete={handleDeleteTeamMember}

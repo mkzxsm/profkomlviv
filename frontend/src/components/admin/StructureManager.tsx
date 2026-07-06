@@ -1,14 +1,17 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { Layers, X } from 'lucide-react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { Layers, X, Search } from 'lucide-react';
 import axios, { AxiosError } from 'axios';
 import StructureTable from './StructureTable';
 import StructureModal from './StructureModal';
+import Pagination from './Pagination';
+import CustomDropdown from './CustomDropdown';
 import { Faculty, FacultyFormData } from '../../types/faculty';
 import { Department, DepartmentFormData } from '../../types/department';
 import { TeamMember } from '../../types/team';
 
 const FACULTY_TYPE = 0;
 const DEPARTMENT_TYPE = 1;
+const ITEMS_PER_PAGE = 10;
 
 type StructureItem = Faculty | Department;
 type StructureFormData = Partial<FacultyFormData & DepartmentFormData>;
@@ -32,6 +35,19 @@ const StructureManager: React.FC<StructureManagerProps> = ({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<StructureItem | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Скидаємо сторінку і пошук при перемиканні між профбюро/відділами
+    useEffect(() => {
+        setCurrentPage(1);
+        setSearchTerm('');
+    }, [selectedType]);
+
+    // Скидаємо сторінку при зміні пошукового запиту
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     const getInitialFacultyFormData = (): FacultyFormData => ({
         name: '', headId: null, address: '', room: '',
@@ -199,25 +215,64 @@ const StructureManager: React.FC<StructureManagerProps> = ({
     const currentData = isFacultyView ? enrichedFacultyData : enrichedDepartmentData;
     const title = isFacultyView ? "Управління профбюро" : "Управління відділами";
     const buttonText = isFacultyView ? "Додати профбюро" : "Додати відділ";
+
+    const filteredData = useMemo(() => {
+        const q = searchTerm.trim().toLowerCase();
+        if (!q) return currentData;
+        return currentData.filter(item => {
+            const extra = isFacultyView ? (item as Faculty).summary : (item as Department).description;
+            return (
+                item.name.toLowerCase().includes(q) ||
+                (extra && extra.toLowerCase().includes(q)) ||
+                (item.head && item.head.name.toLowerCase().includes(q))
+            );
+        });
+    }, [currentData, searchTerm, isFacultyView]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredData.length / ITEMS_PER_PAGE));
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [totalPages, currentPage]);
+
+    const paginatedData = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    }, [filteredData, currentPage]);
     
     return (
         <>
-            <div className="flex items-center mb-6">
-                <h2 className="text-lg font-medium text-gray-900">{title}</h2>
-  
-                <select
-                    value={selectedType}
-                    onChange={(e) => setSelectedType(Number(e.target.value))}
-                    className="border border-gray-300 rounded-lg px-3 py-2 ml-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                    <option value={FACULTY_TYPE}>Профбюро Студентів</option>
-                    <option value={DEPARTMENT_TYPE}>Відділи Профкому Студентів</option>
-                </select>
+            <div className="mb-6 flex flex-col sm:flex-row gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <input
+                        type="text"
+                        placeholder={isFacultyView ? "Пошук профбюро за назвою..." : "Пошук відділу за назвою..."}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-10 pr-4 h-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white"
+                    />
+                </div>
 
+                <CustomDropdown
+                    value={selectedType}
+                    onChange={(v) => setSelectedType(Number(v))}
+                    className="sm:w-[280px]"
+                    options={[
+                        { value: FACULTY_TYPE, label: 'Профбюро Студентів' },
+                        { value: DEPARTMENT_TYPE, label: 'Відділи Профкому Студентів' },
+                    ]}
+                />
+            </div>
+
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-lg font-medium text-gray-900">{title}</h2>
                 <button
                     type="button"
                     onClick={handleOpenAddModal}
-                    className="flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 ml-auto"
+                    className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
                 >
                     <Layers className="h-5 w-5" />
                     <span>{buttonText}</span>
@@ -226,10 +281,16 @@ const StructureManager: React.FC<StructureManagerProps> = ({
 
             <StructureTable
                 type={isFacultyView ? 'faculty' : 'department'}
-                data={currentData}
+                data={paginatedData}
                 loading={loading}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+            />
+
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
             />
 
             {isModalOpen && (
