@@ -20,6 +20,9 @@ interface TeamModalProps {
  onClose: () => void;
 }
 
+const MAX_FILE_SIZE_MB = 5;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 const TeamModal: React.FC<TeamModalProps> = ({
  formData,
  setFormData,
@@ -46,6 +49,7 @@ useEffect(() => {
 }, [formData.type, setFormData]);
 
  const [previewImageUrl, setPreviewImageUrl] = useState<string | undefined>(undefined);
+ const [fileError, setFileError] = useState<string | null>(null);
 
  useEffect(() => {
   if (selectedFile) {
@@ -58,6 +62,22 @@ useEffect(() => {
    setPreviewImageUrl(undefined);
   }
  }, [selectedFile, editingItem]);
+
+ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0] || null;
+
+  if (file && file.size > MAX_FILE_SIZE_BYTES) {
+   setFileError(
+    `Файл завеликий (${(file.size / (1024 * 1024)).toFixed(1)} МБ). Максимальний розмір — ${MAX_FILE_SIZE_MB} МБ.`
+   );
+   setSelectedFile(null);
+   e.target.value = ''; // дозволяємо вибрати той самий файл повторно після виправлення
+   return;
+  }
+
+  setFileError(null);
+  setSelectedFile(file);
+ };
 
  const showPositionInput = formData.type === 0;
  const showTemporaryCheckbox = formData.type === 1 || formData.type === 2;
@@ -91,6 +111,7 @@ useEffect(() => {
       id="name"
       type="text"
       required
+      maxLength={100}
       value={formData.name}
       onChange={(e) => {
        const lettersOnly = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ ЇїІіЄєҐґ\s-']/g, '');
@@ -138,6 +159,7 @@ useEffect(() => {
        id="position"
        type="text"
        required
+       maxLength={100}
        value={formData.position}
        onChange={(e) => setFormData({ ...formData, position: e.target.value })}
        placeholder="Голова Профкому Студентів"
@@ -156,6 +178,7 @@ useEffect(() => {
      <ModalInput
       id="email"
       type="email"
+      maxLength={150}
       value={formData.email || ''}
       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
       placeholder="ivanfranko@lnu.edu.ua"
@@ -169,8 +192,9 @@ useEffect(() => {
      <ModalInput
       type="file"
       accept="image/*"
-      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+      onChange={handleFileChange}
      />
+     {fileError && <p className="mt-1 text-xs text-red-600">{fileError}</p>}
     </div>
 
     <div>
@@ -181,8 +205,13 @@ useEffect(() => {
       id="orderInd"
       type="number"
       min={0}
+      max={9999}
       value={formData.orderInd}
-      onChange={(e) => setFormData({ ...formData, orderInd: parseInt(e.target.value) || 0 })}
+      onChange={(e) => {
+       const raw = parseInt(e.target.value) || 0;
+       const clamped = Math.min(Math.max(raw, 0), 9999);
+       setFormData({ ...formData, orderInd: clamped });
+      }}
       placeholder="0"
      />
      <p className="mt-1 text-xs text-gray-500">

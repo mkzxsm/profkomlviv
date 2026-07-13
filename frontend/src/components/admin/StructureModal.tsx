@@ -10,6 +10,9 @@ import DepartmentCard from '../DepartmentCard';
 type StructureItem = Faculty | Department;
 type StructureFormData = Partial<FacultyFormData & DepartmentFormData>;
 
+const MAX_FILE_SIZE_MB = 5;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 interface StructureModalProps {
   type: 'faculty' | 'department';
   formData: StructureFormData;
@@ -33,9 +36,26 @@ const StructureModal: React.FC<StructureModalProps> = ({
 }) => {
   const [availableHeads, setAvailableHeads] = useState<TeamMember[]>([]);
   const [loadingHeads, setLoadingHeads] = useState(true);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   const isFaculty = type === 'faculty';
   const headType = isFaculty ? PROFBURO_HEAD_TYPE : VIDDIL_HEAD_TYPE;
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+
+    if (file && file.size > MAX_FILE_SIZE_BYTES) {
+      setFileError(
+        `Файл завеликий (${(file.size / (1024 * 1024)).toFixed(1)} МБ). Максимальний розмір — ${MAX_FILE_SIZE_MB} МБ.`
+      );
+      setSelectedFile(null);
+      e.target.value = ''; // дозволяємо вибрати той самий файл повторно після виправлення
+      return;
+    }
+
+    setFileError(null);
+    setSelectedFile(file);
+  };
 
   useEffect(() => {
     const fetchAvailableHeads = async () => {
@@ -138,6 +158,7 @@ const StructureModal: React.FC<StructureModalProps> = ({
             id="name"
             type="text"
             required
+            maxLength={100}
             value={formData.name || ''}
             onChange={(e) => {
               const lettersOnly = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ ЇїІіЄєҐґ\s-']/g, '');
@@ -188,26 +209,32 @@ const StructureModal: React.FC<StructureModalProps> = ({
           <div>
             <ModalLabel>Лого профбюро</ModalLabel>
             <ModalInput type="file" accept="image/*"
-              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+              onChange={handleFileChange}
             />
             <p className="mt-1 text-xs text-gray-500">{fileInputHelperText}</p>
+            {fileError && <p className="mt-1 text-xs text-red-600">{fileError}</p>}
           </div>
           
           <div>
             <ModalLabel htmlFor="summary" required>Опис діяльності</ModalLabel>
             <textarea
               id="summary" rows={3} required
+              maxLength={500}
               value={(formData as FacultyFormData).summary || ''}
               onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Короткий опис діяльності профбюро"
             />
+            <p className="mt-1 text-xs text-gray-400 text-right">
+              {((formData as FacultyFormData).summary || '').length} / 500
+            </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <ModalLabel htmlFor="address" required>Адреса</ModalLabel>
               <ModalInput id="address" type="text" required
+                maxLength={200}
                 value={(formData as FacultyFormData).address || ''}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 placeholder="вул. Університетська, 1"
@@ -216,6 +243,7 @@ const StructureModal: React.FC<StructureModalProps> = ({
             <div>
               <ModalLabel htmlFor="room">Додаткова адреса (аудиторія)</ModalLabel>
               <ModalInput id="room" type="text"
+                maxLength={100}
                 value={(formData as FacultyFormData).room || ''}
                 onChange={(e) => setFormData({ ...formData, room: e.target.value })}
                 placeholder="2 поверх, аудиторія 125"
@@ -227,6 +255,7 @@ const StructureModal: React.FC<StructureModalProps> = ({
             <div>
               <ModalLabel htmlFor="telegram_link">Телеграм</ModalLabel>
               <ModalInput id="telegram_link" type="url"
+                maxLength={200}
                 value={(formData as FacultyFormData).telegram_Link || ''}
                 onChange={(e) => setFormData({ ...formData, telegram_Link: e.target.value })}
                 placeholder="https://t.me/..."
@@ -235,6 +264,7 @@ const StructureModal: React.FC<StructureModalProps> = ({
             <div>
               <ModalLabel htmlFor="instagram_link">Інстаграм</ModalLabel>
               <ModalInput id="instagram_link" type="url"
+                maxLength={200}
                 value={(formData as FacultyFormData).instagram_Link || ''}
                 onChange={(e) => setFormData({ ...formData, instagram_Link: e.target.value })}
                 placeholder="https://instagram.com/..."
@@ -246,6 +276,7 @@ const StructureModal: React.FC<StructureModalProps> = ({
             <div>
               <ModalLabel htmlFor="schedule" required>Години роботи</ModalLabel>
               <ModalInput id="schedule" type="text" required
+                maxLength={100}
                 value={(formData as FacultyFormData).schedule || ''}
                 onChange={(e) => setFormData({ ...formData, schedule: e.target.value })}
                 placeholder="Пн-Пт: 9:00-17:00"
@@ -276,9 +307,10 @@ const StructureModal: React.FC<StructureModalProps> = ({
             <div>
               <ModalLabel>Лого відділу</ModalLabel>
               <ModalInput type="file" accept="image/*"
-                onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                onChange={handleFileChange}
               />
               <p className="mt-1 text-xs text-gray-500">{fileInputHelperText}</p>
+              {fileError && <p className="mt-1 text-xs text-red-600">{fileError}</p>}
             </div>
             <div className="flex items-center md:pt-8">
               <ModalCheckbox id="isActive_dept"
@@ -293,11 +325,15 @@ const StructureModal: React.FC<StructureModalProps> = ({
             <ModalLabel htmlFor="description">Опис діяльності</ModalLabel>
             <textarea
               id="description" rows={3}
+              maxLength={500}
               value={(formData as DepartmentFormData).description || ''}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Короткий опис діяльності відділу"
             />
+            <p className="mt-1 text-xs text-gray-400 text-right">
+              {((formData as DepartmentFormData).description || '').length} / 500
+            </p>
           </div>
         </>
       )}

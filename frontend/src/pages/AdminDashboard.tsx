@@ -50,9 +50,6 @@ const AdminDashboard: React.FC = () => {
     const [documents, setDocuments] = useState<Document[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // Пагінація стосується лише вкладок news / team / documents.
-    // Structure має власну, самодостатню пагінацію всередині StructureManager,
-    // бо факультети та відділи — це дві різні за формою колекції.
     const [currentPage, setCurrentPage] = useState(1);
 
     // Фільтри для вкладки "Команда"
@@ -109,7 +106,7 @@ const AdminDashboard: React.FC = () => {
         navigate('/admin/login');
     };
 
-    // --- Фільтрація + сортування команди (єдине джерело правди для вкладки "Команда") ---
+    // --- Фільтрація + сортування команди ---
     const filteredTeam = useMemo(() => {
         let result = teamMembers.filter(m => m.type === teamFilterType);
 
@@ -125,7 +122,7 @@ const AdminDashboard: React.FC = () => {
         return [...result].sort((a, b) => a.orderInd - b.orderInd);
     }, [teamMembers, teamSearchTerm, teamFilterType]);
 
-    // --- Пошук по новинах (заголовок + текст, теги HTML зі змісту не заважають підрядковому пошуку) ---
+    // --- Пошук по новинах ---
     const filteredNews = useMemo(() => {
         const q = newsSearchTerm.trim().toLowerCase();
         if (!q) return news;
@@ -135,7 +132,7 @@ const AdminDashboard: React.FC = () => {
         );
     }, [news, newsSearchTerm]);
 
-    // --- Пошук по документах (назва + опис) ---
+    // --- Пошук по документах ---
     const filteredDocuments = useMemo(() => {
         const q = documentsSearchTerm.trim().toLowerCase();
         if (!q) return documents;
@@ -145,7 +142,7 @@ const AdminDashboard: React.FC = () => {
         );
     }, [documents, documentsSearchTerm]);
 
-    // --- Обчислення загальної кількості для активної (пагінованої) вкладки ---
+    // --- Обчислення загальної кількості для активної вкладки ---
     const getActiveTabTotalItems = () => {
         switch (activeTab) {
             case 'news': return filteredNews.length;
@@ -159,7 +156,7 @@ const AdminDashboard: React.FC = () => {
     const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
 
     useEffect(() => {
-        if (currentPage > totalPages) {
+        if (currentPage > totalPages && totalPages > 0) {
             setCurrentPage(totalPages);
         }
     }, [totalPages, currentPage]);
@@ -170,6 +167,14 @@ const AdminDashboard: React.FC = () => {
     const paginatedNews = filteredNews.slice(startIndex, endIndex);
     const paginatedTeam = filteredTeam.slice(startIndex, endIndex);
     const paginatedDocuments = filteredDocuments.slice(startIndex, endIndex);
+
+    // Функція зміни сторінки (з підтримкою блокування скролу)
+    const handlePageChange = (page: number, preventScroll: boolean = false) => {
+        setCurrentPage(page);
+        if (!preventScroll) {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    };
 
     if (!user) return null;
 
@@ -190,7 +195,7 @@ const AdminDashboard: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Hero Section — стилістика як на сторінці "Про нас" */}
+            {/* Hero Section */}
             <section className="relative bg-[#10183a] pt-16 pb-28 text-white overflow-hidden w-full">
                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
                     <div className="absolute top-[5%] -left-[10%] w-[50%] h-[80%] rounded-full bg-[#1e3a8a]/40 blur-[120px]" />
@@ -229,7 +234,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
             </section>
 
-            {/* Floating stats panel — накладається на hero, як пошук на TeamPage */}
+            {/* Статистика */}
             <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-14">
                 <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-4 sm:p-6 border border-gray-100">
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
@@ -270,7 +275,6 @@ const AdminDashboard: React.FC = () => {
                     </div>
 
                     <div className="p-6">
-
                         {/* Пошук для новин */}
                         {activeTab === 'news' && (
                             <div className="mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
@@ -287,7 +291,7 @@ const AdminDashboard: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Фільтр для команди (лише на вкладці "Команда") */}
+                        {/* Фільтр для команди */}
                         {activeTab === 'team' && (
                             <div className="mb-6 flex flex-col sm:flex-row gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
                                 <div className="relative flex-1">
@@ -353,11 +357,12 @@ const AdminDashboard: React.FC = () => {
                             <DocumentManager data={paginatedDocuments} loading={loading} fetchData={fetchAllData} />
                         )}
 
+                        {/* Виклик компонента пагінації */}
                         {activeTab !== 'structure' && (
                             <Pagination
                                 currentPage={currentPage}
                                 totalPages={totalPages}
-                                onPageChange={setCurrentPage}
+                                onPageChange={handlePageChange}
                             />
                         )}
                     </div>

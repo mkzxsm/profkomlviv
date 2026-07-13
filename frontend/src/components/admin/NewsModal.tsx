@@ -20,6 +20,23 @@ interface NewsModalProps {
     onClose: () => void;
 }
 
+// CKEditor рендерить звичайний <div>, а не <input>/<textarea>,
+// тому атрибут required з ModalLabel ніяк не перевіряється браузером.
+// Через DOMParser дістаємо саме видимий текст (він сам розкодовує будь-яку форму
+// пробілу — &nbsp;, &#160;, реальний символ U+00A0 тощо), а тоді прибираємо
+// невидимі пробіли, щоб рядок з самих пробілів теж вважався пустим контентом.
+const isContentEmpty = (html: string | undefined) => {
+    if (!html) return true;
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const text = (doc.body.textContent || '')
+        .replace(/[\s\u00A0\u200B\uFEFF]/g, '')
+        .trim();
+    return text.length === 0;
+};
+
+const MAX_FILE_SIZE_MB = 5;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 const NewsModal: React.FC<NewsModalProps> = ({
     formData,
     setFormData,
@@ -30,6 +47,8 @@ const NewsModal: React.FC<NewsModalProps> = ({
     onClose
 }) => {
     const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+    const [contentError, setContentError] = useState(false);
+    const [fileError, setFileError] = useState<string | null>(null);
 
     // ЗМІНА 2: Логіка прев'ю для першого файлу зі списку
     useEffect(() => {
@@ -66,8 +85,49 @@ const NewsModal: React.FC<NewsModalProps> = ({
         images: imageUrlForPreview ? [{ id: 0, imagePath: imageUrlForPreview, newsId: 0 }] : [],
     };
 
+    // Перевіряємо КОЖЕН обраний файл — з декількох зображень досить одного завеликого,
+    // щоб зіпсувати завантаження, тож відхиляємо весь вибір і просимо обрати заново.
+    const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+
+        if (!files || files.length === 0) {
+            setFileError(null);
+            setSelectedFiles(null);
+            return;
+        }
+
+        const oversized = Array.from(files).filter(f => f.size > MAX_FILE_SIZE_BYTES);
+
+        if (oversized.length > 0) {
+            const list = oversized
+                .map(f => `${f.name} (${(f.size / (1024 * 1024)).toFixed(1)} МБ)`)
+                .join(', ');
+            setFileError(
+                `Занадто великі файли (максимум ${MAX_FILE_SIZE_MB} МБ на файл): ${list}`
+            );
+            setSelectedFiles(null);
+            e.target.value = ''; // дозволяємо вибрати файли повторно після виправлення
+            return;
+        }
+
+        setFileError(null);
+        setSelectedFiles(files);
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (isContentEmpty(formData.content)) {
+            setContentError(true);
+            return;
+        }
+
+        setContentError(false);
+        onSubmit(e);
+    };
+
     return (
-        <form onSubmit={onSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
             <style>
                 {`.ck-editor__editable_inline { min-height: 200px; }`}
             </style>
@@ -77,6 +137,7 @@ const NewsModal: React.FC<NewsModalProps> = ({
                     id="title"
                     type="text"
                     required
+                    maxLength={200}
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="Іван Франко відвідав власний університет!"
@@ -94,8 +155,9 @@ const NewsModal: React.FC<NewsModalProps> = ({
                     type="file"
                     accept="image/*"
                     multiple 
-                    onChange={(e) => setSelectedFiles(e.target.files)} // Зберігаємо FileList
+                    onChange={handleFilesChange}
                 />
+                {fileError && <p className="mt-1 text-xs text-red-600">{fileError}</p>}
                 
                 <div className="mt-2 text-sm text-gray-500">
                     {selectedFiles && selectedFiles.length > 0 ? (
@@ -115,17 +177,25 @@ const NewsModal: React.FC<NewsModalProps> = ({
 
             <div>
                 <ModalLabel required>Контент</ModalLabel>
-                <CKEditor
-                    editor={ClassicEditor}
-                    data={formData.content}
-                    onChange={(_, editor: any) => {
-                        const data = editor.getData();
-                        setFormData(prev => ({ ...prev, content: data }));
-                    }}
-                    config={{
-                        toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'undo', 'redo']
-                    }}
-                />
+                <div className={contentError ? 'rounded-lg ring-2 ring-red-500' : ''}>
+                    <CKEditor
+                        editor={ClassicEditor}
+                        data={formData.content}
+                        onChange={(_, editor: any) => {
+                            const data = editor.getData();
+                            setFormData(prev => ({ ...prev, content: data }));
+                            if (contentError && !isContentEmpty(data)) {
+                                setContentError(false);
+                            }
+                        }}
+                        config={{
+                            toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'undo', 'redo']
+                        }}
+                    />
+                </div>
+                {contentError && (
+                    <p className="mt-1 text-sm text-red-600">Поле "Контент" є обов'язковим і не може бути порожнім.</p>
+                )}
             </div>
 
             <div className="flex items-center">

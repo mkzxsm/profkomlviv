@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 
 interface PaginationProps {
@@ -8,6 +8,19 @@ interface PaginationProps {
 }
 
 const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+  const isFirstRender = useRef(true);
+
+  // Скролимо вгору щоразу, коли РЕАЛЬНО змінюється поточна сторінка —
+  // незалежно від того, яку кнопку натиснули (перша/попередня/номер/наступна/остання).
+  // Так гарантовано немає різниці в поведінці між кнопками.
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
+
   if (totalPages <= 1) return null;
 
   const maxVisibleButtons = 5;
@@ -20,7 +33,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || page === currentPage) return;
     onPageChange(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
