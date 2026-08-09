@@ -17,9 +17,11 @@ interface TeamTableProps {
   onEdit: (member: TeamMember) => void;
   onDelete: (id: number) => void;
   filterType: number;
+  hasAnyMembers: boolean;
 }
 
-const TeamTable: React.FC<TeamTableProps> = ({ data, loading, onEdit, onDelete, filterType }) => {
+// ДОДАНО hasAnyMembers сюди 👇
+const TeamTable: React.FC<TeamTableProps> = ({ data, loading, onEdit, onDelete, filterType, hasAnyMembers }) => {
   
   const isPresidium = filterType === 0;
   const colSpanValue = isPresidium ? 5 : 6;
@@ -34,6 +36,7 @@ const TeamTable: React.FC<TeamTableProps> = ({ data, loading, onEdit, onDelete, 
   return (
     <TableContainer>
       <Table>
+        {/* ПОВЕРНУТО РЕАЛЬНУ ШАПКУ ТАБЛИЦІ ЗАМІСТЬ КОМЕНТАРЯ */}
         <TableHeader>
           <tr>
             <TableTh>Ім'я</TableTh>
@@ -44,6 +47,7 @@ const TeamTable: React.FC<TeamTableProps> = ({ data, loading, onEdit, onDelete, 
             <TableTh>Дії</TableTh>
           </tr>
         </TableHeader>
+        
         <TableBody>
           {loading ? (
             <TableRow>
@@ -54,7 +58,9 @@ const TeamTable: React.FC<TeamTableProps> = ({ data, loading, onEdit, onDelete, 
           ) : data.length === 0 ? (
             <TableRow>
               <TableTd colSpan={colSpanValue} className="text-center text-gray-500">
-                Членів команди поки немає
+                {hasAnyMembers 
+                  ? 'За вашим запитом нічого не знайдено' 
+                  : 'Членів команди поки немає'}
               </TableTd>
             </TableRow>
           ) : (
@@ -68,8 +74,17 @@ const TeamTable: React.FC<TeamTableProps> = ({ data, loading, onEdit, onDelete, 
 
               return (
                 <TableRow key={member.id}>
-                  <TableTd className="text-center">{member.name}</TableTd>
-                  <TableTd className="text-center">{displayPosition}</TableTd>
+                  <TableTd className="text-center">
+                    <div className="max-w-[150px] sm:max-w-[200px] mx-auto break-all whitespace-normal">
+                      {member.name}
+                    </div>
+                  </TableTd>
+                  
+                  <TableTd className="text-center">
+                    <div className="max-w-[150px] sm:max-w-[200px] mx-auto break-all whitespace-normal text-gray-700">
+                      {displayPosition}
+                    </div>
+                  </TableTd>
                   
                   <TableTd className="text-center">
                     {member.email ? (

@@ -10,6 +10,7 @@ export interface NewsFormData {
   content: string;
   imageUrl: string; // Це поле можна залишити для сумісності
   isImportant: boolean;
+  removedImageIds?: number[];
 }
 
 export interface News {

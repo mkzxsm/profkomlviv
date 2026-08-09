@@ -4,9 +4,9 @@ import { TeamMember, TeamFormData } from '../../types/team';
 import {
   ModalLabel,
   ModalInput,
- ModalSelect,
- ModalCheckbox,
- ModalButton
+  ModalSelect,
+  ModalCheckbox,
+  ModalButton
 } from './ui/ModalStyles'; 
 import TeamMemberCard from '../TeamMemberCard';
 
@@ -18,6 +18,8 @@ interface TeamModalProps {
  editingItem: TeamMember | null;
  onSubmit: (e: React.FormEvent) => void;
  onClose: () => void;
+ // ЗМІНА 1: Додаємо allData, щоб модалка знала про існуючі порядки
+ allData: TeamMember[]; 
 }
 
 const MAX_FILE_SIZE_MB = 5;
@@ -30,7 +32,8 @@ const TeamModal: React.FC<TeamModalProps> = ({
  setSelectedFile,
  editingItem,
  onSubmit,
- onClose
+ onClose,
+ allData // <--- дістаємо з пропсів
 }) => {
 
 useEffect(() => {
@@ -50,6 +53,27 @@ useEffect(() => {
 
  const [previewImageUrl, setPreviewImageUrl] = useState<string | undefined>(undefined);
  const [fileError, setFileError] = useState<string | null>(null);
+ 
+ // ЗМІНА 2: Додаємо стан для помилки порядку
+ const [orderError, setOrderError] = useState<string | null>(null);
+
+ // ЗМІНА 3: Валідація унікальності порядку при кожній зміні orderInd або type
+ useEffect(() => {
+   if (!allData) return;
+
+   // Шукаємо, чи є вже член команди з таким самим типом та порядком
+   const isDuplicate = allData.some(
+     member => member.type === formData.type &&
+               member.orderInd === formData.orderInd &&
+               member.id !== editingItem?.id // не порівнюємо з собою ж при редагуванні
+   );
+
+   if (isDuplicate) {
+     setOrderError(`Порядок ${formData.orderInd} вже зайнятий іншим членом команди у цій категорії.`);
+   } else {
+     setOrderError(null);
+   }
+ }, [formData.orderInd, formData.type, allData, editingItem]);
 
  useEffect(() => {
   if (selectedFile) {
@@ -71,12 +95,21 @@ useEffect(() => {
     `Файл завеликий (${(file.size / (1024 * 1024)).toFixed(1)} МБ). Максимальний розмір — ${MAX_FILE_SIZE_MB} МБ.`
    );
    setSelectedFile(null);
-   e.target.value = ''; // дозволяємо вибрати той самий файл повторно після виправлення
+   e.target.value = ''; 
    return;
   }
 
   setFileError(null);
   setSelectedFile(file);
+ };
+
+ // ЗМІНА 4: Створюємо локальний обробник відправки, який блокує збереження, якщо є orderError
+ const handleLocalSubmit = (e: React.FormEvent) => {
+   e.preventDefault();
+   if (orderError) {
+     return; // Блокуємо відправку
+   }
+   onSubmit(e);
  };
 
  const showPositionInput = formData.type === 0;
@@ -102,7 +135,8 @@ useEffect(() => {
 
  return (
   <div>
-   <form onSubmit={onSubmit} className="px-6 pb-6 pt-6 space-y-6">
+   {/* Використовуємо handleLocalSubmit замість onSubmit */}
+   <form onSubmit={handleLocalSubmit} className="px-6 pb-6 pt-6 space-y-6">
     <div>
      <ModalLabel required htmlFor="name">
       Ім'я та прізвище
@@ -167,7 +201,7 @@ useEffect(() => {
      </div>
     ) : (
      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-      <p className="text-md text-blue-800">
+      <p className="text-md text-blue-800 break-words">
        <span className="font-semibold">Посада:</span> {previewPosition}
       </p>
      </div>
@@ -214,22 +248,31 @@ useEffect(() => {
       }}
       placeholder="0"
      />
-     <p className="mt-1 text-xs text-gray-500">
-      Задає позицію в таблиці
-     </p>
+     {/* ЗМІНА 5: Відображаємо помилку червоним кольором, якщо номер зайнято */}
+     {orderError ? (
+       <p className="mt-1 text-xs font-medium text-red-600">{orderError}</p>
+     ) : (
+       <p className="mt-1 text-xs text-gray-500">Задає позицію в таблиці</p>
+     )}
     </div>
 
-   <div className="px-6 pt-6"> 
-    <div className="w-full max-w-sm mx-auto"> 
-     <TeamMemberCard member={previewMember} />
+    <div className="pt-6 pb-8"> 
+     <ModalLabel>Попередній перегляд</ModalLabel>
+     <div className="w-full max-w-sm mx-auto mt-2"> 
+      <TeamMemberCard member={previewMember} />
+     </div>
     </div>
-   </div>
 
-    <div className="flex justify-end space-x-4 border-t pt-6">
+    <div className="flex justify-end space-x-4 border-t pt-6 bg-white relative z-10">
      <ModalButton type="button" onClick={onClose} variant="secondary">
       Скасувати
      </ModalButton>
-     <ModalButton type="submit" variant="primary">
+     {/* ЗМІНА 6: Робимо кнопку напівпрозорою, якщо є помилка, щоб візуально підкреслити блокування */}
+     <ModalButton 
+       type="submit" 
+       variant="primary" 
+       className={orderError ? 'opacity-50 cursor-not-allowed' : ''}
+     >
       {editingItem ? 'Зберегти зміни' : 'Додати члена команди'}
      </ModalButton>
     </div>

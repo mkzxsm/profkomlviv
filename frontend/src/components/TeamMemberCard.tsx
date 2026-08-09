@@ -27,11 +27,11 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
 
   const imageUrl = getFullImageUrl(member.imageUrl);
 
+// ... верхня частина файлу без змін ...
+
   return (
-    <div className="group flex flex-col overflow-visible bg-white hover:bg-blue-50 rounded-xl transition-all duration-300 hover:-translate-y-2 shadow-sm hover:shadow-lg border border-gray-200 hover:border-blue-300">
-      {/* Фото або ініціали */}
+    <div className="group flex flex-col overflow-visible bg-white hover:bg-blue-50 rounded-xl transition-all duration-300 transform-gpu hover:-translate-y-2 shadow-sm hover:shadow-lg border border-gray-200 hover:border-blue-300">
       <div className="relative">
-        {/* Контейнер із заокругленням */}
         <div className="aspect-[3/4] rounded-md overflow-hidden">
           {member.imageUrl ? (
             <div className="w-full h-full p-4">
@@ -55,15 +55,19 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
       </div>
 
       {/* Text */}
-      <div className="flex flex-col items-center justify-center text-center text-white px-4 pb-4 w-full">
-        <h3 className="text-2xl font-bold text-[#1E2A5A] w-full truncate group-hover:text-blue-600">
+      {/* ВИДАЛЕНО text-white, оскільки текст і так має свій колір #1E2A5A */}
+      <div className="flex flex-col items-center justify-center text-center px-4 pb-4 w-full">
+        {/* 1. ЗАМІНЕНО truncate на break-words
+          2. ДОДАНО transition-colors duration-300 для плавної зміни кольору на синій
+        */}
+        <h3 className="text-2xl font-bold text-[#1E2A5A] w-full break-words transition-colors duration-300 group-hover:text-blue-600">
           {member.name}
         </h3>
-        <p className="mt-1 text-lg italic text-[#1E2A5A] w-full">
+        <p className="mt-1 text-lg italic text-[#1E2A5A] w-full break-words">
           {member.isTemporary 
             ? member.position.replace("Керівник", "В.О. Керівника") 
             : member.position}
-          </p>
+        </p>
       </div>
     </div>
   );

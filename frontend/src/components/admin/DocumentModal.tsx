@@ -13,6 +13,10 @@ interface DocumentModalProps {
   onClose: () => void;
 }
 
+// ДОДАНО: Константи для обмеження розміру файлу
+const MAX_FILE_SIZE_MB = 5;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 const DocumentModal: React.FC<DocumentModalProps> = ({
   formData,
   setFormData,
@@ -24,6 +28,8 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
 }) => {
 
   const [previewLocalUrl, setPreviewLocalUrl] = useState<string | null>(null);
+  // ДОДАНО: Стан для відображення помилки файлу
+  const [fileError, setFileError] = useState<string | null>(null);
 
   useEffect(() => {
     if (selectedFile) {
@@ -49,8 +55,21 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
     };
   }, [formData, selectedFile, editingItem, previewLocalUrl]);
 
+  // ЗМІНЕНО: Додано логіку валідації розміру
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedFile(e.target.files?.[0] || null);
+    const file = e.target.files?.[0] || null;
+
+    if (file && file.size > MAX_FILE_SIZE_BYTES) {
+      setFileError(
+        `Файл завеликий (${(file.size / (1024 * 1024)).toFixed(1)} МБ). Максимальний розмір — ${MAX_FILE_SIZE_MB} МБ.`
+      );
+      setSelectedFile(null);
+      e.target.value = ''; // Дозволяє вибрати той самий файл повторно після помилки
+      return;
+    }
+
+    setFileError(null);
+    setSelectedFile(file);
   };
 
   const getFileName = (filePath: string) => {
@@ -88,7 +107,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           rows={3}
           value={formData.description || ''}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full resize-y border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="Короткий опис документа..."
         />
       </div>
@@ -103,7 +122,12 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
           onChange={handleFileChange}
         />
-        <p className="mt-1 text-xs text-gray-500">{fileInputHelperText}</p>
+        {/* ДОДАНО: Відображення тексту помилки, якщо вона є, інакше звичайна підказка */}
+        {fileError ? (
+          <p className="mt-1 text-xs text-red-600">{fileError}</p>
+        ) : (
+          <p className="mt-1 text-xs text-gray-500">{fileInputHelperText}</p>
+        )}
       </div>
 
       <div>

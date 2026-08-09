@@ -141,11 +141,14 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, allData, loading, fetch
     });
   };
 
+const hasAnyMembers = allData.some(m => m.type === filterType);
+
   return (
     <>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-medium text-gray-900">Управління командою</h2>
-
+        
+        {/* ПОВЕРТАЄМО КНОПКУ НА МІСЦЕ 👇 */}
         <button
           onClick={handleOpenAddModal}
           className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
@@ -161,12 +164,13 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, allData, loading, fetch
         onEdit={handleEditTeamMember}
         onDelete={handleDeleteTeamMember}
         filterType={filterType}
+        hasAnyMembers={hasAnyMembers}
       />
 
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-50">
               <h2 className="text-xl font-semibold text-gray-900">
                 {editingTeamMember ? 'Редагувати члена команди' : 'Додати члена команди'}
               </h2>
@@ -185,6 +189,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, allData, loading, fetch
               editingItem={editingTeamMember}
               onSubmit={handleTeamSubmit}
               onClose={handleCloseModal}
+              allData={allData}
             />
           </div>
         </div>

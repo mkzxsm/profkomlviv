@@ -49,13 +49,17 @@ const StructureTable: React.FC<StructureTableProps> = ({ type, data, loading, on
     const isFaculty = type === 'faculty';
     const colSpan = isFaculty ? 8 : 6;
 
-    const renderFacultyRow = (item: Faculty) => {
+const renderFacultyRow = (item: Faculty) => {
         const union = item;
-        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${union.address}`;
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=$${union.address}`;
         
         return (
             <TableRow key={union.id}>
-                <TableTd>{union.name}</TableTd>
+                <TableTd>
+                    <div className="max-w-[150px] sm:max-w-[250px] break-words whitespace-normal">
+                        {union.name}
+                    </div>
+                </TableTd>
                 <TableTd className="text-center">
                     {union.head ? (
                         <span>{union.head.name}</span>
@@ -120,11 +124,15 @@ const StructureTable: React.FC<StructureTableProps> = ({ type, data, loading, on
         );
     };
 
-    const renderDepartmentRow = (item: Department) => {
+const renderDepartmentRow = (item: Department) => {
         const dept = item;
         return (
             <TableRow key={dept.id}>
-                <TableTd>{dept.name}</TableTd>
+                <TableTd>
+                    <div className="max-w-[150px] sm:max-w-[250px] break-words whitespace-normal">
+                        {dept.name}
+                    </div>
+                </TableTd>
                 <TableTd className="text-center">
                     {dept.head ? (
                         <span>{dept.head.name}</span>
