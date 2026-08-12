@@ -249,20 +249,35 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] overflow-x-clip">
+      {/* Skip to main content — для навігації з клавіатури та скрін-рідерів */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:bg-white focus:text-blue-700 focus:px-4 focus:py-2 focus:rounded-lg focus:font-bold focus:shadow-lg"
+      >
+        Перейти до основного вмісту
+      </a>
+
       {/* Hero Section */}
       <section
+        aria-label="Головний банер"
+        aria-roledescription="carousel"
         className="relative overflow-hidden bg-[#0f172a]"
         style={{ height: "calc(100vh - 64px)" }}
       >
         {heroSlides.map((slide, index) => (
           <div
             key={slide.id}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`Слайд ${index + 1} з ${heroSlides.length}: ${slide.title}`}
+            aria-hidden={index !== currentSlide}
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
               index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
             }`}
           >
             {/* Повільне наближення фону для ефекту кінематографічності */}
             <div
+              aria-hidden="true"
               className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[7000ms] ease-out ${
                 index === currentSlide ? "scale-105" : "scale-100"
               }`}
@@ -271,14 +286,32 @@ const HomePage: React.FC = () => {
               }}
             />
             {/* Глибокий градієнт для ідеальної читабельності тексту */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/95 via-[#0f172a]/70 to-[#0f172a]/20" />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/95 via-[#0f172a]/70 to-[#0f172a]/20"
+            />
           </div>
         ))}
 
+        {/* Прихований aria-live регіон — завжди в DOM, оголошує зміни слайду */}
+        <div
+          aria-live="polite"
+          aria-atomic="true"
+          className="sr-only"
+        >
+          {`Слайд ${currentSlide + 1} з ${heroSlides.length}: ${heroSlides[currentSlide].title}. ${heroSlides[currentSlide].description}`}
+        </div>
+
         {/* Контент слайду */}
-        <div className="relative z-20 flex items-center h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div
+          id="main-content"
+          className="relative z-20 flex items-center h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+        >
           <div className="max-w-2xl text-left text-white">
-            <div key={currentSlide} className="animate-fade-in-up">
+            <div
+              key={currentSlide}
+              className="animate-fade-in-up"
+            >
               {/* "Перший шрифт" - Технічний/Акцентний */}
               <div className="flex items-center gap-4 mb-5">
                 <span className="w-12 h-[2px] bg-[#facc15] rounded-full shadow-[0_0_10px_rgba(250,204,21,0.5)]"></span>
@@ -301,11 +334,15 @@ const HomePage: React.FC = () => {
             <div className="flex gap-4">
               <button
                 onClick={() => navigate("/services")}
+                aria-label="Дізнатися більше про наші послуги"
                 className="group relative inline-flex items-center justify-center px-8 py-3.5 text-base font-bold text-[#0f172a] bg-white rounded-full overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_30px_rgba(255,255,255,0.25)]"
               >
                 <span className="relative z-10 flex items-center gap-2">
                   Дізнатися більше
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  <ArrowRight
+                    className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
+                    aria-hidden="true"
+                  />
                 </span>
               </button>
             </div>
@@ -313,10 +350,26 @@ const HomePage: React.FC = () => {
         </div>
 
         {/* Сучасна пагінація (смужки замість крапок) */}
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-30 flex space-x-2.5 items-center">
+        <div
+          role="tablist"
+          aria-label="Навігація по слайдах"
+          onKeyDown={(e) => {
+            if (e.key === "ArrowRight")
+              goToSlide((currentSlide + 1) % heroSlides.length);
+            if (e.key === "ArrowLeft")
+              goToSlide(
+                (currentSlide - 1 + heroSlides.length) % heroSlides.length,
+              );
+          }}
+          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-30 flex space-x-2.5 items-center"
+        >
           {heroSlides.map((_, index) => (
             <button
               key={index}
+              role="tab"
+              aria-selected={index === currentSlide}
+              aria-current={index === currentSlide ? "true" : undefined}
+              tabIndex={index === currentSlide ? 0 : -1}
               onClick={() => goToSlide(index)}
               className={`h-1.5 rounded-full transition-all duration-500 ease-out cursor-pointer ${
                 index === currentSlide
@@ -335,20 +388,25 @@ const HomePage: React.FC = () => {
               (currentSlide - 1 + heroSlides.length) % heroSlides.length,
             )
           }
-          className="hidden lg:flex absolute left-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-300 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20"
+          aria-label="Попередній слайд"
+          className="hidden md:flex absolute left-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-300 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20"
         >
-          <ChevronLeft className="w-8 h-8" />
+          <ChevronLeft className="w-8 h-8" aria-hidden="true" />
         </button>
         <button
           onClick={() => goToSlide((currentSlide + 1) % heroSlides.length)}
-          className="hidden lg:flex absolute right-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-300 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20"
+          aria-label="Наступний слайд"
+          className="hidden md:flex absolute right-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-300 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20"
         >
-          <ChevronRight className="w-8 h-8" />
+          <ChevronRight className="w-8 h-8" aria-hidden="true" />
         </button>
       </section>
 
       {/* Services Section (Stacked Cards) */}
-      <section className="hidden xl:block py-16 bg-[#F8FAFC]">
+      <section
+        aria-label="Наші сервіси"
+        className="hidden xl:block py-16 bg-[#F8FAFC]"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="relative">
             {/* Висота збільшена (120vh в кінці) щоб було достатньо місця проскролити і побачити логотип */}
@@ -375,10 +433,14 @@ const HomePage: React.FC = () => {
                   </p>
                   <button
                     onClick={() => navigate("/services")}
+                    aria-label="Переглянути всі сервіси"
                     className="bg-blue-600 text-white py-3.5 px-8 rounded-2xl font-bold hover:bg-blue-700 hover:scale-[1.02] transition-all duration-300 shadow-[0_4px_12px_rgba(37,99,235,0.3)] flex items-center gap-2 group"
                   >
                     Всі сервіси
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight
+                      className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                      aria-hidden="true"
+                    />
                   </button>
                 </div>
               </div>
@@ -412,8 +474,12 @@ const HomePage: React.FC = () => {
 
                 {/* Картки */}
                 {services.map((service, index) => (
-                  <div
+                  <button
+                    type="button"
                     key={index}
+                    aria-label={`${service.title}. ${service.description}. Відкрити посилання`}
+                    aria-labelledby={`service-title-${index}`}
+                    aria-describedby={`service-description-${index}`}
                     className={`stack-card absolute w-80 h-80 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/20 backdrop-blur-md cursor-pointer bg-gradient-to-br ${service.color} group hover:shadow-2xl`}
                     style={{
                       top: "calc(50% - 160px)",
@@ -425,10 +491,16 @@ const HomePage: React.FC = () => {
                     onClick={() => window.open(service.url, "_blank")}
                   >
                     <div className="p-8 h-full flex flex-col justify-between text-white relative overflow-hidden">
-                      <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl pointer-events-none" />
+                      <div
+                        aria-hidden="true"
+                        className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl pointer-events-none"
+                      />
 
                       <div className="flex items-center mb-4 relative z-10">
-                        <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
+                        <div
+                          aria-hidden="true"
+                          className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm"
+                        >
                           {service.icon}
                         </div>
                         <span className="ml-4 text-lg font-semibold opacity-95">
@@ -436,20 +508,33 @@ const HomePage: React.FC = () => {
                         </span>
                       </div>
                       <div className="relative z-10">
-                        <h3 className="text-3xl font-extrabold leading-tight mb-4">
+                        <h3
+                          id={`service-title-${index}`}
+                          className="text-3xl font-extrabold leading-tight mb-4"
+                        >
                           {service.title}
                         </h3>
                         <div className="flex justify-between items-center mt-4">
-                          <p className="text-sm opacity-90 leading-relaxed mr-4">
+                          <p
+                            id={`service-description-${index}`}
+                            className="text-sm opacity-90 leading-relaxed mr-4"
+                          >
                             {service.description}
                           </p>
+<<<<<<< Updated upstream
                           <div className="bg-white/20 p-2 rounded-full backdrop-blur-sm transform translate-x-0 group-hover:translate-x-2 transition-transform duration-500">
+=======
+                          <div
+                            aria-hidden="true"
+                            className="bg-white/20 p-2 rounded-full backdrop-blur-sm transform translate-x-0 group-hover:translate-x-2 transition-transform duration-300"
+                          >
+>>>>>>> Stashed changes
                             <ArrowRight className="w-6 h-6" />
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -468,7 +553,10 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* News Section */}
-      <section className="bg-white py-16 sm:py-24 rounded-t-[3rem] shadow-[0_-10px_40px_rgb(0,0,0,0.03)] relative z-20 -mt-8">
+      <section
+        aria-label="Останні новини"
+        className="bg-white py-16 sm:py-24 rounded-t-[3rem] shadow-[0_-10px_40px_rgb(0,0,0,0.03)] relative z-20 -mt-8"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-6 mb-12">
             <div>
@@ -485,27 +573,35 @@ const HomePage: React.FC = () => {
               className="hidden sm:inline-flex items-center justify-center px-6 py-2.5 rounded-xl font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-500 group"
             >
               Усі новини
-              <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
+              <ArrowRight
+                aria-hidden="true"
+                className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform"
+              />
             </Link>
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-gray-50 rounded-3xl overflow-hidden animate-pulse border border-gray-100"
-                  style={{ animationDelay: `${i * 100}ms` }}
-                >
-                  <div className="h-48 bg-gray-200"></div>
-                  <div className="p-6">
-                    <div className="h-4 bg-gray-300 rounded-full mb-3 w-1/4"></div>
-                    <div className="h-6 bg-gray-300 rounded-full mb-4 w-3/4"></div>
-                    <div className="h-4 bg-gray-300 rounded-full mb-2"></div>
-                    <div className="h-4 bg-gray-300 rounded-full w-2/3"></div>
+            <div aria-label="Завантаження новин..." aria-busy="true">
+              <div
+                aria-hidden="true"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              >
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-gray-50 rounded-3xl overflow-hidden animate-pulse border border-gray-100"
+                    style={{ animationDelay: `${i * 100}ms` }}
+                  >
+                    <div className="h-48 bg-gray-200"></div>
+                    <div className="p-6">
+                      <div className="h-4 bg-gray-300 rounded-full mb-3 w-1/4"></div>
+                      <div className="h-6 bg-gray-300 rounded-full mb-4 w-3/4"></div>
+                      <div className="h-4 bg-gray-300 rounded-full mb-2"></div>
+                      <div className="h-4 bg-gray-300 rounded-full w-2/3"></div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ) : (
             <Swiper
