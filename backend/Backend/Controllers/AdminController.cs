@@ -35,38 +35,36 @@ namespace ProfkomBackend.Controllers
             if (!BCrypt.Net.BCrypt.Verify(req.Password, admin.PasswordHash))
                 return Unauthorized(new { message = "Invalid username or password" });
 
-            var jwtKey = _cfg["Jwt:Key"] ?? "profkomoflvivuniarethebestprofkominworld";
+            var jwtKey = _cfg["JwtSettings:SecretKey"]
+                ?? throw new InvalidOperationException("JwtSettings:SecretKey is not configured.");
             var key = Encoding.UTF8.GetBytes(jwtKey);
 
-            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            var expires = DateTimeOffset.UtcNow.AddHours(12).ToUnixTimeSeconds();
-
-            var header = new { alg = "HS256", typ = "JWT" };
-            var payload = new
+            var claims = new List<Claim>
             {
-                unique_name = admin.Username,
-                role = admin.Role ?? "admin",
-                userId = admin.Id.ToString(),
-                sub = admin.Username,
-                jti = Guid.NewGuid().ToString(),
-                iat = now,
-                nbf = now,
-                exp = expires
+                new Claim(JwtRegisteredClaimNames.Sub, admin.Username),
+                new Claim(JwtRegisteredClaimNames.UniqueName, admin.Username),
+                new Claim(ClaimTypes.Name, admin.Username),
+                new Claim(ClaimTypes.NameIdentifier, admin.Id.ToString()),
+                new Claim(ClaimTypes.Role, admin.Role ?? "admin")
             };
 
-            var headerJson = JsonSerializer.Serialize(header);
-            var payloadJson = JsonSerializer.Serialize(payload);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims, "jwt"),
+                Expires = DateTime.UtcNow.AddHours(12),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
+            };
 
-            var headerEncoded = Base64UrlEncode(Encoding.UTF8.GetBytes(headerJson));
-            var payloadEncoded = Base64UrlEncode(Encoding.UTF8.GetBytes(payloadJson));
-
-            var signature = CreateSignature($"{headerEncoded}.{payloadEncoded}", key);
-            var token = $"{headerEncoded}.{payloadEncoded}.{signature}";
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var jwt = tokenHandler.WriteToken(token);
 
             return Ok(new
             {
-                token = token,
-                expires = DateTimeOffset.FromUnixTimeSeconds(expires).DateTime,
+                token = jwt,
+                expires = tokenDescriptor.Expires,
                 username = admin.Username,
                 role = admin.Role
             });

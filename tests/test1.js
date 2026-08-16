@@ -24,7 +24,7 @@ export const options = {
 };
 
 // 👇 ВАШ ПОРТ (змініть на актуальний)
-const BASE_URL = 'http://localhost:8080'; 
+const BASE_URL = 'http://localhost:8081'; 
 
 // Допоміжна функція для запису статистики
 function trackMetrics(res) {

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Security.Claims;
 using ProfkomBackend.Data;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
@@ -74,7 +75,8 @@ builder.Services.AddCors(options =>
 });
 
 // === JWT Authentication ===
-var jwtSecret = builder.Configuration["JwtSettings:SecretKey"];
+var jwtSecret = builder.Configuration["JwtSettings:SecretKey"]
+    ?? throw new InvalidOperationException("JwtSettings:SecretKey is not configured.");
 var key = Encoding.ASCII.GetBytes(jwtSecret);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -89,7 +91,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuer = false,
             ValidateAudience = false,
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.FromMinutes(5)
+            ClockSkew = TimeSpan.FromMinutes(5),
+            RoleClaimType = ClaimTypes.Role,
+            NameClaimType = ClaimTypes.Name
         };
 
         // Детальний дебаг
@@ -123,7 +127,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // === Kestrel ===
 builder.WebHost.UseKestrel(options =>
 {
-    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8081";
     options.ListenAnyIP(int.Parse(port));
 });
 
@@ -196,5 +200,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // === Run ===
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-app.Run($"http://0.0.0.0:{port}");
+// Запускаємо додаток без явної URL-прив'язки тут — Kestrel вже налаштований
+// через UseKestrel(...) вище. Це уникає дублювання спроби зв'язати той же порт
+// двічі і можливих конфліктів з іншими локальними сервісами (IIS Express тощо).
+app.Run();
