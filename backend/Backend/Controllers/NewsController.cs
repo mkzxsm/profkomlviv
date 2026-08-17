@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
+using ProfkomBackend.Utils;
 using System.ComponentModel.DataAnnotations;
 
 namespace ProfkomBackend.Controllers
@@ -66,6 +67,20 @@ namespace ProfkomBackend.Controllers
                 {
                     if (file.Length > 0)
                     {
+                        // Перевірка розміру (413 Payload Too Large)
+                        var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(file, FileValidationHelper.MAX_IMAGE_SIZE);
+                        if (!sizeValid)
+                        {
+                            return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
+                        }
+
+                        // Перевірка MIME типу (415 Unsupported Media Type)
+                        var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(file);
+                        if (!mimeValid)
+                        {
+                            return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
+                        }
+
                         var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
                         var filePath = Path.Combine(uploads, fileName);
 

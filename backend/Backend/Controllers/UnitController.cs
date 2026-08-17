@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
+using ProfkomBackend.Utils;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -50,6 +51,20 @@ namespace ProfkomBackend.Controllers
             // Обробка файлу, якщо він наданий
             if (formData.Image != null && formData.Image.Length > 0)
             {
+                // Перевірка розміру (413 Payload Too Large)
+                var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Image, FileValidationHelper.MAX_IMAGE_SIZE);
+                if (!sizeValid)
+                {
+                    return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
+                }
+
+                // Перевірка MIME типу (415 Unsupported Media Type)
+                var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Image);
+                if (!mimeValid)
+                {
+                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
+                }
+
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "Uploads");
                 if (!Directory.Exists(uploadsDir))
                 {
@@ -88,14 +103,28 @@ namespace ProfkomBackend.Controllers
         public async Task<IActionResult> Update(int id, [FromForm] UnitFormData formData)
         {
             var unit = await _db.Unit.FindAsync(id);
-            if (unit == null) return NotFound();
-            if (id != unit.Id) return BadRequest();
+            if (unit == null) return NotFound(new { message = "Блок не знайдений" });
+            if (id != unit.Id) return UnprocessableEntity(new { message = "ID в URL не відповідає ID об'єкту" });
 
             string? imageUrl = unit.ImageUrl;
 
             // Обробка нового файлу, якщо наданий
             if (formData.Image != null && formData.Image.Length > 0)
             {
+                // Перевірка розміру (413 Payload Too Large)
+                var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Image, FileValidationHelper.MAX_IMAGE_SIZE);
+                if (!sizeValid)
+                {
+                    return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
+                }
+
+                // Перевірка MIME типу (415 Unsupported Media Type)
+                var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Image);
+                if (!mimeValid)
+                {
+                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
+                }
+
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "Uploads");
                 if (!Directory.Exists(uploadsDir))
                 {

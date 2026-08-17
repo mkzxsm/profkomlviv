@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
+using ProfkomBackend.Utils;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -50,6 +51,20 @@ namespace ProfkomBackend.Controllers
             // Обробка файлу, якщо він наданий
             if (formData.Image != null && formData.Image.Length > 0)
             {
+                // Перевірка розміру (413 Payload Too Large)
+                var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Image, FileValidationHelper.MAX_IMAGE_SIZE);
+                if (!sizeValid)
+                {
+                    return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
+                }
+
+                // Перевірка MIME типу (415 Unsupported Media Type)
+                var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Image);
+                if (!mimeValid)
+                {
+                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
+                }
+
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "team");
                 if (!Directory.Exists(uploadsDir))
                 {
@@ -91,7 +106,7 @@ namespace ProfkomBackend.Controllers
         public async Task<IActionResult> Update(int id, [FromForm] TeamFormData formData)
         {
             var member = await _db.Team.FindAsync(id);
-            if (member == null) return NotFound();
+            if (member == null) return NotFound(new { message = "Член команди не знайдений" });
 
             string? oldImageUrl = member.ImageUrl;
             string? newImageUrl = member.ImageUrl;
@@ -99,6 +114,20 @@ namespace ProfkomBackend.Controllers
             // Обробка нового файлу, якщо наданий
             if (formData.Image != null && formData.Image.Length > 0)
             {
+                // Перевірка розміру (413 Payload Too Large)
+                var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Image, FileValidationHelper.MAX_IMAGE_SIZE);
+                if (!sizeValid)
+                {
+                    return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
+                }
+
+                // Перевірка MIME типу (415 Unsupported Media Type)
+                var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Image);
+                if (!mimeValid)
+                {
+                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
+                }
+
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "team");
                 if (!Directory.Exists(uploadsDir))
                 {

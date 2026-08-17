@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Claims;
 using ProfkomBackend.Data;
+using ProfkomBackend.Middleware;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 
@@ -150,6 +151,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 // === Middleware ===
+// Global exception handler
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment() || true)
 {
     app.UseSwagger();

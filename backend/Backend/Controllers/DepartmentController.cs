@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
+using ProfkomBackend.Utils;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -51,6 +52,20 @@ namespace ProfkomBackend.Controllers
 
             if (formData.Logo != null && formData.Logo.Length > 0)
             {
+                // Перевірка розміру (413 Payload Too Large)
+                var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Logo, FileValidationHelper.MAX_LOGO_SIZE);
+                if (!sizeValid)
+                {
+                    return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
+                }
+
+                // Перевірка MIME типу (415 Unsupported Media Type)
+                var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Logo);
+                if (!mimeValid)
+                {
+                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
+                }
+
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "departments");
                 if (!Directory.Exists(uploadsDir)) Directory.CreateDirectory(uploadsDir);
 
@@ -69,7 +84,7 @@ namespace ProfkomBackend.Controllers
             if (formData.HeadId.HasValue)
             {
                 head = await _db.Team.FirstOrDefaultAsync(t => t.Id == formData.HeadId && t.Type == MemberType.Viddil);
-                if (head == null) return BadRequest("Head must be a Team member with Type = Viddil");
+                if (head == null) return UnprocessableEntity(new { message = "Head must be a Team member with Type = Viddil" });
                 
                 head.IsChoosed = true;
                 _db.Team.Update(head);
@@ -99,12 +114,26 @@ namespace ProfkomBackend.Controllers
                 .Include(d => d.Head)
                 .FirstOrDefaultAsync(d => d.Id == id);
                 
-            if (department == null) return NotFound();
+            if (department == null) return NotFound(new { message = "Кафедра не знайдена" });
 
             string? logoUrl = department.LogoUrl;
 
             if (formData.Logo != null && formData.Logo.Length > 0)
             {
+                // Перевірка розміру (413 Payload Too Large)
+                var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Logo, FileValidationHelper.MAX_LOGO_SIZE);
+                if (!sizeValid)
+                {
+                    return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
+                }
+
+                // Перевірка MIME типу (415 Unsupported Media Type)
+                var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Logo);
+                if (!mimeValid)
+                {
+                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
+                }
+
                 if (!string.IsNullOrEmpty(department.LogoUrl))
                 {
                     var oldPath = Path.Combine(_env.ContentRootPath, department.LogoUrl.TrimStart('/'));
@@ -132,7 +161,7 @@ namespace ProfkomBackend.Controllers
             if (formData.HeadId.HasValue)
             {
                 newHead = await _db.Team.FirstOrDefaultAsync(t => t.Id == formData.HeadId && t.Type == MemberType.Viddil);
-                if (newHead == null) return BadRequest("Head must be a Team member with Type = Viddil");
+                if (newHead == null) return UnprocessableEntity(new { message = "Head must be a Team member with Type = Viddil" });
             }
 
             if (department.Head != null && department.Head.Id != formData.HeadId)

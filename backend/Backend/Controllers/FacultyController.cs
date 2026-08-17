@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
+using ProfkomBackend.Utils;
 
 namespace ProfkomBackend.Controllers
 {
@@ -62,7 +63,7 @@ namespace ProfkomBackend.Controllers
                 
                 if (headTeam == null)
                 {
-                    return BadRequest("Invalid HeadId or team member is not the correct type.");
+                    return UnprocessableEntity(new { message = "Invalid HeadId or team member is not the correct type." });
                 }
                 headTeam.IsChoosed = true;
                 _db.Team.Update(headTeam);
@@ -71,6 +72,20 @@ namespace ProfkomBackend.Controllers
             string? imageUrl = null;
             if (formData.Image != null && formData.Image.Length > 0)
             {
+                // Перевірка розміру (413 Payload Too Large)
+                var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Image, FileValidationHelper.MAX_IMAGE_SIZE);
+                if (!sizeValid)
+                {
+                    return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
+                }
+
+                // Перевірка MIME типу (415 Unsupported Media Type)
+                var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Image);
+                if (!mimeValid)
+                {
+                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
+                }
+
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "faculties");
                 Directory.CreateDirectory(uploadsDir);
 
@@ -116,7 +131,7 @@ namespace ProfkomBackend.Controllers
 
             if (faculty == null)
             {
-                return NotFound();
+                return NotFound(new { message = "Факультет не знайдений" });
             }
 
             Team? newHead = null;
@@ -126,7 +141,7 @@ namespace ProfkomBackend.Controllers
                 
                 if (newHead == null)
                 {
-                    return BadRequest("Invalid HeadId or team member is not the correct type.");
+                    return UnprocessableEntity(new { message = "Invalid HeadId or team member is not the correct type." });
                 }
             }
 
@@ -145,6 +160,20 @@ namespace ProfkomBackend.Controllers
             string? imageUrl = faculty.ImageUrl;
             if (formData.Image != null && formData.Image.Length > 0)
             {
+                // Перевірка розміру (413 Payload Too Large)
+                var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Image, FileValidationHelper.MAX_IMAGE_SIZE);
+                if (!sizeValid)
+                {
+                    return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
+                }
+
+                // Перевірка MIME типу (415 Unsupported Media Type)
+                var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Image);
+                if (!mimeValid)
+                {
+                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
+                }
+
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "faculties");
                 Directory.CreateDirectory(uploadsDir);
 

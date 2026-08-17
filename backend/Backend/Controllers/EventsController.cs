@@ -37,7 +37,7 @@ namespace ProfkomBackend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, Event ev)
         {
-            if (id != ev.Id) return BadRequest();
+            if (id != ev.Id) return UnprocessableEntity(new { message = "ID в URL не відповідає ID об'єкту" });
             _db.Entry(ev).State = EntityState.Modified;
             await _db.SaveChangesAsync();
             return NoContent();

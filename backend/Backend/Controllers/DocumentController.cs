@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
+using ProfkomBackend.Utils;
 using System.ComponentModel.DataAnnotations;
 
 namespace ProfkomBackend.Controllers
@@ -45,7 +46,21 @@ namespace ProfkomBackend.Controllers
         {
             if (formData.File == null || formData.File.Length == 0)
             {
-                return BadRequest("File is required.");
+                return BadRequest(new { message = "Файл обов'язковий" });
+            }
+
+            // Перевірка розміру файлу (413 Payload Too Large)
+            var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.File, FileValidationHelper.MAX_DOCUMENT_SIZE);
+            if (!sizeValid)
+            {
+                return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
+            }
+
+            // Перевірка типу файлу (415 Unsupported Media Type)
+            var (mimeValid, mimeError) = FileValidationHelper.ValidateDocumentMimeType(formData.File);
+            if (!mimeValid)
+            {
+                return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
             }
 
             var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "documents");
@@ -79,7 +94,24 @@ namespace ProfkomBackend.Controllers
         public async Task<IActionResult> Update(int id, [FromForm] DocumentFormData formData)
         {
             var document = await _db.Documents.FindAsync(id);
-            if (document == null) return NotFound();
+            if (document == null) return NotFound(new { message = "Документ не знайдено" });
+
+            if (formData.File != null && formData.File.Length > 0)
+            {
+                // Перевірка розміру файлу (413 Payload Too Large)
+                var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.File, FileValidationHelper.MAX_DOCUMENT_SIZE);
+                if (!sizeValid)
+                {
+                    return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
+                }
+
+                // Перевірка типу файлу (415 Unsupported Media Type)
+                var (mimeValid, mimeError) = FileValidationHelper.ValidateDocumentMimeType(formData.File);
+                if (!mimeValid)
+                {
+                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
+                }
+            }
 
             if (formData.File != null && formData.File.Length > 0)
             {

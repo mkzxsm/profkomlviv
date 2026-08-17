@@ -90,11 +90,14 @@ namespace ProfkomBackend.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] AdminCreateRequest req)
         {
+            if (string.IsNullOrEmpty(req.Username) || string.IsNullOrEmpty(req.Password))
+                return BadRequest(new { message = "Логін і пароль обов'язкові" });
+
             if (!IsValidPassword(req.Password))
                 return BadRequest(new { message = "Пароль не відповідає вимогам безпеки" });
 
             if (await _db.Admins.AnyAsync(a => a.Username == req.Username))
-                return BadRequest(new { message = "Адміністратор з таким логіном вже існує" });
+                return Conflict(new { message = "Адміністратор з таким логіном вже існує" });
 
             var admin = new Admin
             {
@@ -106,7 +109,7 @@ namespace ProfkomBackend.Controllers
             _db.Admins.Add(admin);
             await _db.SaveChangesAsync();
 
-            return Ok(new { message = "Адміністратора створено", admin.Id, admin.Username, admin.Role });
+            return CreatedAtAction(nameof(List), new { id = admin.Id }, new { message = "Адміністратора створено", admin.Id, admin.Username, admin.Role });
         }
 
         // ✏️ Редагування адміна
@@ -144,7 +147,7 @@ namespace ProfkomBackend.Controllers
             _db.Admins.Remove(admin);
             await _db.SaveChangesAsync();
 
-            return Ok(new { message = "Адміністратора видалено" });
+            return NoContent();
         }
 
         // === Хелпери ===
