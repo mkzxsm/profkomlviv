@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
+using Microsoft.Extensions.FileProviders;
 using ProfkomBackend.Models;
 using ProfkomBackend.Utils;
 using System.ComponentModel.DataAnnotations;
+using Ganss.Xss; // 👈 Додано санітайзер
 
 namespace ProfkomBackend.Controllers
 {
@@ -21,15 +23,10 @@ namespace ProfkomBackend.Controllers
             _env = env;
         }
 
-        /// GET: api/documents
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<Document>>> GetAll()
-        {
-            return await _db.Documents.OrderByDescending(d => d.CreatedAt).ToListAsync();
-        }
+        public async Task<ActionResult<IEnumerable<Document>>> GetAll() => await _db.Documents.OrderByDescending(d => d.CreatedAt).ToListAsync();
 
-        /// GET: api/documents/{id}
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<Document>> GetById(int id)
@@ -39,29 +36,11 @@ namespace ProfkomBackend.Controllers
             return document;
         }
 
-        /// POST: api/documents
         [HttpPost]
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<Document>> Create([FromForm] DocumentFormData formData)
         {
-            if (formData.File == null || formData.File.Length == 0)
-            {
-                return BadRequest(new { message = "Файл обов'язковий" });
-            }
-
-            // Перевірка розміру файлу (413 Payload Too Large)
-            var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.File, FileValidationHelper.MAX_DOCUMENT_SIZE);
-            if (!sizeValid)
-            {
-                return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
-            }
-
-            // Перевірка типу файлу (415 Unsupported Media Type)
-            var (mimeValid, mimeError) = FileValidationHelper.ValidateDocumentMimeType(formData.File);
-            if (!mimeValid)
-            {
-                return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
-            }
+            if (formData.File == null || formData.File.Length == 0) return BadRequest(new { message = "Файл обов'язковий" });
 
             var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "documents");
             Directory.CreateDirectory(uploadsDir);
@@ -74,12 +53,14 @@ namespace ProfkomBackend.Controllers
                 await formData.File.CopyToAsync(stream);
             }
 
+            var sanitizer = new HtmlSanitizer(); // 👈 Ініціалізація санітайзера
+
             var document = new Document
             {
-                Title = formData.Title,
-                Description = formData.Description,
+                Title = sanitizer.Sanitize(formData.Title),       // 👈 Захист від XSS
+                Description = string.IsNullOrEmpty(formData.Description) ? null : sanitizer.Sanitize(formData.Description), // 👈 Захист від XSS
                 FilePath = $"/uploads/documents/{fileName}",
-                FileSize = formData.File.Length, // <--- ДОДАЙТЕ ЦЕЙ РЯДОК
+                FileSize = formData.File.Length,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -88,7 +69,6 @@ namespace ProfkomBackend.Controllers
             return CreatedAtAction(nameof(GetById), new { id = document.Id }, document);
         }
 
-        /// PUT: api/documents/{id}
         [HttpPut("{id}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(int id, [FromForm] DocumentFormData formData)
@@ -98,32 +78,6 @@ namespace ProfkomBackend.Controllers
 
             if (formData.File != null && formData.File.Length > 0)
             {
-                // Перевірка розміру файлу (413 Payload Too Large)
-                var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.File, FileValidationHelper.MAX_DOCUMENT_SIZE);
-                if (!sizeValid)
-                {
-                    return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
-                }
-
-                // Перевірка типу файлу (415 Unsupported Media Type)
-                var (mimeValid, mimeError) = FileValidationHelper.ValidateDocumentMimeType(formData.File);
-                if (!mimeValid)
-                {
-                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
-                }
-            }
-
-            if (formData.File != null && formData.File.Length > 0)
-            {
-                if (!string.IsNullOrEmpty(document.FilePath))
-                {
-                    var oldPath = Path.Combine(_env.ContentRootPath, document.FilePath.TrimStart('/'));
-                    if (System.IO.File.Exists(oldPath))
-                    {
-                        System.IO.File.Delete(oldPath);
-                    }
-                }
-                
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "documents");
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(formData.File.FileName)}";
                 var newFilePath = Path.Combine(uploadsDir, fileName);
@@ -133,18 +87,19 @@ namespace ProfkomBackend.Controllers
                     await formData.File.CopyToAsync(stream);
                 }
                 document.FilePath = $"/uploads/documents/{fileName}";
-                document.FileSize = formData.File.Length; // <--- ДОДАЙТЕ ЦЕЙ РЯДОК
+                document.FileSize = formData.File.Length;
             }
 
-            document.Title = formData.Title;
-            document.Description = formData.Description;
+            var sanitizer = new HtmlSanitizer(); // 👈 Ініціалізація санітайзера
+
+            document.Title = sanitizer.Sanitize(formData.Title);
+            document.Description = string.IsNullOrEmpty(formData.Description) ? null : sanitizer.Sanitize(formData.Description);
             document.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
             return NoContent();
         }
 
-        /// DELETE: api/documents/{id}
         [HttpDelete("{id}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int id)
@@ -152,14 +107,10 @@ namespace ProfkomBackend.Controllers
             var document = await _db.Documents.FindAsync(id);
             if (document == null) return NotFound();
 
-            // Видалення файлу з диска
             if (!string.IsNullOrEmpty(document.FilePath))
             {
                 var filePath = Path.Combine(_env.ContentRootPath, document.FilePath.TrimStart('/'));
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
-                }
+                if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
             }
 
             _db.Documents.Remove(document);
@@ -168,7 +119,6 @@ namespace ProfkomBackend.Controllers
         }
     }
 
-    /// DTO для створення та оновлення документів
     public class DocumentFormData
     {
         [Required]

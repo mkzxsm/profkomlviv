@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
 using Microsoft.AspNetCore.Authorization;
+using Ganss.Xss;
 
 namespace ProfkomBackend.Controllers
 {
