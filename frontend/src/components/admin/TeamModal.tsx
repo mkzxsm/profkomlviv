@@ -235,16 +235,25 @@ useEffect(() => {
      <ModalLabel htmlFor="orderInd">
       Порядок відображення
      </ModalLabel>
-     <ModalInput
+<ModalInput
       id="orderInd"
       type="number"
       min={0}
       max={9999}
-      value={formData.orderInd}
+      // Якщо в стані порожній рядок, показуємо порожній інпут
+      value={formData.orderInd === '' as any ? '' : formData.orderInd}
       onChange={(e) => {
-       const raw = parseInt(e.target.value) || 0;
-       const clamped = Math.min(Math.max(raw, 0), 9999);
-       setFormData({ ...formData, orderInd: clamped });
+        const val = e.target.value;
+        if (val === '') {
+          // Тимчасово записуємо порожній рядок, щоб дозволити повне стирання поля
+          setFormData({ ...formData, orderInd: '' as unknown as number });
+        } else {
+          const raw = parseInt(val, 10);
+          if (!isNaN(raw)) {
+            const clamped = Math.min(Math.max(raw, 0), 9999);
+            setFormData({ ...formData, orderInd: clamped });
+          }
+        }
       }}
       placeholder="0"
      />

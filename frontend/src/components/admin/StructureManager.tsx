@@ -38,13 +38,11 @@ const StructureManager: React.FC<StructureManagerProps> = ({
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Скидаємо сторінку і пошук при перемиканні між профбюро/відділами
     useEffect(() => {
         setCurrentPage(1);
         setSearchTerm('');
     }, [selectedType]);
 
-    // Скидаємо сторінку при зміні пошукового запиту
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm]);
@@ -131,12 +129,18 @@ const StructureManager: React.FC<StructureManagerProps> = ({
                 alert('Будь ласка, оберіть голову');
                 return;
             }
+            
+            if (!fd.summary || fd.summary.trim() === '') {
+                alert('Опис діяльності є обов\'язковим полем для профбюро.');
+                return;
+            }
+
             dataToSend.append('Name', fd.name);
             dataToSend.append('HeadId', fd.headId.toString());
             dataToSend.append('Address', fd.address || '');
             dataToSend.append('Room', fd.room || '');
             dataToSend.append('Schedule', fd.schedule || '');
-            dataToSend.append('Summary', fd.summary || '');
+            dataToSend.append('Summary', fd.summary.trim());
             dataToSend.append('IsActive', fd.isActive.toString());
             dataToSend.append('IsCollege', (fd.isCollege || false).toString());
             
@@ -155,9 +159,16 @@ const StructureManager: React.FC<StructureManagerProps> = ({
                 alert('Будь ласка, оберіть голову');
                 return;
             }
+            
+            // ДОДАНО СУВОРУ ПЕРЕВІРКУ ДЛЯ ВІДДІЛІВ
+            if (!dd.description || dd.description.trim() === '') {
+                alert('Опис діяльності є обов\'язковим полем для відділу.');
+                return;
+            }
+            
             dataToSend.append('Name', dd.name);
             dataToSend.append('HeadId', dd.headId.toString());
-            dataToSend.append('Description', dd.description || '');
+            dataToSend.append('Description', dd.description.trim());
             dataToSend.append('IsActive', dd.isActive.toString());
             
             if (selectedFile) {
@@ -316,6 +327,7 @@ const StructureManager: React.FC<StructureManagerProps> = ({
                             editingItem={editingItem}
                             onSubmit={handleSubmit}
                             onClose={handleCloseModal}
+                            allData={isFacultyView ? facultyData : departmentData} 
                         />
                     </div>
                 </div>

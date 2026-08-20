@@ -65,7 +65,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, allData, loading, fetch
       formData.append('Position', teamFormData.position);
       formData.append('Type', teamFormData.type.toString());
       formData.append('Email', teamFormData.email || '');
-      formData.append('OrderInd', teamFormData.orderInd.toString());
+      formData.append('OrderInd', (teamFormData.orderInd || 0).toString());
       formData.append('IsTemporary', teamFormData.isTemporary.toString());
 
       if (selectedFile) {

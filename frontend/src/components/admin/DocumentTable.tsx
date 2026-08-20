@@ -70,8 +70,18 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ data, loading, onEdit, on
               const fileUrl = `${import.meta.env.VITE_API_URL}${doc.filePath}`;
               return (
                 <TableRow key={doc.id}>
-                  <TableTd className="text-left font-medium">{doc.title}</TableTd>
-                  <TableTd className="text-left text-sm text-gray-700 max-w-xs truncate">
+                  {/* ДОДАНО: max-w-xs truncate та атрибут title */}
+                  <TableTd 
+                    className="text-left font-medium max-w-xs truncate" 
+                    title={doc.title}
+                  >
+                    {doc.title}
+                  </TableTd>
+                  
+                  <TableTd 
+                    className="text-left text-sm text-gray-700 max-w-xs truncate"
+                    title={doc.description}
+                  >
                     {doc.description || <span className="text-gray-400">—</span>}
                   </TableTd>
                   <TableTd className="text-center">{formatDate(doc.createdAt)}</TableTd>
