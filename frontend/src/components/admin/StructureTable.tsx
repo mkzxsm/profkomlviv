@@ -22,13 +22,12 @@ interface StructureTableProps {
 
 const FacultyHeader: React.FC = () => (
     <TableRow>
-        <TableTh className="text-left">Факультет</TableTh>
+        <TableTh className="text-left">Профбюро</TableTh>
         <TableTh>Голова</TableTh>
         <TableTh>Пошта</TableTh>
         <TableTh>Локація</TableTh>
         <TableTh>Посилання</TableTh>
         <TableTh>Статус</TableTh>
-        <TableTh>Коледж</TableTh>
         <TableTh>Дії</TableTh>
     </TableRow>
 );
@@ -47,7 +46,7 @@ const DepartmentHeader: React.FC = () => (
 const StructureTable: React.FC<StructureTableProps> = ({ type, data, loading, onEdit, onDelete }) => {
     
     const isFaculty = type === 'faculty';
-    const colSpan = isFaculty ? 8 : 6;
+    const colSpan = isFaculty ? 7 : 6;
 
 const renderFacultyRow = (item: Faculty) => {
         const union = item;
@@ -103,15 +102,6 @@ const renderFacultyRow = (item: Faculty) => {
                 <TableTd className="text-center">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${union.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                         {union.isActive ? 'Активне' : 'Неактивне'}
-                    </span>
-                </TableTd>
-                <TableTd className="text-center">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        union.isCollege 
-                        ? 'bg-purple-100 text-purple-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                        {union.isCollege ? 'Так' : 'Ні'}
                     </span>
                 </TableTd>
                 <TableTd className="text-center">

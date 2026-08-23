@@ -29,11 +29,18 @@ namespace ProfkomBackend.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<Faculty>>> GetAll()
+        public async Task<ActionResult<IEnumerable<Faculty>>> GetAll([FromQuery] bool? isActive)
         {
-            return await _db.Faculties
+            var query = _db.Faculties
                 .Include(f => f.Head)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (isActive.HasValue)
+            {
+                query = query.Where(f => f.IsActive == isActive.Value);
+            }
+
+            return await query.ToListAsync();
         }
 
         [HttpGet("{id}")]
@@ -103,6 +110,7 @@ namespace ProfkomBackend.Controllers
             var faculty = new Faculty
             {
                 Name = formData.Name,
+                HeadId = formData.HeadId,
                 Head = headTeam,
                 Address = formData.Address,
                 Room = formData.Room,
@@ -197,6 +205,7 @@ namespace ProfkomBackend.Controllers
             }
 
             faculty.Name = formData.Name;
+            faculty.HeadId = formData.HeadId;
             faculty.Head = newHead;
             faculty.Address = formData.Address;
             faculty.Room = formData.Room;

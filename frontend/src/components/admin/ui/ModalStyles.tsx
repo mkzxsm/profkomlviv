@@ -44,6 +44,24 @@ export const ModalCheckbox: React.FC<CheckboxProps> = (props) => (
   />
 );
 
+interface RadioProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label: string;
+}
+
+export const ModalRadio: React.FC<RadioProps> = ({ label, id, className, ...props }) => (
+  <div className="flex items-center">
+    <input
+      type="radio"
+      id={id}
+      {...props}
+      className={`h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500 ${className || ''}`}
+    />
+    <label htmlFor={id} className="ml-2 text-md font-medium text-gray-700 cursor-pointer">
+      {label}
+    </label>
+  </div>
+);
+
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary';
 }

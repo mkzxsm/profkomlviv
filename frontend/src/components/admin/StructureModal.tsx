@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Faculty, FacultyFormData } from '../../types/faculty';
 import { Department, DepartmentFormData } from '../../types/department';
 import { TeamMember, PROFBURO_HEAD_TYPE, VIDDIL_HEAD_TYPE } from '../../types/team';
-import { ModalInput, ModalSelect, ModalCheckbox, ModalButton, ModalLabel } from './ui/ModalStyles';
+import { ModalInput, ModalSelect, ModalRadio, ModalButton, ModalLabel } from './ui/ModalStyles';
 import FacultyCard from '../FacultyCard';
 import DepartmentCard from '../DepartmentCard';
 
@@ -20,6 +20,7 @@ interface StructureModalProps {
   selectedFile: File | null;
   setSelectedFile: React.Dispatch<React.SetStateAction<File | null>>;
   editingItem: StructureItem | null;
+  onTypeChange: (type: 'faculty' | 'department') => void;
   onSubmit: (e: React.FormEvent) => void;
   onClose: () => void;
 }
@@ -31,6 +32,7 @@ const StructureModal: React.FC<StructureModalProps> = ({
   selectedFile,
   setSelectedFile,
   editingItem,
+  onTypeChange,
   onSubmit,
   onClose
 }) => {
@@ -148,11 +150,35 @@ const StructureModal: React.FC<StructureModalProps> = ({
 
   return (
     <form onSubmit={onSubmit} className="p-6 space-y-6">
-      
+      <div>
+        <ModalLabel required>Тип</ModalLabel>
+        <div className="flex items-center space-x-8">
+          <ModalRadio
+            id="structure_type_faculty"
+            name="structureType"
+            checked={isFaculty}
+            disabled={!!editingItem}
+            onChange={() => onTypeChange('faculty')}
+            label="Профбюро"
+          />
+          <ModalRadio
+            id="structure_type_department"
+            name="structureType"
+            checked={!isFaculty}
+            disabled={!!editingItem}
+            onChange={() => onTypeChange('department')}
+            label="Відділ"
+          />
+        </div>
+        {editingItem && (
+          <p className="mt-1 text-xs text-gray-500">Тип не можна змінити під час редагування</p>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <ModalLabel required htmlFor="name">
-            Назва {isFaculty ? 'факультету/коледжу' : 'відділу'}
+            Назва {isFaculty ? 'профбюро' : 'відділу'}
           </ModalLabel>
           <ModalInput
             id="name"
@@ -283,21 +309,21 @@ const StructureModal: React.FC<StructureModalProps> = ({
               />
             </div>
             
-            <div className="flex items-center justify-center space-x-8 md:pt-6">
-              <div className="flex items-center">
-                <ModalCheckbox id="isActive_faculty"
-                  checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                />
-                <label htmlFor="isActive_faculty" className="ml-2 text-md font-medium text-gray-700">Активне</label>
-              </div>
-              <div className="flex items-center">
-                <ModalCheckbox id="isCollege_faculty"
-                  checked={(formData as FacultyFormData).isCollege}
-                  onChange={(e) => setFormData({ ...formData, isCollege: e.target.checked })}
-                />
-                <label htmlFor="isCollege_faculty" className="ml-2 text-md font-medium text-gray-700">Коледж</label>
-              </div>
+            <div className="flex items-center space-x-8 md:pt-8">
+              <ModalRadio
+                id="isActive_faculty_true"
+                name="isActive_faculty"
+                checked={formData.isActive !== false}
+                onChange={() => setFormData({ ...formData, isActive: true })}
+                label="Активне"
+              />
+              <ModalRadio
+                id="isActive_faculty_false"
+                name="isActive_faculty"
+                checked={formData.isActive === false}
+                onChange={() => setFormData({ ...formData, isActive: false })}
+                label="Неактивне"
+              />
             </div>
           </div>
         </>
@@ -312,12 +338,21 @@ const StructureModal: React.FC<StructureModalProps> = ({
               <p className="mt-1 text-xs text-gray-500">{fileInputHelperText}</p>
               {fileError && <p className="mt-1 text-xs text-red-600">{fileError}</p>}
             </div>
-            <div className="flex items-center md:pt-8">
-              <ModalCheckbox id="isActive_dept"
-                checked={formData.isActive}
-                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+            <div className="flex items-center space-x-8 md:pt-8">
+              <ModalRadio
+                id="isActive_dept_true"
+                name="isActive_dept"
+                checked={formData.isActive !== false}
+                onChange={() => setFormData({ ...formData, isActive: true })}
+                label="Активний"
               />
-              <label htmlFor="isActive_dept" className="ml-2 text-md font-medium text-gray-700">Активний</label>
+              <ModalRadio
+                id="isActive_dept_false"
+                name="isActive_dept"
+                checked={formData.isActive === false}
+                onChange={() => setFormData({ ...formData, isActive: false })}
+                label="Неактивний"
+              />
             </div>
           </div>
 

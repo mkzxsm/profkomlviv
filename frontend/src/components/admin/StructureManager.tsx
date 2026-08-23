@@ -60,6 +60,7 @@ const StructureManager: React.FC<StructureManagerProps> = ({
     });
 
     const [formData, setFormData] = useState<StructureFormData>(getInitialFacultyFormData());
+    const [modalType, setModalType] = useState<'faculty' | 'department'>('faculty');
 
     const enrichedFacultyData = useMemo(() => {
         return facultyData.map(faculty => ({
@@ -76,11 +77,13 @@ const StructureManager: React.FC<StructureManagerProps> = ({
     }, [departmentData, teamData]);
 
     const handleOpenAddModal = useCallback(() => {
-        const initialData = selectedType === FACULTY_TYPE
+        const isFaculty = selectedType === FACULTY_TYPE;
+        const initialData = isFaculty
             ? getInitialFacultyFormData()
             : getInitialDepartmentFormData();
         
         setEditingItem(null);
+        setModalType(isFaculty ? 'faculty' : 'department');
         setFormData(initialData);
         setSelectedFile(null);
         setIsModalOpen(true);
@@ -90,6 +93,7 @@ const StructureManager: React.FC<StructureManagerProps> = ({
         setEditingItem(item);
         if (selectedType === FACULTY_TYPE) {
             const faculty = item as Faculty;
+            setModalType('faculty');
             setFormData({
                 name: faculty.name, headId: faculty.headId,
                 address: faculty.address || '', room: faculty.room || '',
@@ -101,6 +105,7 @@ const StructureManager: React.FC<StructureManagerProps> = ({
             });
         } else {
             const dept = item as Department;
+            setModalType('department');
             setFormData({
                 name: dept.name, headId: dept.headId,
                 description: dept.description || '', logoUrl: dept.logoUrl || '',
@@ -111,17 +116,41 @@ const StructureManager: React.FC<StructureManagerProps> = ({
         setIsModalOpen(true);
     }, [selectedType]);
 
+    const handleModalTypeChange = useCallback((newType: 'faculty' | 'department') => {
+        if (editingItem) return;
+        setModalType(newType);
+        setFormData(prev => {
+            const shared = {
+                name: prev.name || '',
+                isActive: prev.isActive ?? true,
+            };
+            if (newType === 'faculty') {
+                return {
+                    ...getInitialFacultyFormData(),
+                    ...shared,
+                };
+            }
+            return {
+                ...getInitialDepartmentFormData(),
+                ...shared,
+                description: prev.summary || prev.description || '',
+            };
+        });
+        setSelectedFile(null);
+    }, [editingItem]);
+
     const handleCloseModal = useCallback(() => {
         setIsModalOpen(false);
         setEditingItem(null);
         setSelectedFile(null);
         setFormData(selectedType === FACULTY_TYPE ? getInitialFacultyFormData() : getInitialDepartmentFormData());
+        setModalType(selectedType === FACULTY_TYPE ? 'faculty' : 'department');
     }, [selectedType]);
 
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         
-        const isFaculty = selectedType === FACULTY_TYPE;
+        const isFaculty = modalType === 'faculty';
         const endpoint = isFaculty ? 'faculties' : 'departments';
         const dataToSend = new FormData();
 
@@ -137,8 +166,8 @@ const StructureManager: React.FC<StructureManagerProps> = ({
             dataToSend.append('Room', fd.room || '');
             dataToSend.append('Schedule', fd.schedule || '');
             dataToSend.append('Summary', fd.summary || '');
-            dataToSend.append('IsActive', fd.isActive.toString());
-            dataToSend.append('IsCollege', (fd.isCollege || false).toString());
+            dataToSend.append('IsActive', fd.isActive ? 'true' : 'false');
+            dataToSend.append('IsCollege', fd.isCollege ? 'true' : 'false');
             
             dataToSend.append('Telegram_Link', fd.telegram_Link || '');
             dataToSend.append('Instagram_Link', fd.instagram_Link || '');
@@ -158,7 +187,7 @@ const StructureManager: React.FC<StructureManagerProps> = ({
             dataToSend.append('Name', dd.name);
             dataToSend.append('HeadId', dd.headId.toString());
             dataToSend.append('Description', dd.description || '');
-            dataToSend.append('IsActive', dd.isActive.toString());
+            dataToSend.append('IsActive', dd.isActive ? 'true' : 'false');
             
             if (selectedFile) {
                 dataToSend.append('Logo', selectedFile);
@@ -168,7 +197,6 @@ const StructureManager: React.FC<StructureManagerProps> = ({
         }
 
         const headers = {
-            'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${localStorage.getItem('token')}`,
         };
 
@@ -179,6 +207,9 @@ const StructureManager: React.FC<StructureManagerProps> = ({
 
         try {
             await axios({ method, url, data: dataToSend, headers });
+            if (!editingItem) {
+                setSelectedType(isFaculty ? FACULTY_TYPE : DEPARTMENT_TYPE);
+            }
             await fetchData();
             handleCloseModal();
         } catch (error) {
@@ -186,7 +217,7 @@ const StructureManager: React.FC<StructureManagerProps> = ({
             console.error(`Помилка збереження ${endpoint}:`, axiosError.response?.data || axiosError.message);
             alert(axiosError.response?.data?.message || 'Помилка збереження');
         }
-    }, [formData, selectedFile, editingItem, selectedType, fetchData, handleCloseModal]);
+    }, [formData, selectedFile, editingItem, modalType, fetchData, handleCloseModal]);
 
     const handleDelete = useCallback(async (id: number) => {
         const isFaculty = selectedType === FACULTY_TYPE;
@@ -299,8 +330,8 @@ const StructureManager: React.FC<StructureManagerProps> = ({
                         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
                             <h2 className="text-xl font-semibold text-gray-900">
                                 {editingItem 
-                                    ? (isFacultyView ? 'Редагувати профбюро' : 'Редагувати відділ')
-                                    : (isFacultyView ? 'Додати профбюро' : 'Додати відділ')
+                                    ? (modalType === 'faculty' ? 'Редагувати профбюро' : 'Редагувати відділ')
+                                    : (modalType === 'faculty' ? 'Додати профбюро' : 'Додати відділ')
                                 }
                             </h2>
                             <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-700" title="Закрити">
@@ -308,12 +339,13 @@ const StructureManager: React.FC<StructureManagerProps> = ({
                             </button>
                         </div>
                         <StructureModal
-                            type={isFacultyView ? 'faculty' : 'department'}
+                            type={modalType}
                             formData={formData}
                             setFormData={setFormData}
                             selectedFile={selectedFile}
                             setSelectedFile={setSelectedFile}
                             editingItem={editingItem}
+                            onTypeChange={handleModalTypeChange}
                             onSubmit={handleSubmit}
                             onClose={handleCloseModal}
                         />

@@ -6,6 +6,7 @@ using ProfkomBackend.Models;
 using ProfkomBackend.Utils;
 using System.IO;
 using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 
 namespace ProfkomBackend.Controllers
@@ -25,11 +26,18 @@ namespace ProfkomBackend.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<Department>>> GetAll()
+        public async Task<ActionResult<IEnumerable<Department>>> GetAll([FromQuery] bool? isActive)
         {
-            return await _db.Departments
+            var query = _db.Departments
                 .Include(d => d.Head)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (isActive.HasValue)
+            {
+                query = query.Where(d => d.IsActive == isActive.Value);
+            }
+
+            return await query.ToListAsync();
         }
 
         [HttpGet("{id}")]
