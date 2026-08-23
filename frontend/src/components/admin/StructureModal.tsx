@@ -23,6 +23,7 @@ interface StructureModalProps {
   onTypeChange: (type: 'faculty' | 'department') => void;
   onSubmit: (e: React.FormEvent) => void;
   onClose: () => void;
+  allData: StructureItem[];
 }
 
 const StructureModal: React.FC<StructureModalProps> = ({
@@ -34,14 +35,35 @@ const StructureModal: React.FC<StructureModalProps> = ({
   editingItem,
   onTypeChange,
   onSubmit,
-  onClose
+  onClose,
+  allData
 }) => {
   const [availableHeads, setAvailableHeads] = useState<TeamMember[]>([]);
   const [loadingHeads, setLoadingHeads] = useState(true);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   const isFaculty = type === 'faculty';
   const headType = isFaculty ? PROFBURO_HEAD_TYPE : VIDDIL_HEAD_TYPE;
+
+  useEffect(() => {
+    if (!formData.name) {
+      setNameError(null);
+      return;
+    }
+
+    const isDuplicate = allData.some(
+      item => 
+        item.name.trim().toLowerCase() === formData.name!.trim().toLowerCase() && 
+        item.id !== editingItem?.id
+    );
+
+    if (isDuplicate) {
+      setNameError('Ця назва вже використовується. Оберіть іншу.');
+    } else {
+      setNameError(null);
+    }
+  }, [formData.name, allData, editingItem]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -51,7 +73,7 @@ const StructureModal: React.FC<StructureModalProps> = ({
         `Файл завеликий (${(file.size / (1024 * 1024)).toFixed(1)} МБ). Максимальний розмір — ${MAX_FILE_SIZE_MB} МБ.`
       );
       setSelectedFile(null);
-      e.target.value = ''; // дозволяємо вибрати той самий файл повторно після виправлення
+      e.target.value = '';
       return;
     }
 
@@ -148,8 +170,14 @@ const StructureModal: React.FC<StructureModalProps> = ({
     updatedAt: new Date().toISOString(),
   };
 
+  const handleLocalSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (nameError) return;
+    onSubmit(e);
+  };
+
   return (
-    <form onSubmit={onSubmit} className="p-6 space-y-6">
+    <form onSubmit={handleLocalSubmit} className="p-6 space-y-6">
       <div>
         <ModalLabel required>Тип</ModalLabel>
         <div className="flex items-center space-x-8">
@@ -192,6 +220,9 @@ const StructureModal: React.FC<StructureModalProps> = ({
             }}
             placeholder={isFaculty ? "Факультет електроніки" : "Відділ дизайну"}
           />
+          {nameError && (
+            <p className="mt-1 text-xs font-medium text-red-600">{nameError}</p>
+          )}
         </div>
 
         <div>
@@ -357,9 +388,10 @@ const StructureModal: React.FC<StructureModalProps> = ({
           </div>
 
           <div>
-            <ModalLabel htmlFor="description">Опис діяльності</ModalLabel>
+            {/* ДОДАНО REQUIRED ДЛЯ ВІДДІЛУ */}
+            <ModalLabel htmlFor="description" required>Опис діяльності</ModalLabel>
             <textarea
-              id="description" rows={3}
+              id="description" rows={3} required
               maxLength={500}
               value={(formData as DepartmentFormData).description || ''}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -396,7 +428,8 @@ const StructureModal: React.FC<StructureModalProps> = ({
         <ModalButton
           type="submit"
           variant="primary"
-          disabled={loadingHeads || (availableHeads.length === 0 && !editingItem?.headId)}
+          disabled={loadingHeads || (availableHeads.length === 0 && !editingItem?.headId) || !!nameError}
+          className={nameError ? 'opacity-50 cursor-not-allowed' : ''}
         >
           {editingItem ? 'Зберегти зміни' : (isFaculty ? 'Додати профбюро' : 'Додати відділ')}
         </ModalButton>

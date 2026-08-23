@@ -5,6 +5,7 @@ using ProfkomBackend.Data;
 using ProfkomBackend.Models;
 using ProfkomBackend.Utils;
 using System.ComponentModel.DataAnnotations;
+using Ganss.Xss;
 
 namespace ProfkomBackend.Controllers
 {
@@ -24,7 +25,6 @@ namespace ProfkomBackend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            // .Include(n => n.Images) обов'язково, щоб отримати масив картинок
             var news = await _db.News
                 .Include(n => n.Images)
                 .OrderByDescending(n => n.PublishedAt)
@@ -49,15 +49,16 @@ namespace ProfkomBackend.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
+            var sanitizer = new HtmlSanitizer();
+
             var news = new News
             {
-                Title = newsDto.Title,
-                Content = newsDto.Content,
+                Title = sanitizer.Sanitize(newsDto.Title),
+                Content = sanitizer.Sanitize(newsDto.Content ?? string.Empty),
                 IsImportant = newsDto.IsImportant,
                 PublishedAt = DateTime.UtcNow
             };
 
-            // Логіка збереження кількох картинок
             if (newsDto.Images != null && newsDto.Images.Count > 0)
             {
                 var uploads = Path.Combine(_env.ContentRootPath, "uploads", "news");
@@ -67,19 +68,11 @@ namespace ProfkomBackend.Controllers
                 {
                     if (file.Length > 0)
                     {
-                        // Перевірка розміру (413 Payload Too Large)
                         var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(file, FileValidationHelper.MAX_IMAGE_SIZE);
-                        if (!sizeValid)
-                        {
-                            return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
-                        }
+                        if (!sizeValid) return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
 
-                        // Перевірка MIME типу (415 Unsupported Media Type)
                         var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(file);
-                        if (!mimeValid)
-                        {
-                            return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
-                        }
+                        if (!mimeValid) return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
 
                         var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
                         var filePath = Path.Combine(uploads, fileName);
@@ -112,11 +105,12 @@ namespace ProfkomBackend.Controllers
 
             if (existingNews == null) return NotFound();
 
-            existingNews.Title = newsDto.Title;
-            existingNews.Content = newsDto.Content;
+            var sanitizer = new HtmlSanitizer();
+
+            existingNews.Title = sanitizer.Sanitize(newsDto.Title);
+            existingNews.Content = sanitizer.Sanitize(newsDto.Content ?? string.Empty);
             existingNews.IsImportant = newsDto.IsImportant;
 
-            // Додаємо нові картинки до існуючих (старі не видаляються, поки їх явно не видалити)
             if (newsDto.Images != null && newsDto.Images.Count > 0)
             {
                 var uploads = Path.Combine(_env.ContentRootPath, "uploads", "news");
@@ -156,14 +150,10 @@ namespace ProfkomBackend.Controllers
 
             if (news == null) return NotFound();
 
-            // Видаляємо фізичні файли з сервера
             foreach (var img in news.Images)
             {
                 var filePath = Path.Combine(_env.ContentRootPath, img.ImagePath.TrimStart('/'));
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
-                }
+                if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
             }
 
             _db.News.Remove(news);
@@ -171,7 +161,6 @@ namespace ProfkomBackend.Controllers
             return NoContent();
         }
 
-        // Окремий метод для видалення конкретної картинки (наприклад, адмін хоче видалити одне фото з новини)
         [Authorize(Roles = "admin")]
         [HttpDelete("image/{imageId}")]
         public async Task<IActionResult> DeleteImage(int imageId)
@@ -180,10 +169,7 @@ namespace ProfkomBackend.Controllers
             if (image == null) return NotFound();
 
             var filePath = Path.Combine(_env.ContentRootPath, image.ImagePath.TrimStart('/'));
-            if (System.IO.File.Exists(filePath))
-            {
-                System.IO.File.Delete(filePath);
-            }
+            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
 
             _db.NewsImages.Remove(image);
             await _db.SaveChangesAsync();
@@ -191,16 +177,12 @@ namespace ProfkomBackend.Controllers
         }
     }
 
-    // Оновлений DTO для прийому списку файлів
     public class NewsDto
     {
         [Required]
         public string Title { get; set; } = string.Empty;
         public string? Content { get; set; }
-
-        // Тут тепер List, а не один файл
         public List<IFormFile>? Images { get; set; }
-
         public bool IsImportant { get; set; }
     }
 }

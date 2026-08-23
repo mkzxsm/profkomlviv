@@ -4,9 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
 using ProfkomBackend.Utils;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using Ganss.Xss; // 👈 Додано санітайзер
 
 namespace ProfkomBackend.Controllers
 {
@@ -23,15 +21,10 @@ namespace ProfkomBackend.Controllers
             _env = env;
         }
 
-        // ✅ GET: api/team - доступно всім
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<Team>>> GetAll()
-        {
-            return await _db.Team.ToListAsync();
-        }
+        public async Task<ActionResult<IEnumerable<Team>>> GetAll() => await _db.Team.ToListAsync();
 
-        // ✅ GET: api/team/{id} - доступно всім
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<Team>> GetById(int id)
@@ -41,35 +34,22 @@ namespace ProfkomBackend.Controllers
             return member;
         }
 
-        // 🔒 POST: api/team - тільки адмін
         [HttpPost]
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<Team>> Create([FromForm] TeamFormData formData)
         {
             string? imageUrl = null;
 
-            // Обробка файлу, якщо він наданий
             if (formData.Image != null && formData.Image.Length > 0)
             {
-                // Перевірка розміру (413 Payload Too Large)
                 var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Image, FileValidationHelper.MAX_IMAGE_SIZE);
-                if (!sizeValid)
-                {
-                    return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
-                }
+                if (!sizeValid) return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
 
-                // Перевірка MIME типу (415 Unsupported Media Type)
                 var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Image);
-                if (!mimeValid)
-                {
-                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
-                }
+                if (!mimeValid) return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
 
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "team");
-                if (!Directory.Exists(uploadsDir))
-                {
-                    Directory.CreateDirectory(uploadsDir);
-                }
+                if (!Directory.Exists(uploadsDir)) Directory.CreateDirectory(uploadsDir);
 
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(formData.Image.FileName)}";
                 var filePath = Path.Combine(uploadsDir, fileName);
@@ -82,12 +62,14 @@ namespace ProfkomBackend.Controllers
                 imageUrl = $"/uploads/team/{fileName}";
             }
 
+            var sanitizer = new HtmlSanitizer(); // 👈 Ініціалізація санітайзера
+
             var member = new Team
             {
-                Name = formData.Name,
-                Position = formData.Position,
+                Name = sanitizer.Sanitize(formData.Name),           // 👈 Захист від XSS
+                Position = sanitizer.Sanitize(formData.Position),   // 👈 Захист від XSS
                 Type = formData.Type,
-                Email = formData.Email,
+                Email = string.IsNullOrEmpty(formData.Email) ? null : sanitizer.Sanitize(formData.Email), // 👈 Захист від XSS
                 OrderInd = formData.OrderInd,
                 IsTemporary = formData.IsTemporary,
                 ImageUrl = imageUrl ?? formData.ImageUrl,
@@ -100,7 +82,6 @@ namespace ProfkomBackend.Controllers
             return CreatedAtAction(nameof(GetById), new { id = member.Id }, member);
         }
 
-        // 🔒 PUT: api/team/{id} - тільки адмін
         [HttpPut("{id}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(int id, [FromForm] TeamFormData formData)
@@ -111,28 +92,10 @@ namespace ProfkomBackend.Controllers
             string? oldImageUrl = member.ImageUrl;
             string? newImageUrl = member.ImageUrl;
 
-            // Обробка нового файлу, якщо наданий
             if (formData.Image != null && formData.Image.Length > 0)
             {
-                // Перевірка розміру (413 Payload Too Large)
-                var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Image, FileValidationHelper.MAX_IMAGE_SIZE);
-                if (!sizeValid)
-                {
-                    return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
-                }
-
-                // Перевірка MIME типу (415 Unsupported Media Type)
-                var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Image);
-                if (!mimeValid)
-                {
-                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
-                }
-
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "team");
-                if (!Directory.Exists(uploadsDir))
-                {
-                    Directory.CreateDirectory(uploadsDir);
-                }
+                if (!Directory.Exists(uploadsDir)) Directory.CreateDirectory(uploadsDir);
 
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(formData.Image.FileName)}";
                 var filePath = Path.Combine(uploadsDir, fileName);
@@ -144,21 +107,19 @@ namespace ProfkomBackend.Controllers
 
                 newImageUrl = $"/uploads/team/{fileName}";
 
-                //видалення старої фотки
                 if (!string.IsNullOrEmpty(oldImageUrl))
                 {
                     var oldFilePath = Path.Combine(_env.ContentRootPath, oldImageUrl.TrimStart('/'));
-                    if (System.IO.File.Exists(oldFilePath))
-                    {
-                        System.IO.File.Delete(oldFilePath);
-                    }
+                    if (System.IO.File.Exists(oldFilePath)) System.IO.File.Delete(oldFilePath);
                 }
             }
 
-            member.Name = formData.Name;
-            member.Position = formData.Position;
+            var sanitizer = new HtmlSanitizer(); // 👈 Ініціалізація санітайзера
+
+            member.Name = sanitizer.Sanitize(formData.Name);
+            member.Position = sanitizer.Sanitize(formData.Position);
             member.Type = formData.Type;
-            member.Email = formData.Email;
+            member.Email = string.IsNullOrEmpty(formData.Email) ? null : sanitizer.Sanitize(formData.Email);
             member.OrderInd = formData.OrderInd;
             member.IsTemporary = formData.IsTemporary;
             member.ImageUrl = newImageUrl ?? formData.ImageUrl;
@@ -170,7 +131,6 @@ namespace ProfkomBackend.Controllers
             return NoContent();
         }
 
-        // 🔒 DELETE: api/team/{id} - тільки адмін
         [HttpDelete("{id}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int id)
@@ -178,14 +138,10 @@ namespace ProfkomBackend.Controllers
             var member = await _db.Team.FindAsync(id);
             if (member == null) return NotFound();
 
-            //видалення фотки при видаленні запису
             if (!string.IsNullOrEmpty(member.ImageUrl))
             {
                 var filePath = Path.Combine(_env.ContentRootPath, member.ImageUrl.TrimStart('/'));
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
-                }
+                if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
             }
 
             _db.Team.Remove(member);
@@ -194,7 +150,6 @@ namespace ProfkomBackend.Controllers
         }
     }
 
-    // DTO для обробки вхідних даних
     public class TeamFormData
     {
         public string Name { get; set; } = string.Empty;

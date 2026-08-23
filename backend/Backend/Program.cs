@@ -7,6 +7,8 @@ using ProfkomBackend.Data;
 using ProfkomBackend.Middleware;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
+using NetEscapades.AspNetCore.SecurityHeaders;
+using Ganss.Xss;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,7 +58,6 @@ builder.Services.AddSwaggerGen(c =>
 
 // === EF Core ===
 var conn = builder.Configuration.GetConnectionString("DefaultConnection");
-           /*"Server=profkomlnu-server.mysql.database.azure.com;port=3306;database=profkomdb;username=seavotgupm;password=DBkN9Ww8Lra$jKjC;";*/
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(conn, new MariaDbServerVersion(new Version(10, 4, 32)))
@@ -70,8 +71,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+               .AllowAnyHeader()
+               .AllowAnyMethod();
     });
 });
 
@@ -130,11 +131,28 @@ builder.WebHost.UseKestrel(options =>
 {
     var port = Environment.GetEnvironmentVariable("PORT") ?? "8081";
     options.ListenAnyIP(int.Parse(port));
+    options.AddServerHeader = false;
 });
 
 var app = builder.Build();
 
-// === Database initialization (без змін) ===
+// === ДОДАНО: Middleware для захисних заголовків (Security Headers) ===
+var policyCollection = new HeaderPolicyCollection()
+    .AddDefaultSecurityHeaders() // Додає X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
+    .AddContentSecurityPolicy(csp =>
+    {
+        csp.AddDefaultSrc().Self(); 
+        csp.AddImgSrc().Self().Data().From("*"); // Дозволяємо картинки звідусіль (корисно для ваших папок uploads)
+        
+        // UnsafeInline потрібен, щоб не "зламався" дизайн сторінки Swagger UI
+        csp.AddStyleSrc().Self().UnsafeInline(); 
+        csp.AddScriptSrc().Self().UnsafeInline();
+    });
+
+app.UseSecurityHeaders(policyCollection); 
+// ======================================================================
+
+// === Database initialization ===
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -203,8 +221,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// === Run ===
-// Запускаємо додаток без явної URL-прив'язки тут — Kestrel вже налаштований
-// через UseKestrel(...) вище. Це уникає дублювання спроби зв'язати той же порт
-// двічі і можливих конфліктів з іншими локальними сервісами (IIS Express тощо).
 app.Run();

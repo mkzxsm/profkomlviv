@@ -4,6 +4,7 @@ using ProfkomBackend.Data;
 using ProfkomBackend.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel.DataAnnotations;
+using Ganss.Xss;
 
 namespace ProfkomBackend.Controllers
 {

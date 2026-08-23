@@ -38,13 +38,11 @@ const StructureManager: React.FC<StructureManagerProps> = ({
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Скидаємо сторінку і пошук при перемиканні між профбюро/відділами
     useEffect(() => {
         setCurrentPage(1);
         setSearchTerm('');
     }, [selectedType]);
 
-    // Скидаємо сторінку при зміні пошукового запиту
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm]);
@@ -160,14 +158,20 @@ const StructureManager: React.FC<StructureManagerProps> = ({
                 alert('Будь ласка, оберіть голову');
                 return;
             }
+            
+            if (!fd.summary || fd.summary.trim() === '') {
+                alert('Опис діяльності є обов\'язковим полем для профбюро.');
+                return;
+            }
+
             dataToSend.append('Name', fd.name);
             dataToSend.append('HeadId', fd.headId.toString());
             dataToSend.append('Address', fd.address || '');
             dataToSend.append('Room', fd.room || '');
             dataToSend.append('Schedule', fd.schedule || '');
             dataToSend.append('Summary', fd.summary || '');
-            dataToSend.append('IsActive', fd.isActive ? 'true' : 'false');
-            dataToSend.append('IsCollege', fd.isCollege ? 'true' : 'false');
+            dataToSend.append('IsActive', fd.isActive.toString());
+            dataToSend.append('IsCollege', (fd.isCollege || false).toString());
             
             dataToSend.append('Telegram_Link', fd.telegram_Link || '');
             dataToSend.append('Instagram_Link', fd.instagram_Link || '');
@@ -184,10 +188,17 @@ const StructureManager: React.FC<StructureManagerProps> = ({
                 alert('Будь ласка, оберіть голову');
                 return;
             }
+            
+            // ДОДАНО СУВОРУ ПЕРЕВІРКУ ДЛЯ ВІДДІЛІВ
+            if (!dd.description || dd.description.trim() === '') {
+                alert('Опис діяльності є обов\'язковим полем для відділу.');
+                return;
+            }
+            
             dataToSend.append('Name', dd.name);
             dataToSend.append('HeadId', dd.headId.toString());
             dataToSend.append('Description', dd.description || '');
-            dataToSend.append('IsActive', dd.isActive ? 'true' : 'false');
+            dataToSend.append('IsActive', dd.isActive.toString());
             
             if (selectedFile) {
                 dataToSend.append('Logo', selectedFile);
@@ -272,10 +283,10 @@ const StructureManager: React.FC<StructureManagerProps> = ({
         const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
         return filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
     }, [filteredData, currentPage]);
-    
+
     return (
         <>
-            <div className="mb-6 flex flex-col sm:flex-row gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
                     <input
@@ -348,6 +359,7 @@ const StructureManager: React.FC<StructureManagerProps> = ({
                             onTypeChange={handleModalTypeChange}
                             onSubmit={handleSubmit}
                             onClose={handleCloseModal}
+                            allData={isFacultyView ? facultyData : departmentData} 
                         />
                     </div>
                 </div>
