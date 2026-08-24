@@ -3,10 +3,17 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
+import sanitizeHtml from 'sanitize-html';
 
 dotenv.config();
 
 const app = express();
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }, // Щоб не зламалися картинки з папки uploads
+  })
+);
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -43,10 +50,13 @@ app.get('/api/news', (req, res) => {
 app.post('/api/news', (req, res) => {
   const { title, content, image_url, is_important } = req.body;
   
+  const cleanContent = sanitizeHtml(content);
+  const cleanTitle = sanitizeHtml(title, { allowedTags: [], allowedAttributes: {} });
+
   const newNews = {
     id: nextNewsId++,
-    title,
-    content,
+    title: cleanTitle,
+    content: cleanContent,
     image_url,
     created_at: new Date().toISOString(),
     is_important: is_important || false
@@ -65,10 +75,13 @@ app.put('/api/news/:id', (req, res) => {
     return res.status(404).json({ error: 'News not found' });
   }
   
+  const cleanContent = sanitizeHtml(content);
+  const cleanTitle = sanitizeHtml(title, { allowedTags: [], allowedAttributes: {} });
+  
   news[newsIndex] = {
     ...news[newsIndex],
-    title,
-    content,
+    title: cleanTitle,
+    content: cleanContent,
     image_url,
     is_important
   };

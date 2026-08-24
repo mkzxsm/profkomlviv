@@ -9,6 +9,8 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using NetEscapades.AspNetCore.SecurityHeaders;
 using Ganss.Xss;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +76,18 @@ builder.Services.AddCors(options =>
                .AllowAnyHeader()
                .AllowAnyMethod();
     });
+});
+
+// === Rate Limiting (Захист від перебору паролів) ===
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("LoginPolicy", opt =>
+    {
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.PermitLimit = 5;
+        opt.QueueLimit = 0;
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
 // === JWT Authentication ===
@@ -191,6 +205,8 @@ app.Use(async (context, next) =>
 });
 
 app.UseCors("AllowAll");
+
+app.UseRateLimiter();
 
 // Static files (uploads)
 app.UseStaticFiles(new StaticFileOptions

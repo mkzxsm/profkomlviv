@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Ganss.Xss;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ProfkomBackend.Controllers
 {
@@ -28,6 +29,7 @@ namespace ProfkomBackend.Controllers
 
         // 🔑 Логін
         [HttpPost("login")]
+        [EnableRateLimiting("LoginPolicy")]
         public async Task<IActionResult> Login(AuthRequest req)
         {
             var admin = await _db.Admins.FirstOrDefaultAsync(a => a.Username == req.Username);
