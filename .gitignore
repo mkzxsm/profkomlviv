@@ -25,4 +25,4 @@ dist-ssr
 backend/**/bin/
 backend/**/obj/
 backend/**/appsettings.Development.json
-
+.postman/*
