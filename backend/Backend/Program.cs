@@ -87,7 +87,14 @@ builder.Services.AddRateLimiter(options =>
         opt.PermitLimit = 5;
         opt.QueueLimit = 0;
     });
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // ПРИМУСОВО встановлюємо статус 429 та власне повідомлення
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429;
+        context.HttpContext.Response.ContentType = "application/json";
+        await context.HttpContext.Response.WriteAsync("{\"message\": \"Забагато спроб входу. Будь ласка, зачекайте 1 хвилину.\"}", token);
+    };
 });
 
 // === JWT Authentication ===
