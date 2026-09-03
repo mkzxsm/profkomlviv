@@ -7,6 +7,8 @@ namespace ProfkomBackend.Data
     {
         public static void Seed(AppDbContext db)
         {
+            if (db.Admins.Any()) return;
+
             var adminsToAdd = new List<Admin>
             {
                 new Admin
@@ -59,14 +61,7 @@ namespace ProfkomBackend.Data
                 }
             };
 
-            foreach (var admin in adminsToAdd)
-            {
-                if (!db.Admins.Any(a => a.Username == admin.Username))
-                {
-                    db.Admins.Add(admin);
-                }
-            }
-
+            db.Admins.AddRange(adminsToAdd);
             db.SaveChanges();
         }
     }

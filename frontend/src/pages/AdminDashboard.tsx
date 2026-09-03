@@ -9,7 +9,8 @@ import {
     Layers,
     FileText,
     Search,
-    Star
+    Star,
+    Shield
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios, { AxiosError } from 'axios';
@@ -26,6 +27,7 @@ import { Department } from '../types/department';
 
 import DocumentManager from '../components/admin/DocumentManager';
 import { Document } from '../types/documents';
+import AdminsManager from '../components/admin/AdminsManager';
 
 import Pagination from '../components/admin/Pagination';
 import CustomDropdown from '../components/admin/CustomDropdown';
@@ -41,7 +43,7 @@ const teamRoleOptions = [
 const AdminDashboard: React.FC = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState<'news' | 'team' | 'structure' | 'documents'>('news');
+    const [activeTab, setActiveTab] = useState<'news' | 'team' | 'structure' | 'documents' | 'admins'>('news');
 
     const [news, setNews] = useState<News[]>([]);
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -183,6 +185,7 @@ const AdminDashboard: React.FC = () => {
         { key: 'team', label: 'Управління командою', icon: <Users className="h-5 w-5 inline mr-2" /> },
         { key: 'structure', label: 'Управління структурою', icon: <Layers className="h-5 w-5 inline mr-2" /> },
         { key: 'documents', label: 'Управління документами', icon: <FileText className="h-5 w-5 inline mr-2" /> },
+        { key: 'admins', label: 'Управління адмінами', icon: <Shield className="h-5 w-5 inline mr-2" /> },
     ];
 
     const statCards = [
@@ -357,8 +360,10 @@ const AdminDashboard: React.FC = () => {
                             <DocumentManager data={paginatedDocuments} loading={loading} fetchData={fetchAllData} />
                         )}
 
+                        {activeTab === 'admins' && <AdminsManager />}
+
                         {/* Виклик компонента пагінації */}
-                        {activeTab !== 'structure' && (
+                        {activeTab !== 'structure' && activeTab !== 'admins' && (
                             <Pagination
                                 currentPage={currentPage}
                                 totalPages={totalPages}

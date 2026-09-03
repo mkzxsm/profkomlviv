@@ -44,7 +44,7 @@ namespace ProfkomBackend.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, admin.Username),
+                new Claim(JwtRegisteredClaimNames.Sub, admin.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.UniqueName, admin.Username),
                 new Claim(ClaimTypes.Name, admin.Username),
                 new Claim(ClaimTypes.NameIdentifier, admin.Id.ToString()),
@@ -68,6 +68,7 @@ namespace ProfkomBackend.Controllers
             {
                 token = jwt,
                 expires = tokenDescriptor.Expires,
+                userId = admin.Id,
                 username = admin.Username,
                 role = admin.Role
             });
@@ -106,7 +107,7 @@ namespace ProfkomBackend.Controllers
             {
                 Username = req.Username,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
-                Role = req.Role ?? "admin"
+                Role = "admin"
             };
 
             _db.Admins.Add(admin);
@@ -115,7 +116,7 @@ namespace ProfkomBackend.Controllers
             return CreatedAtAction(nameof(List), new { id = admin.Id }, new { message = "Адміністратора створено", admin.Id, admin.Username, admin.Role });
         }
 
-        // ✏️ Редагування адміна
+        // ✏️ Редагування адміна (пароль можна змінювати тільки собі)
         [Authorize(Roles = "admin")]
         [HttpPut("edit/{id}")]
         public async Task<IActionResult> Edit(int id, [FromBody] AdminEditRequest req)
@@ -125,18 +126,46 @@ namespace ProfkomBackend.Controllers
 
             if (!string.IsNullOrEmpty(req.Password))
             {
+                if (!TryGetCurrentAdminId(out var currentAdminId) || currentAdminId != id)
+                    return Forbid();
+
                 if (!IsValidPassword(req.Password))
                     return BadRequest(new { message = "Пароль не відповідає вимогам безпеки" });
 
                 admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password);
             }
 
-            if (!string.IsNullOrEmpty(req.Role))
-                admin.Role = req.Role;
+            admin.Role = "admin";
 
             await _db.SaveChangesAsync();
 
             return Ok(new { message = "Адміністратора оновлено", admin.Id, admin.Username, admin.Role });
+        }
+
+        // 🔒 Зміна пароля собі
+        [Authorize(Roles = "admin")]
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest req)
+        {
+            if (string.IsNullOrEmpty(req.CurrentPassword) || string.IsNullOrEmpty(req.NewPassword))
+                return BadRequest(new { message = "Поточний і новий пароль обов'язкові" });
+
+            if (!TryGetCurrentAdminId(out var currentAdminId))
+                return Unauthorized(new { message = "Не вдалося визначити поточного адміністратора" });
+
+            var admin = await _db.Admins.FindAsync(currentAdminId);
+            if (admin == null) return NotFound(new { message = "Адміністратор не знайдений" });
+
+            if (!BCrypt.Net.BCrypt.Verify(req.CurrentPassword, admin.PasswordHash))
+                return BadRequest(new { message = "Невірний поточний пароль" });
+
+            if (!IsValidPassword(req.NewPassword))
+                return BadRequest(new { message = "Пароль не відповідає вимогам безпеки" });
+
+            admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
+            await _db.SaveChangesAsync();
+
+            return Ok(new { message = "Пароль змінено" });
         }
 
         // 🗑️ Видалення адміна
@@ -154,6 +183,13 @@ namespace ProfkomBackend.Controllers
         }
 
         // === Хелпери ===
+        private bool TryGetCurrentAdminId(out int adminId)
+        {
+            adminId = 0;
+            var adminIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return int.TryParse(adminIdClaim, out adminId);
+        }
+
         private static bool IsValidPassword(string password)
         {
             if (string.IsNullOrEmpty(password)) return false;
@@ -190,5 +226,12 @@ namespace ProfkomBackend.Controllers
     {
         public string? Password { get; set; }
         public string? Role { get; set; }
+    }
+
+    // DTO для зміни пароля собі
+    public class ChangePasswordRequest
+    {
+        public string CurrentPassword { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
     }
 }
