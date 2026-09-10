@@ -117,7 +117,7 @@ namespace ProfkomBackend.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Update(int id, [FromForm] DepartmentFormData formData)
+        public async Task<ActionResult<Department>> Update(int id, [FromForm] DepartmentFormData formData)
         {
             var department = await _db.Departments
                 .Include(d => d.Head)
@@ -194,7 +194,7 @@ namespace ProfkomBackend.Controllers
             department.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
-            return NoContent();
+            return Ok(department);
         }
 
         [HttpDelete("{id}")]
