@@ -57,6 +57,19 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<Department>> Create([FromForm] DepartmentFormData formData)
         {
+            // Валідація вхідних даних
+            if (string.IsNullOrWhiteSpace(formData.Name))
+                return BadRequest(new { message = "Назва відділу обов'язкова" });
+
+            var nameError = InputValidator.ValidateTextField(formData.Name, "Назва відділу", maxLength: 200);
+            if (nameError != null) return BadRequest(new { message = nameError });
+
+            if (!string.IsNullOrEmpty(formData.Description))
+            {
+                var descError = InputValidator.ValidateTextField(formData.Description, "Опис", maxLength: 2000);
+                if (descError != null) return BadRequest(new { message = descError });
+            }
+
             string? logoUrl = null;
 
             if (formData.Logo != null && formData.Logo.Length > 0)
@@ -119,6 +132,19 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(int id, [FromForm] DepartmentFormData formData)
         {
+            // Валідація вхідних даних
+            if (string.IsNullOrWhiteSpace(formData.Name))
+                return BadRequest(new { message = "Назва відділу обов'язкова" });
+
+            var nameError2 = InputValidator.ValidateTextField(formData.Name, "Назва відділу", maxLength: 200);
+            if (nameError2 != null) return BadRequest(new { message = nameError2 });
+
+            if (!string.IsNullOrEmpty(formData.Description))
+            {
+                var descError2 = InputValidator.ValidateTextField(formData.Description, "Опис", maxLength: 2000);
+                if (descError2 != null) return BadRequest(new { message = descError2 });
+            }
+
             var department = await _db.Departments
                 .Include(d => d.Head)
                 .FirstOrDefaultAsync(d => d.Id == id);
@@ -224,6 +250,20 @@ namespace ProfkomBackend.Controllers
             _db.Departments.Remove(department);
             await _db.SaveChangesAsync();
             return NoContent();
+        }
+
+        // === Хелпери ===
+        private static bool IsValidDepartmentName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return false;
+            // Максимум 200 символів
+            if (name.Length > 200) return false;
+            // Заборона HTML-тегів та SQL-injection символів
+            if (name.Contains('<') || name.Contains('>') || name.Contains(';') ||
+                name.Contains("--") || name.Contains("/*") || name.Contains("*/") ||
+                name.Contains("${") || name.Contains("#{"))
+                return false;
+            return true;
         }
     }
 

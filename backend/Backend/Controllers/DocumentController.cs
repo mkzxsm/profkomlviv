@@ -6,7 +6,6 @@ using Microsoft.Extensions.FileProviders;
 using ProfkomBackend.Models;
 using ProfkomBackend.Utils;
 using System.ComponentModel.DataAnnotations;
-using Ganss.Xss; // 👈 Додано санітайзер
 
 namespace ProfkomBackend.Controllers
 {
@@ -42,6 +41,20 @@ namespace ProfkomBackend.Controllers
         {
             if (formData.File == null || formData.File.Length == 0) return BadRequest(new { message = "Файл обов'язковий" });
 
+            // Валідація Title
+            if (string.IsNullOrWhiteSpace(formData.Title))
+                return BadRequest(new { message = "Назва документа обов'язкова" });
+
+            var titleError = InputValidator.ValidateTextField(formData.Title, "Назва", maxLength: 300);
+            if (titleError != null) return BadRequest(new { message = titleError });
+
+            // Валідація Description
+            if (!string.IsNullOrEmpty(formData.Description))
+            {
+                var descError = InputValidator.ValidateTextField(formData.Description, "Опис", maxLength: 2000);
+                if (descError != null) return BadRequest(new { message = descError });
+            }
+
             var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "documents");
             Directory.CreateDirectory(uploadsDir);
             
@@ -53,12 +66,10 @@ namespace ProfkomBackend.Controllers
                 await formData.File.CopyToAsync(stream);
             }
 
-            var sanitizer = new HtmlSanitizer(); // 👈 Ініціалізація санітайзера
-
             var document = new Document
             {
-                Title = sanitizer.Sanitize(formData.Title),       // 👈 Захист від XSS
-                Description = string.IsNullOrEmpty(formData.Description) ? null : sanitizer.Sanitize(formData.Description), // 👈 Захист від XSS
+                Title = formData.Title,
+                Description = string.IsNullOrEmpty(formData.Description) ? null : formData.Description,
                 FilePath = $"/uploads/documents/{fileName}",
                 FileSize = formData.File.Length,
                 CreatedAt = DateTime.UtcNow
@@ -76,6 +87,20 @@ namespace ProfkomBackend.Controllers
             var document = await _db.Documents.FindAsync(id);
             if (document == null) return NotFound(new { message = "Документ не знайдено" });
 
+            // Валідація Title
+            if (string.IsNullOrWhiteSpace(formData.Title))
+                return BadRequest(new { message = "Назва документа обов'язкова" });
+
+            var titleError = InputValidator.ValidateTextField(formData.Title, "Назва", maxLength: 300);
+            if (titleError != null) return BadRequest(new { message = titleError });
+
+            // Валідація Description
+            if (!string.IsNullOrEmpty(formData.Description))
+            {
+                var descError = InputValidator.ValidateTextField(formData.Description, "Опис", maxLength: 2000);
+                if (descError != null) return BadRequest(new { message = descError });
+            }
+
             if (formData.File != null && formData.File.Length > 0)
             {
                 var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "documents");
@@ -90,10 +115,8 @@ namespace ProfkomBackend.Controllers
                 document.FileSize = formData.File.Length;
             }
 
-            var sanitizer = new HtmlSanitizer(); // 👈 Ініціалізація санітайзера
-
-            document.Title = sanitizer.Sanitize(formData.Title);
-            document.Description = string.IsNullOrEmpty(formData.Description) ? null : sanitizer.Sanitize(formData.Description);
+            document.Title = formData.Title;
+            document.Description = string.IsNullOrEmpty(formData.Description) ? null : formData.Description;
             document.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();

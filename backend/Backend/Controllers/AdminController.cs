@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -97,6 +97,9 @@ namespace ProfkomBackend.Controllers
             if (string.IsNullOrEmpty(req.Username) || string.IsNullOrEmpty(req.Password))
                 return BadRequest(new { message = "Логін і пароль обов'язкові" });
 
+            if (!IsValidUsername(req.Username))
+                return BadRequest(new { message = "Логін може містити лише літери, цифри та підкреслення (3–50 символів)" });
+
             if (!IsValidPassword(req.Password))
                 return BadRequest(new { message = "Пароль не відповідає вимогам безпеки" });
 
@@ -193,8 +196,21 @@ namespace ProfkomBackend.Controllers
         private static bool IsValidPassword(string password)
         {
             if (string.IsNullOrEmpty(password)) return false;
+            // Обмеження довжини: мін 8, макс 128 символів
+            if (password.Length > 128) return false;
+            // Забороняємо HTML-теги та JNDI/template injection символи
+            if (password.Contains('<') || password.Contains('>') || password.Contains("${"))
+                return false;
             var regex = new Regex(@"^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$");
             return regex.IsMatch(password);
+        }
+
+        private static bool IsValidUsername(string username)
+        {
+            if (string.IsNullOrEmpty(username)) return false;
+            if (username.Length < 3 || username.Length > 50) return false;
+            var regex = new Regex(@"^[a-zA-Z0-9_]+$");
+            return regex.IsMatch(username);
         }
 
         private static string Base64UrlEncode(byte[] input)
