@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using ProfkomBackend.Utils;
 
 namespace ProfkomBackend.Models
 {
@@ -9,6 +10,7 @@ namespace ProfkomBackend.Models
         public int Id { get; set; }
 
         [Required]
+        [MaxLength(FieldLimits.Title)]
         public string Title { get; set; } = string.Empty;
 
         public string? Description { get; set; }

@@ -3,7 +3,8 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditorBuild from '@ckeditor/ckeditor5-build-classic';
 import { News, NewsFormData } from '../../types/news';
 import NewsCard from '../NewsCard';
-import { ModalInput, ModalLabel, ModalCheckbox, ModalButton } from './ui/ModalStyles';
+import { ModalInput, ModalLabel, ModalCheckbox, ModalButton, CharCounter } from './ui/ModalStyles';
+import { FIELD_LIMITS } from '../../constants/fieldLimits';
 
 const ClassicEditor = ClassicEditorBuild as any;
 
@@ -211,11 +212,12 @@ const NewsModal: React.FC<NewsModalProps> = ({
                     id="title"
                     type="text"
                     required
-                    maxLength={200}
+                    maxLength={FIELD_LIMITS.title}
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="Іван Франко відвідав власний університет!"
                 />
+                <CharCounter current={formData.title.length} max={FIELD_LIMITS.title} />
             </div>
 
             <div>

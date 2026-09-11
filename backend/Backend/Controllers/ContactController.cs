@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
+using ProfkomBackend.Utils;
 using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel.DataAnnotations;
 using Ganss.Xss;
@@ -90,7 +91,7 @@ namespace ProfkomBackend.Controllers
         public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Email обов'язковий")]
-        [EmailAddress(ErrorMessage = "Неправильний формат email")]
+        [RegularExpression(FieldLimits.EmailPattern, ErrorMessage = FieldLimits.EmailFormatMessage)]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Тема обов'язкова")]

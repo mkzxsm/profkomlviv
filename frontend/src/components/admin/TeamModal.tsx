@@ -6,8 +6,10 @@ import {
   ModalInput,
   ModalSelect,
   ModalCheckbox,
-  ModalButton
-} from './ui/ModalStyles'; 
+  ModalButton,
+  CharCounter
+} from './ui/ModalStyles';
+import { FIELD_LIMITS, EMAIL_INPUT_PATTERN, EMAIL_HINT, isValidEmail } from '../../constants/fieldLimits'; 
 import TeamMemberCard from '../TeamMemberCard';
 
 interface TeamModalProps {
@@ -56,6 +58,7 @@ useEffect(() => {
  
  // ЗМІНА 2: Додаємо стан для помилки порядку
  const [orderError, setOrderError] = useState<string | null>(null);
+ const [emailError, setEmailError] = useState<string | null>(null);
 
  // ЗМІНА 3: Валідація унікальності порядку при кожній зміні orderInd або type
  useEffect(() => {
@@ -106,8 +109,14 @@ useEffect(() => {
  // ЗМІНА 4: Створюємо локальний обробник відправки, який блокує збереження, якщо є orderError
  const handleLocalSubmit = (e: React.FormEvent) => {
    e.preventDefault();
+   const email = (formData.email || '').trim();
+   if (email && !isValidEmail(email)) {
+     setEmailError(EMAIL_HINT);
+     return;
+   }
+   setEmailError(null);
    if (orderError) {
-     return; // Блокуємо відправку
+     return;
    }
    onSubmit(e);
  };
@@ -145,7 +154,7 @@ useEffect(() => {
       id="name"
       type="text"
       required
-      maxLength={100}
+      maxLength={FIELD_LIMITS.personName}
       value={formData.name}
       onChange={(e) => {
        const lettersOnly = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ ЇїІіЄєҐґ\s-']/g, '');
@@ -153,6 +162,7 @@ useEffect(() => {
       }}
       placeholder="Іван Франко"
      />
+     <CharCounter current={formData.name.length} max={FIELD_LIMITS.personName} />
     </div>
 
     <div>
@@ -193,11 +203,12 @@ useEffect(() => {
        id="position"
        type="text"
        required
-       maxLength={100}
+       maxLength={FIELD_LIMITS.position}
        value={formData.position}
        onChange={(e) => setFormData({ ...formData, position: e.target.value })}
        placeholder="Голова Профкому Студентів"
       />
+      <CharCounter current={formData.position.length} max={FIELD_LIMITS.position} />
      </div>
     ) : (
      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -212,11 +223,22 @@ useEffect(() => {
      <ModalInput
       id="email"
       type="email"
-      maxLength={150}
+      maxLength={FIELD_LIMITS.email}
+      pattern={EMAIL_INPUT_PATTERN}
+      title={EMAIL_HINT}
       value={formData.email || ''}
-      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+      onChange={(e) => {
+       setFormData({ ...formData, email: e.target.value });
+       const next = e.target.value.trim();
+       setEmailError(next && !isValidEmail(next) ? EMAIL_HINT : null);
+      }}
       placeholder="ivanfranko@lnu.edu.ua"
      />
+     {emailError ? (
+      <p className="mt-1 text-xs font-medium text-red-600">{emailError}</p>
+     ) : (
+      <CharCounter current={(formData.email || '').length} max={FIELD_LIMITS.email} />
+     )}
     </div>
 
     <div>

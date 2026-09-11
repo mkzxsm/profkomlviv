@@ -11,6 +11,8 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Ganss.Xss;
 using Microsoft.AspNetCore.RateLimiting;
+using System.ComponentModel.DataAnnotations;
+using ProfkomBackend.Utils;
 
 namespace ProfkomBackend.Controllers
 {
@@ -102,6 +104,9 @@ namespace ProfkomBackend.Controllers
 
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
                 return BadRequest(new { message = "Логін і пароль обов'язкові" });
+
+            if (!FieldLimits.IsValidEmail(username))
+                return BadRequest(new { message = FieldLimits.EmailFormatMessage });
 
             if (!IsValidPassword(password))
                 return BadRequest(new { message = "Пароль не відповідає вимогам безпеки" });
@@ -208,7 +213,7 @@ namespace ProfkomBackend.Controllers
             if (string.IsNullOrWhiteSpace(password)) return false;
 
             password = password.Trim();
-            var regex = new Regex(@"^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$");
+            var regex = new Regex(@"^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8," + FieldLimits.Password + @"}$");
             return regex.IsMatch(password);
         }
 
@@ -231,7 +236,10 @@ namespace ProfkomBackend.Controllers
     // DTO для створення
     public class AdminCreateRequest
     {
+        [MaxLength(FieldLimits.AdminUsername)]
+        [RegularExpression(FieldLimits.EmailPattern, ErrorMessage = FieldLimits.EmailFormatMessage)]
         public string Username { get; set; } = string.Empty;
+        [MaxLength(FieldLimits.Password)]
         public string Password { get; set; } = string.Empty;
         public string? Role { get; set; }
     }
@@ -239,6 +247,7 @@ namespace ProfkomBackend.Controllers
     // DTO для редагування
     public class AdminEditRequest
     {
+        [MaxLength(FieldLimits.Password)]
         public string? Password { get; set; }
         public string? Role { get; set; }
     }
@@ -246,7 +255,9 @@ namespace ProfkomBackend.Controllers
     // DTO для зміни пароля собі
     public class ChangePasswordRequest
     {
+        [MaxLength(FieldLimits.Password)]
         public string CurrentPassword { get; set; } = string.Empty;
+        [MaxLength(FieldLimits.Password)]
         public string NewPassword { get; set; } = string.Empty;
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Security.Claims;
 using ProfkomBackend.Data;
 using ProfkomBackend.Middleware;
+using ProfkomBackend.Utils;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using NetEscapades.AspNetCore.SecurityHeaders;
@@ -178,6 +179,12 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
+        var pending = db.Database.GetPendingMigrations().ToList();
+        if (pending.Any(m => m.Contains("LimitAdminStringFields")))
+        {
+            FieldLengthGuard.ThrowIfExistingDataExceedsLimits(db);
+        }
+
         db.Database.Migrate();
         DbInitializer.Seed(db);
         Console.WriteLine("? Database initialized successfully");

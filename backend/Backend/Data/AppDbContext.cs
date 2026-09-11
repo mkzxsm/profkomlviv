@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Models;
+using ProfkomBackend.Utils;
 
 namespace ProfkomBackend.Data
 {
@@ -34,6 +35,20 @@ namespace ProfkomBackend.Data
                 .WithOne(i => i.News)
                 .HasForeignKey(i => i.NewsId)
                 .OnDelete(DeleteBehavior.Cascade);
+            // Ліміти коротких рядків (назви, пошти, адреси, URL)
+            modelBuilder.Entity<News>().Property(n => n.Title).HasMaxLength(FieldLimits.Title);
+            modelBuilder.Entity<Document>().Property(d => d.Title).HasMaxLength(FieldLimits.Title);
+            modelBuilder.Entity<Team>().Property(t => t.Name).HasMaxLength(FieldLimits.PersonName);
+            modelBuilder.Entity<Team>().Property(t => t.Position).HasMaxLength(FieldLimits.Position);
+            modelBuilder.Entity<Team>().Property(t => t.Email).HasMaxLength(FieldLimits.Email);
+            modelBuilder.Entity<Department>().Property(d => d.Name).HasMaxLength(FieldLimits.StructureName);
+            modelBuilder.Entity<Faculty>().Property(f => f.Name).HasMaxLength(FieldLimits.StructureName);
+            modelBuilder.Entity<Faculty>().Property(f => f.Address).HasMaxLength(FieldLimits.Address);
+            modelBuilder.Entity<Faculty>().Property(f => f.Room).HasMaxLength(FieldLimits.Room);
+            modelBuilder.Entity<Faculty>().Property(f => f.Schedule).HasMaxLength(FieldLimits.Schedule);
+            modelBuilder.Entity<Faculty>().Property(f => f.Instagram_Link).HasMaxLength(FieldLimits.Url);
+            modelBuilder.Entity<Faculty>().Property(f => f.Telegram_Link).HasMaxLength(FieldLimits.Url);
+            modelBuilder.Entity<Admin>().Property(a => a.Username).HasMaxLength(FieldLimits.AdminUsername);
         }
     }
 }

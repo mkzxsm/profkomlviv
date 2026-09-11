@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Ganss.Xss;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProfkomBackend.Controllers
 {
@@ -230,6 +231,7 @@ namespace ProfkomBackend.Controllers
     public class DepartmentFormData
     {
         public int? HeadId { get; set; }
+        [MaxLength(FieldLimits.StructureName)]
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? LogoUrl { get; set; }

@@ -5,6 +5,7 @@ using ProfkomBackend.Data;
 using ProfkomBackend.Models;
 using ProfkomBackend.Utils;
 using Ganss.Xss; // 👈 Додано санітайзер
+using System.ComponentModel.DataAnnotations;
 
 namespace ProfkomBackend.Controllers
 {
@@ -152,9 +153,13 @@ namespace ProfkomBackend.Controllers
 
     public class TeamFormData
     {
+        [MaxLength(FieldLimits.PersonName)]
         public string Name { get; set; } = string.Empty;
+        [MaxLength(FieldLimits.Position)]
         public string Position { get; set; } = string.Empty;
         public MemberType Type { get; set; }
+        [MaxLength(FieldLimits.Email)]
+        [RegularExpression(FieldLimits.EmailPattern, ErrorMessage = FieldLimits.EmailFormatMessage)]
         public string? Email { get; set; }
         public int OrderInd { get; set; }
         public bool IsTemporary { get; set; }

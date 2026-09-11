@@ -62,6 +62,12 @@ export const ModalRadio: React.FC<RadioProps> = ({ label, id, className, ...prop
   </div>
 );
 
+export const CharCounter: React.FC<{ current: number; max: number }> = ({ current, max }) => (
+  <p className="mt-1 text-xs text-gray-400 text-right">
+    {current} / {max}
+  </p>
+);
+
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary';
 }

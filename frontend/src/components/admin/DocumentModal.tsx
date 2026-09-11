@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Document, DocumentFormData } from '../../types/documents';
-import { ModalInput, ModalButton, ModalLabel } from './ui/ModalStyles';
+import { ModalInput, ModalButton, ModalLabel, CharCounter } from './ui/ModalStyles';
+import { FIELD_LIMITS } from '../../constants/fieldLimits';
 import DocumentCard from '../DocumentCard';
 
 interface DocumentModalProps {
@@ -92,10 +93,12 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           id="title"
           type="text"
           required
+          maxLength={FIELD_LIMITS.title}
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           placeholder="Назва документа"
         />
+        <CharCounter current={formData.title.length} max={FIELD_LIMITS.title} />
       </div>
 
       <div>

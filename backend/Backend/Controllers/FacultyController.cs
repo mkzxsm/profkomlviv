@@ -12,6 +12,7 @@ using ProfkomBackend.Data;
 using ProfkomBackend.Models;
 using ProfkomBackend.Utils;
 using Ganss.Xss;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProfkomBackend.Controllers
 {
@@ -259,13 +260,19 @@ namespace ProfkomBackend.Controllers
 
     public class FacultyFormData
     {
+        [MaxLength(FieldLimits.StructureName)]
         public string Name { get; set; } = string.Empty;
         public int? HeadId { get; set; }
+        [MaxLength(FieldLimits.Address)]
         public string? Address { get; set; }
+        [MaxLength(FieldLimits.Room)]
         public string? Room { get; set; }
+        [MaxLength(FieldLimits.Url)]
         public string? Instagram_Link { get; set; }
+        [MaxLength(FieldLimits.Url)]
         public string? Telegram_Link { get; set; }
         public string? ImageUrl { get; set; }
+        [MaxLength(FieldLimits.Schedule)]
         public string? Schedule { get; set; }
         public string? Summary { get; set; }
         public bool IsActive { get; set; } = true;

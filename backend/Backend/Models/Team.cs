@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using ProfkomBackend.Utils;
 
 namespace ProfkomBackend.Models
 {
@@ -17,15 +18,19 @@ namespace ProfkomBackend.Models
         public int Id { get; set; }
 
         [Required]
+        [MaxLength(FieldLimits.PersonName)]
         public string Name { get; set; } = string.Empty;
 
         [Required]
+        [MaxLength(FieldLimits.Position)]
         public string Position { get; set; } = string.Empty;
 
         [Required]
         public MemberType Type { get; set; }
 
         public string? ImageUrl { get; set; }
+        [MaxLength(FieldLimits.Email)]
+        [RegularExpression(FieldLimits.EmailPattern, ErrorMessage = FieldLimits.EmailFormatMessage)]
         public string? Email { get; set; }
 
         [Required]

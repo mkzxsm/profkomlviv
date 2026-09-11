@@ -12,10 +12,11 @@ import {
   TableRow,
   TableTd,
 } from './ui/TableStyles';
-import { ModalInput, ModalLabel, ModalButton } from './ui/ModalStyles';
+import { ModalInput, ModalLabel, ModalButton, CharCounter } from './ui/ModalStyles';
+import { FIELD_LIMITS, EMAIL_INPUT_PATTERN, EMAIL_HINT, isValidEmail } from '../../constants/fieldLimits';
 
-const PASSWORD_HINT = 'Мінімум 8 символів, велика латинська літера, цифра та спецсимвол. Пробіли на початку і в кінці ігноруються.';
-const PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+const PASSWORD_HINT = 'Від 8 до 100 символів, велика латинська літера, цифра та спецсимвол. Пробіли на початку і в кінці ігноруються.';
+const PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,100}$/;
 
 const isValidPassword = (password: string) => {
     const trimmed = password.trim();
@@ -96,6 +97,11 @@ const AdminsManager: React.FC = () => {
 
     if (!username || !password) {
       setCreateError('Логін і пароль обов\'язкові');
+      return;
+    }
+
+    if (!isValidEmail(username)) {
+      setCreateError(EMAIL_HINT);
       return;
     }
 
@@ -272,6 +278,7 @@ const AdminsManager: React.FC = () => {
                 value={passwordForm.currentPassword}
                 onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
                 className="pr-10"
+                maxLength={FIELD_LIMITS.password}
               />
               <button
                 type="button"
@@ -296,6 +303,7 @@ const AdminsManager: React.FC = () => {
                 value={passwordForm.newPassword}
                 onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
                 className="pr-10"
+                maxLength={FIELD_LIMITS.password}
               />
               <button
                 type="button"
@@ -319,6 +327,7 @@ const AdminsManager: React.FC = () => {
               required
               value={passwordForm.confirmPassword}
               onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+              maxLength={FIELD_LIMITS.password}
             />
           </div>
           {passwordError && (
@@ -355,11 +364,14 @@ const AdminsManager: React.FC = () => {
                   id="adminUsername"
                   type="email"
                   required
-                  maxLength={100}
+                  maxLength={FIELD_LIMITS.adminUsername}
+                  pattern={EMAIL_INPUT_PATTERN}
+                  title={EMAIL_HINT}
                   value={createForm.username}
                   onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })}
                   placeholder="admin@profkom.com"
                 />
+                <CharCounter current={createForm.username.length} max={FIELD_LIMITS.adminUsername} />
               </div>
               <div>
                 <ModalLabel required htmlFor="adminPassword">Пароль</ModalLabel>
@@ -371,6 +383,7 @@ const AdminsManager: React.FC = () => {
                     value={createForm.password}
                     onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
                     className="pr-10"
+                    maxLength={FIELD_LIMITS.password}
                   />
                   <button
                     type="button"
