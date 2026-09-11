@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { TeamMember, TeamFormData } from '../../types/team';
+import React, { useEffect, useMemo, useState } from 'react';
+import { TeamMember, TeamFormData, MEMBER_TYPE_OPTIONS, APARAT_TYPE, PROFBURO_HEAD_TYPE, VIDDIL_HEAD_TYPE } from '../../types/team';
 
 import {
   ModalLabel,
@@ -18,7 +18,7 @@ interface TeamModalProps {
  selectedFile: File | null;
  setSelectedFile: React.Dispatch<React.SetStateAction<File | null>>;
  editingItem: TeamMember | null;
- onSubmit: (e: React.FormEvent) => void;
+ onSubmit: (e: React.FormEvent, options?: { swapOrder?: boolean }) => void;
  onClose: () => void;
  // ЗМІНА 1: Додаємо allData, щоб модалка знала про існуючі порядки
  allData: TeamMember[]; 
@@ -39,11 +39,11 @@ const TeamModal: React.FC<TeamModalProps> = ({
 }) => {
 
 useEffect(() => {
-  if (formData.type === 1) {
+  if (formData.type === PROFBURO_HEAD_TYPE) {
     setFormData(prev => ({ ...prev, position: 'Голова Профбюро Студентів' }));
-  } else if (formData.type === 2) {
+  } else if (formData.type === VIDDIL_HEAD_TYPE) {
     setFormData(prev => ({ ...prev, position: 'Голова Відділу' }));
-  } else if (formData.type === 0) {
+  } else if (formData.type === APARAT_TYPE) {
     setFormData(prev => {
       if (prev.position === 'Голова Профбюро Студентів' || prev.position === 'Голова Відділу') {
         return { ...prev, position: '', isTemporary: false };
@@ -55,28 +55,29 @@ useEffect(() => {
 
  const [previewImageUrl, setPreviewImageUrl] = useState<string | undefined>(undefined);
  const [fileError, setFileError] = useState<string | null>(null);
- 
- // ЗМІНА 2: Додаємо стан для помилки порядку
- const [orderError, setOrderError] = useState<string | null>(null);
  const [emailError, setEmailError] = useState<string | null>(null);
 
- // ЗМІНА 3: Валідація унікальності порядку при кожній зміні orderInd або type
- useEffect(() => {
-   if (!allData) return;
-
-   // Шукаємо, чи є вже член команди з таким самим типом та порядком
-   const isDuplicate = allData.some(
-     member => member.type === formData.type &&
-               member.orderInd === formData.orderInd &&
-               member.id !== editingItem?.id // не порівнюємо з собою ж при редагуванні
-   );
-
-   if (isDuplicate) {
-     setOrderError(`Порядок ${formData.orderInd} вже зайнятий іншим членом команди у цій категорії.`);
-   } else {
-     setOrderError(null);
+ const occupyingMember = useMemo(() => {
+   if (typeof formData.orderInd !== 'number' || Number.isNaN(formData.orderInd)) {
+     return null;
    }
+
+   return (
+     allData.find(
+       (member) =>
+         member.type === formData.type &&
+         member.orderInd === formData.orderInd &&
+         member.id !== editingItem?.id,
+     ) ?? null
+   );
  }, [formData.orderInd, formData.type, allData, editingItem]);
+
+ const canSwapOrder = Boolean(
+   editingItem && occupyingMember && editingItem.type === formData.type,
+ );
+ const orderError = occupyingMember && !canSwapOrder
+   ? `Порядок ${formData.orderInd} вже зайнятий членом команди «${occupyingMember.name}».`
+   : null;
 
  useEffect(() => {
   if (selectedFile) {
@@ -118,11 +119,19 @@ useEffect(() => {
    if (orderError) {
      return;
    }
+   if (canSwapOrder && occupyingMember && editingItem) {
+     const confirmed = window.confirm(
+       `Порядок ${formData.orderInd} вже зайнятий членом «${occupyingMember.name}».\n\nПоміняти місцями? У «${occupyingMember.name}» стане порядок ${editingItem.orderInd}, а в цього члена — ${formData.orderInd}.`,
+     );
+     if (!confirmed) return;
+     onSubmit(e, { swapOrder: true });
+     return;
+   }
    onSubmit(e);
  };
 
- const showPositionInput = formData.type === 0;
- const showTemporaryCheckbox = formData.type === 1 || formData.type === 2;
+ const showPositionInput = formData.type === APARAT_TYPE;
+ const showTemporaryCheckbox = formData.type === PROFBURO_HEAD_TYPE || formData.type === VIDDIL_HEAD_TYPE;
 
  let previewPosition = formData.position;
  if (formData.isTemporary && showTemporaryCheckbox) {
@@ -175,9 +184,11 @@ useEffect(() => {
       value={formData.type}
       onChange={(e) => setFormData({ ...formData, type: parseInt(e.target.value) })}
      >
-      <option value={0}>Член Президії</option>
-      <option value={1}>Голова Профбюро Студентів</option>
-      <option value={2}>Голова Відділу</option>
+      {MEMBER_TYPE_OPTIONS.map((option) => (
+        <option key={option.id} value={option.id}>
+          {option.label}
+        </option>
+      ))}
      </ModalSelect>
     </div>
     
@@ -282,6 +293,10 @@ useEffect(() => {
      {/* ЗМІНА 5: Відображаємо помилку червоним кольором, якщо номер зайнято */}
      {orderError ? (
        <p className="mt-1 text-xs font-medium text-red-600">{orderError}</p>
+     ) : canSwapOrder && occupyingMember ? (
+       <p className="mt-1 text-xs font-medium text-amber-700">
+         Порядок {formData.orderInd} уже в «{occupyingMember.name}». При збереженні можна підтвердити обмін місцями.
+       </p>
      ) : (
        <p className="mt-1 text-xs text-gray-500">Задає позицію в таблиці</p>
      )}

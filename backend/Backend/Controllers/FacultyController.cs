@@ -65,6 +65,11 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<Faculty>> Create([FromForm] FacultyFormData formData)
         {
+            if (await FacultyNameTakenAsync(formData.Name))
+            {
+                return Conflict(new { message = UniqueName.DuplicateMessage });
+            }
+
             Team? headTeam = null;
             if (formData.HeadId.HasValue)
             {
@@ -142,6 +147,11 @@ namespace ProfkomBackend.Controllers
             if (faculty == null)
             {
                 return NotFound(new { message = "Факультет не знайдений" });
+            }
+
+            if (await FacultyNameTakenAsync(formData.Name, excludeId: id))
+            {
+                return Conflict(new { message = UniqueName.DuplicateMessage });
             }
 
             Team? newHead = null;
@@ -255,6 +265,20 @@ namespace ProfkomBackend.Controllers
             await _db.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        private Task<bool> FacultyNameTakenAsync(string? name, int? excludeId = null)
+        {
+            var normalized = (name ?? string.Empty).Trim().ToLower();
+            if (string.IsNullOrEmpty(normalized)) return Task.FromResult(false);
+
+            var query = _db.Faculties.Where(f => f.Name.ToLower() == normalized);
+            if (excludeId.HasValue)
+            {
+                query = query.Where(f => f.Id != excludeId.Value);
+            }
+
+            return query.AnyAsync();
         }
     }
 

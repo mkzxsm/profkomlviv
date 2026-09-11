@@ -57,7 +57,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, allData, loading, fetch
     setShowAddModal(true);
   };
 
-  const handleTeamSubmit = async (e: React.FormEvent) => {
+  const handleTeamSubmit = async (e: React.FormEvent, options?: { swapOrder?: boolean }) => {
     e.preventDefault();
     try {
       const formData = new FormData();
@@ -67,6 +67,9 @@ const TeamManager: React.FC<TeamManagerProps> = ({ data, allData, loading, fetch
       formData.append('Email', teamFormData.email || '');
       formData.append('OrderInd', (teamFormData.orderInd || 0).toString());
       formData.append('IsTemporary', teamFormData.isTemporary.toString());
+      if (options?.swapOrder) {
+        formData.append('SwapOrder', 'true');
+      }
 
       if (selectedFile) {
         formData.append('Image', selectedFile);

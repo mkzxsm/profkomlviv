@@ -19,7 +19,7 @@ import NewsManager from '../components/admin/NewsManager';
 import { News } from '../types/news';
 
 import TeamManager from '../components/admin/TeamManager';
-import { TeamMember, APARAT_TYPE, PROFBURO_HEAD_TYPE, VIDDIL_HEAD_TYPE } from '../types/team';
+import { TeamMember, APARAT_TYPE, MEMBER_TYPE_OPTIONS } from '../types/team';
 
 import StructureManager from '../components/admin/StructureManager';
 import { Faculty } from '../types/faculty';
@@ -34,11 +34,10 @@ import CustomDropdown from '../components/admin/CustomDropdown';
 
 const ITEMS_PER_PAGE = 10;
 
-const teamRoleOptions = [
-    { id: APARAT_TYPE, label: 'Члени Президії' },
-    { id: PROFBURO_HEAD_TYPE, label: 'Голови Профбюро Студентів' },
-    { id: VIDDIL_HEAD_TYPE, label: 'Голови Відділів' },
-];
+const teamRoleOptions = MEMBER_TYPE_OPTIONS.map(({ id, filterLabel }) => ({
+    id,
+    label: filterLabel,
+}));
 
 const AdminDashboard: React.FC = () => {
     const { user, logout } = useAuth();

@@ -15,7 +15,11 @@ import {
   ModalLabel,
   CharCounter,
 } from "./ui/ModalStyles";
-import { FIELD_LIMITS } from "../../constants/fieldLimits";
+import {
+  DUPLICATE_NAME_MESSAGE,
+  FIELD_LIMITS,
+  isDuplicateStructureName,
+} from "../../constants/fieldLimits";
 import FacultyCard from "../FacultyCard";
 import DepartmentCard from "../DepartmentCard";
 
@@ -53,29 +57,17 @@ const StructureModal: React.FC<StructureModalProps> = ({
   const [availableHeads, setAvailableHeads] = useState<TeamMember[]>([]);
   const [loadingHeads, setLoadingHeads] = useState(true);
   const [fileError, setFileError] = useState<string | null>(null);
-  const [nameError, setNameError] = useState<string | null>(null);
 
   const isFaculty = type === "faculty";
   const headType = isFaculty ? PROFBURO_HEAD_TYPE : VIDDIL_HEAD_TYPE;
 
-  useEffect(() => {
-    if (!formData.name) {
-      setNameError(null);
-      return;
-    }
-
-    const isDuplicate = allData.some(
-      (item) =>
-        item.name.trim().toLowerCase() ===
-          formData.name!.trim().toLowerCase() && item.id !== editingItem?.id,
-    );
-
-    if (isDuplicate) {
-      setNameError("Ця назва вже використовується. Оберіть іншу.");
-    } else {
-      setNameError(null);
-    }
-  }, [formData.name, allData, editingItem]);
+  const duplicateNameError = useMemo(
+    () =>
+      isDuplicateStructureName(formData.name, allData, editingItem?.id)
+        ? DUPLICATE_NAME_MESSAGE
+        : null,
+    [formData.name, allData, editingItem],
+  );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -198,7 +190,7 @@ const StructureModal: React.FC<StructureModalProps> = ({
 
   const handleLocalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (nameError) return;
+    if (duplicateNameError) return;
     onSubmit(e);
   };
 
@@ -252,8 +244,10 @@ const StructureModal: React.FC<StructureModalProps> = ({
             placeholder={isFaculty ? "Факультет електроніки" : "Відділ дизайну"}
           />
           <CharCounter current={(formData.name || "").length} max={FIELD_LIMITS.structureName} />
-          {nameError && (
-            <p className="mt-1 text-xs font-medium text-red-600">{nameError}</p>
+          {duplicateNameError && (
+            <p className="mt-1 text-xs font-medium text-red-600">
+              {duplicateNameError}
+            </p>
           )}
         </div>
 
@@ -532,9 +526,9 @@ const StructureModal: React.FC<StructureModalProps> = ({
           disabled={
             loadingHeads ||
             (availableHeads.length === 0 && !editingItem?.headId) ||
-            !!nameError
+            !!duplicateNameError
           }
-          className={nameError ? "opacity-50 cursor-not-allowed" : ""}
+          className={duplicateNameError ? "opacity-50 cursor-not-allowed" : ""}
         >
           {editingItem
             ? "Зберегти зміни"

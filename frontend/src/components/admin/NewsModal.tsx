@@ -179,7 +179,7 @@ const NewsModal: React.FC<NewsModalProps> = ({
         title: formData.title || "Заголовок новини",
         content: formData.content || "<p>Тут буде ваш контент</p>",
         publishedAt: new Date().toISOString(),
-        isImportant: formData.isImportant,
+        isImportant: Boolean(formData.isImportant),
         
         imageUrl: previewNewsImages.length > 0 ? previewNewsImages[0].imagePath : undefined,
         images: previewNewsImages, 

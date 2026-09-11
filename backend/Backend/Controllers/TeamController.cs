@@ -39,6 +39,17 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<Team>> Create([FromForm] TeamFormData formData)
         {
+            if (formData.OrderInd < 0)
+            {
+                return BadRequest(new { message = "Порядок не може бути від’ємним." });
+            }
+
+            var createOccupant = await FindOrderOccupantAsync(formData.Type, formData.OrderInd);
+            if (createOccupant != null)
+            {
+                return Conflict(OrderTakenResult(formData.OrderInd, createOccupant.Name));
+            }
+
             string? imageUrl = null;
 
             if (formData.Image != null && formData.Image.Length > 0)
@@ -89,6 +100,24 @@ namespace ProfkomBackend.Controllers
         {
             var member = await _db.Team.FindAsync(id);
             if (member == null) return NotFound(new { message = "Член команди не знайдений" });
+
+            if (formData.OrderInd < 0)
+            {
+                return BadRequest(new { message = "Порядок не може бути від’ємним." });
+            }
+
+            var occupant = await FindOrderOccupantAsync(formData.Type, formData.OrderInd, excludeId: id);
+            if (occupant != null)
+            {
+                var canSwap = formData.SwapOrder && member.Type == formData.Type;
+                if (!canSwap)
+                {
+                    return Conflict(OrderTakenResult(formData.OrderInd, occupant.Name));
+                }
+
+                occupant.OrderInd = member.OrderInd;
+                occupant.UpdatedAt = DateTime.UtcNow;
+            }
 
             string? oldImageUrl = member.ImageUrl;
             string? newImageUrl = member.ImageUrl;
@@ -149,6 +178,23 @@ namespace ProfkomBackend.Controllers
             await _db.SaveChangesAsync();
             return NoContent();
         }
+
+        private Task<Team?> FindOrderOccupantAsync(MemberType type, int orderInd, int? excludeId = null)
+        {
+            var query = _db.Team.Where(t => t.Type == type && t.OrderInd == orderInd);
+            if (excludeId.HasValue)
+            {
+                query = query.Where(t => t.Id != excludeId.Value);
+            }
+
+            return query.FirstOrDefaultAsync();
+        }
+
+        private static object OrderTakenResult(int orderInd, string occupantName) => new
+        {
+            message = $"Порядок {orderInd} вже зайнятий членом команди \"{occupantName}\".",
+            occupantName
+        };
     }
 
     public class TeamFormData
@@ -161,10 +207,12 @@ namespace ProfkomBackend.Controllers
         [MaxLength(FieldLimits.Email)]
         [RegularExpression(FieldLimits.EmailPattern, ErrorMessage = FieldLimits.EmailFormatMessage)]
         public string? Email { get; set; }
+        [Range(0, int.MaxValue, ErrorMessage = "Порядок не може бути від’ємним.")]
         public int OrderInd { get; set; }
         public bool IsTemporary { get; set; }
         public string? ImageUrl { get; set; }
         public IFormFile? Image { get; set; }
         public bool IsChoosed { get; set; } = false;
+        public bool SwapOrder { get; set; } = false;
     }
 }

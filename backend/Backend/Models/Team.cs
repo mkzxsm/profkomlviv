@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel;
 using ProfkomBackend.Utils;
 
@@ -27,6 +28,9 @@ namespace ProfkomBackend.Models
 
         [Required]
         public MemberType Type { get; set; }
+
+        [NotMapped]
+        public string TypeName => MemberTypeNames.Get(Type);
 
         public string? ImageUrl { get; set; }
         [MaxLength(FieldLimits.Email)]
