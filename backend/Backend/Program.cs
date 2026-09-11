@@ -8,7 +8,6 @@ using ProfkomBackend.Middleware;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using NetEscapades.AspNetCore.SecurityHeaders;
-using Ganss.Xss;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 

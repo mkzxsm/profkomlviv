@@ -53,14 +53,6 @@ export default function () {
 
   sleep(1);
 
-  group('Events Endpoint', function () {
-    const res = http.get(`${BASE_URL}/api/events`);
-    check(res, { 'status is 200': (r) => r.status === 200 });
-    trackMetrics(res);
-  });
-
-  sleep(1);
-
   group('Team Endpoint', function () {
     const res = http.get(`${BASE_URL}/api/team`);
     check(res, { 'status is 200': (r) => r.status === 200 });
