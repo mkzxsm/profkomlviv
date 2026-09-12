@@ -76,17 +76,20 @@ const ServicesPage: React.FC = () => {
       </section>
 
       <div className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 -mt-8 sm:-mt-12 relative z-10 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <ul
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 list-none p-0 m-0"
+          aria-label="Список сервісів профкому"
+        >
           {servicesData.map((service, index) => (
-            <div 
-              key={index} 
-              className="animate-fade-in-up" 
+            <li
+              key={service.title}
+              className="animate-fade-in-up"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <ServiceCard service={service} />
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </div>
   );
