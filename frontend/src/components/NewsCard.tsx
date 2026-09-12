@@ -98,14 +98,6 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
             {/* Легке затемнення зверху для читабельності бейджиків */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-            {/* Бейджик "Важливо" */}
-            {news.isImportant && (
-              <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-red-500/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full shadow-lg z-20">
-                <Star className="h-3.5 w-3.5 fill-current" />
-                <span className="text-xs font-bold uppercase tracking-wider">Важливо</span>
-              </div>
-            )}
-
             {/* Контроли слайдера */}
             {hasMultipleImages && (
               <>
@@ -143,6 +135,13 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
           <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-200 flex flex-col items-center justify-center text-gray-400">
             <ImageIcon className="w-10 h-10 mb-2 opacity-50" />
             <span className="text-sm font-medium">Немає фото</span>
+          </div>
+        )}
+
+        {news.isImportant && (
+          <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-red-500/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full shadow-lg z-20 pointer-events-none">
+            <Star className="h-3.5 w-3.5 fill-current" />
+            <span className="text-xs font-bold uppercase tracking-wider">Важливо</span>
           </div>
         )}
       </div>

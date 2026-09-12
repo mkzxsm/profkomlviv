@@ -12,9 +12,17 @@ import {
   TableRow,
   TableTd,
 } from './ui/TableStyles';
-import { ModalInput, ModalLabel, ModalButton } from './ui/ModalStyles';
+import { ModalInput, ModalLabel, ModalButton, CharCounter } from './ui/ModalStyles';
+import { FIELD_LIMITS, EMAIL_INPUT_PATTERN, EMAIL_HINT, isValidEmail } from '../../constants/fieldLimits';
 
-const PASSWORD_HINT = 'Мінімум 8 символів, велика літера, цифра та спецсимвол';
+const PASSWORD_HINT = 'Від 8 до 100 символів, велика латинська літера, цифра та спецсимвол. Пробіли на початку і в кінці ігноруються.';
+const PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,100}$/;
+
+const isValidPassword = (password: string) => {
+    const trimmed = password.trim();
+    if (!trimmed) return false;
+    return PASSWORD_PATTERN.test(trimmed);
+};
 
 const getAuthHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -83,12 +91,31 @@ const AdminsManager: React.FC = () => {
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreateError('');
+
+    const username = createForm.username.trim();
+    const password = createForm.password.trim();
+
+    if (!username || !password) {
+      setCreateError('Логін і пароль обов\'язкові');
+      return;
+    }
+
+    if (!isValidEmail(username)) {
+      setCreateError(EMAIL_HINT);
+      return;
+    }
+
+    if (!isValidPassword(password)) {
+      setCreateError('Пароль не відповідає вимогам безпеки');
+      return;
+    }
+
     setCreateSubmitting(true);
 
     try {
       await axios.post(
         `${import.meta.env.VITE_API_URL}/api/admin/create`,
-        { username: createForm.username.trim(), password: createForm.password },
+        { username, password },
         { headers: getAuthHeaders() }
       );
       await fetchAdmins();
@@ -129,8 +156,22 @@ const AdminsManager: React.FC = () => {
     setPasswordError('');
     setPasswordSuccess('');
 
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+    const currentPassword = passwordForm.currentPassword.trim();
+    const newPassword = passwordForm.newPassword.trim();
+    const confirmPassword = passwordForm.confirmPassword.trim();
+
+    if (!currentPassword || !newPassword) {
+      setPasswordError('Поточний і новий пароль обов\'язкові');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
       setPasswordError('Новий пароль і підтвердження не збігаються');
+      return;
+    }
+
+    if (!isValidPassword(newPassword)) {
+      setPasswordError('Пароль не відповідає вимогам безпеки');
       return;
     }
 
@@ -139,8 +180,8 @@ const AdminsManager: React.FC = () => {
       await axios.put(
         `${import.meta.env.VITE_API_URL}/api/admin/change-password`,
         {
-          currentPassword: passwordForm.currentPassword,
-          newPassword: passwordForm.newPassword,
+          currentPassword,
+          newPassword,
         },
         { headers: getAuthHeaders() }
       );
@@ -237,6 +278,7 @@ const AdminsManager: React.FC = () => {
                 value={passwordForm.currentPassword}
                 onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
                 className="pr-10"
+                maxLength={FIELD_LIMITS.password}
               />
               <button
                 type="button"
@@ -261,6 +303,7 @@ const AdminsManager: React.FC = () => {
                 value={passwordForm.newPassword}
                 onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
                 className="pr-10"
+                maxLength={FIELD_LIMITS.password}
               />
               <button
                 type="button"
@@ -284,6 +327,7 @@ const AdminsManager: React.FC = () => {
               required
               value={passwordForm.confirmPassword}
               onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+              maxLength={FIELD_LIMITS.password}
             />
           </div>
           {passwordError && (
@@ -320,11 +364,14 @@ const AdminsManager: React.FC = () => {
                   id="adminUsername"
                   type="email"
                   required
-                  maxLength={100}
+                  maxLength={FIELD_LIMITS.adminUsername}
+                  pattern={EMAIL_INPUT_PATTERN}
+                  title={EMAIL_HINT}
                   value={createForm.username}
                   onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })}
                   placeholder="admin@profkom.com"
                 />
+                <CharCounter current={createForm.username.length} max={FIELD_LIMITS.adminUsername} />
               </div>
               <div>
                 <ModalLabel required htmlFor="adminPassword">Пароль</ModalLabel>
@@ -336,6 +383,7 @@ const AdminsManager: React.FC = () => {
                     value={createForm.password}
                     onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
                     className="pr-10"
+                    maxLength={FIELD_LIMITS.password}
                   />
                   <button
                     type="button"

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using ProfkomBackend.Utils;
 
 namespace ProfkomBackend.Models
 {
@@ -10,6 +11,7 @@ namespace ProfkomBackend.Models
         public int Id { get; set; }
 
         [Required]
+        [MaxLength(FieldLimits.Title)]
         public string Title { get; set; } = string.Empty;
 
         public string? Content { get; set; }

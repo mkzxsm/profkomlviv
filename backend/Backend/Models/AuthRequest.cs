@@ -1,15 +1,17 @@
 using System.ComponentModel.DataAnnotations;
+using ProfkomBackend.Utils;
 
 namespace ProfkomBackend.Models
 {
     public class AuthRequest
     {
         [Required]
-        [MaxLength(100)]
+        [MaxLength(FieldLimits.AdminUsername)]
+        [RegularExpression(FieldLimits.EmailPattern, ErrorMessage = FieldLimits.EmailFormatMessage)]
         public string Username { get; set; } = string.Empty;
 
         [Required]
-        [MaxLength(100)]
+        [MaxLength(FieldLimits.Password)]
         public string Password { get; set; } = string.Empty;
     }
 

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Ganss.Xss;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProfkomBackend.Controllers
 {
@@ -57,7 +58,6 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<Department>> Create([FromForm] DepartmentFormData formData)
         {
-            // Валідація вхідних даних
             if (string.IsNullOrWhiteSpace(formData.Name))
                 return BadRequest(new { message = "Назва відділу обов'язкова" });
 
@@ -70,11 +70,15 @@ namespace ProfkomBackend.Controllers
                 if (descError != null) return BadRequest(new { message = descError });
             }
 
-            // Валідація LogoUrl (якщо передано текстовий URL замість файлу)
             if (!string.IsNullOrEmpty(formData.LogoUrl))
             {
                 var logoUrlError = InputValidator.ValidateTextField(formData.LogoUrl, "LogoUrl", maxLength: 500);
                 if (logoUrlError != null) return BadRequest(new { message = logoUrlError });
+            }
+
+            if (await DepartmentNameTakenAsync(formData.Name))
+            {
+                return Conflict(new { message = UniqueName.DuplicateMessage });
             }
 
             string? logoUrl = null;
@@ -137,7 +141,7 @@ namespace ProfkomBackend.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Update(int id, [FromForm] DepartmentFormData formData)
+        public async Task<ActionResult<Department>> Update(int id, [FromForm] DepartmentFormData formData)
         {
             // Валідація вхідних даних
             if (string.IsNullOrWhiteSpace(formData.Name))
@@ -164,6 +168,11 @@ namespace ProfkomBackend.Controllers
                 .FirstOrDefaultAsync(d => d.Id == id);
                 
             if (department == null) return NotFound(new { message = "Кафедра не знайдена" });
+
+            if (await DepartmentNameTakenAsync(formData.Name, excludeId: id))
+            {
+                return Conflict(new { message = UniqueName.DuplicateMessage });
+            }
 
             string? logoUrl = department.LogoUrl;
 
@@ -234,7 +243,7 @@ namespace ProfkomBackend.Controllers
             department.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
-            return NoContent();
+            return Ok(department);
         }
 
         [HttpDelete("{id}")]
@@ -266,24 +275,25 @@ namespace ProfkomBackend.Controllers
             return NoContent();
         }
 
-        // === Хелпери ===
-        private static bool IsValidDepartmentName(string name)
+        private Task<bool> DepartmentNameTakenAsync(string? name, int? excludeId = null)
         {
-            if (string.IsNullOrWhiteSpace(name)) return false;
-            // Максимум 200 символів
-            if (name.Length > 200) return false;
-            // Заборона HTML-тегів та SQL-injection символів
-            if (name.Contains('<') || name.Contains('>') || name.Contains(';') ||
-                name.Contains("--") || name.Contains("/*") || name.Contains("*/") ||
-                name.Contains("${") || name.Contains("#{"))
-                return false;
-            return true;
+            var normalized = (name ?? string.Empty).Trim().ToLower();
+            if (string.IsNullOrEmpty(normalized)) return Task.FromResult(false);
+
+            var query = _db.Departments.Where(d => d.Name.ToLower() == normalized);
+            if (excludeId.HasValue)
+            {
+                query = query.Where(d => d.Id != excludeId.Value);
+            }
+
+            return query.AnyAsync();
         }
     }
 
     public class DepartmentFormData
     {
         public int? HeadId { get; set; }
+        [MaxLength(FieldLimits.StructureName)]
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? LogoUrl { get; set; }

@@ -8,6 +8,10 @@ import CustomDropdown from "./CustomDropdown";
 import { Faculty, FacultyFormData } from "../../types/faculty";
 import { Department, DepartmentFormData } from "../../types/department";
 import { TeamMember } from "../../types/team";
+import {
+  DUPLICATE_NAME_MESSAGE,
+  isDuplicateStructureName,
+} from "../../constants/fieldLimits";
 
 const FACULTY_TYPE = 0;
 const DEPARTMENT_TYPE = 1;
@@ -186,6 +190,12 @@ const StructureManager: React.FC<StructureManagerProps> = ({
       e.preventDefault();
 
       const isFaculty = modalType === "faculty";
+      const existingItems = isFaculty ? facultyData : departmentData;
+      if (isDuplicateStructureName(formData.name, existingItems, editingItem?.id)) {
+        alert(DUPLICATE_NAME_MESSAGE);
+        return;
+      }
+
       const endpoint = isFaculty ? "faculties" : "departments";
       const dataToSend = new FormData();
 
@@ -279,6 +289,8 @@ const StructureManager: React.FC<StructureManagerProps> = ({
       selectedFile,
       editingItem,
       modalType,
+      facultyData,
+      departmentData,
       fetchData,
       handleCloseModal,
     ],
@@ -441,7 +453,7 @@ const StructureManager: React.FC<StructureManagerProps> = ({
               onTypeChange={handleModalTypeChange}
               onSubmit={handleSubmit}
               onClose={handleCloseModal}
-              allData={isFacultyView ? facultyData : departmentData}
+              allData={modalType === "faculty" ? facultyData : departmentData}
             />
           </div>
         </div>

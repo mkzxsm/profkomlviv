@@ -13,9 +13,8 @@ import { Autoplay, Pagination } from "swiper/modules";
 import TeamMemberCard from "../components/TeamMemberCard";
 import {
   TeamMember,
-  PROFBURO_HEAD_TYPE,
-  VIDDIL_HEAD_TYPE,
   APARAT_TYPE,
+  MEMBER_TYPE_OPTIONS,
 } from "../types/team";
 
 import "swiper/css";
@@ -46,11 +45,10 @@ const TeamPage: React.FC = () => {
     [],
   );
 
-  const teamRoles = [
-    { id: APARAT_TYPE, label: "Члени Президії" },
-    { id: PROFBURO_HEAD_TYPE, label: "Голови Профбюро Студентів" },
-    { id: VIDDIL_HEAD_TYPE, label: "Голови Відділів" },
-  ];
+  const teamRoles = MEMBER_TYPE_OPTIONS.map(({ id, filterLabel }) => ({
+    id,
+    label: filterLabel,
+  }));
 
   useEffect(() => {
     const fetchData = async () => {

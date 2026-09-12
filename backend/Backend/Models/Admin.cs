@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
+using ProfkomBackend.Utils;
 
 namespace ProfkomBackend.Models
 {
@@ -7,7 +8,8 @@ namespace ProfkomBackend.Models
     {
         [Key]
         public int Id { get; set; }
-        [Required, MaxLength(100)]
+        [Required, MaxLength(FieldLimits.AdminUsername)]
+        [RegularExpression(FieldLimits.EmailPattern, ErrorMessage = FieldLimits.EmailFormatMessage)]
         public string Username { get; set; } = string.Empty;
         [Required]
         public string PasswordHash { get; set; } = string.Empty;

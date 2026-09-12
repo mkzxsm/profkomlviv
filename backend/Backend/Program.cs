@@ -5,12 +5,13 @@ using System.Text;
 using System.Security.Claims;
 using ProfkomBackend.Data;
 using ProfkomBackend.Middleware;
+using ProfkomBackend.Utils;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using NetEscapades.AspNetCore.SecurityHeaders;
-using Ganss.Xss;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using MySqlConnector;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,10 +60,15 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // === EF Core ===
-var conn = builder.Configuration.GetConnectionString("DefaultConnection");
+var conn = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
+var mysqlConnection = new MySqlConnectionStringBuilder(conn)
+{
+    ConvertZeroDateTime = true
+};
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(conn, new MariaDbServerVersion(new Version(10, 4, 32)))
+    options.UseMySql(mysqlConnection.ConnectionString, new MariaDbServerVersion(new Version(10, 4, 32)))
            .EnableSensitiveDataLogging()
            .EnableDetailedErrors()
 );
@@ -179,6 +185,12 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
+        var pending = db.Database.GetPendingMigrations().ToList();
+        if (pending.Any(m => m.Contains("LimitAdminStringFields")))
+        {
+            FieldLengthGuard.ThrowIfExistingDataExceedsLimits(db);
+        }
+
         db.Database.Migrate();
         DbInitializer.Seed(db);
         Console.WriteLine("? Database initialized successfully");

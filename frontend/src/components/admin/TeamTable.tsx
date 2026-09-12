@@ -1,6 +1,6 @@
 import React from 'react';
 import { Edit, Trash2, Mail } from 'lucide-react';
-import { TeamMember } from '../../types/team';
+import { TeamMember, PROFBURO_HEAD_TYPE, VIDDIL_HEAD_TYPE, APARAT_TYPE } from '../../types/team';
 import {
   TableContainer,
   Table,
@@ -23,13 +23,13 @@ interface TeamTableProps {
 // ДОДАНО hasAnyMembers сюди 👇
 const TeamTable: React.FC<TeamTableProps> = ({ data, loading, onEdit, onDelete, filterType, hasAnyMembers }) => {
   
-  const isPresidium = filterType === 0;
+  const isPresidium = filterType === APARAT_TYPE;
   const colSpanValue = isPresidium ? 5 : 6;
 
   let statusHeaderText = "Статус";
-  if (filterType === 1) {
+  if (filterType === PROFBURO_HEAD_TYPE) {
     statusHeaderText = "Профбюро";
-  } else if (filterType === 2) {
+  } else if (filterType === VIDDIL_HEAD_TYPE) {
     statusHeaderText = "Відділ";
   }
 
@@ -66,7 +66,7 @@ const TeamTable: React.FC<TeamTableProps> = ({ data, loading, onEdit, onDelete, 
           ) : (
             data.map((member) => {
               
-              const isHead = member.type === 1 || member.type === 2;
+              const isHead = member.type === PROFBURO_HEAD_TYPE || member.type === VIDDIL_HEAD_TYPE;
               
               const displayPosition = (isHead && member.isTemporary)
                 ? member.position.replace("Голова", "В.О. Голови")

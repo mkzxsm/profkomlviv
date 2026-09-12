@@ -13,7 +13,13 @@ import {
   ModalRadio,
   ModalButton,
   ModalLabel,
+  CharCounter,
 } from "./ui/ModalStyles";
+import {
+  DUPLICATE_NAME_MESSAGE,
+  FIELD_LIMITS,
+  isDuplicateStructureName,
+} from "../../constants/fieldLimits";
 import FacultyCard from "../FacultyCard";
 import DepartmentCard from "../DepartmentCard";
 
@@ -51,29 +57,17 @@ const StructureModal: React.FC<StructureModalProps> = ({
   const [availableHeads, setAvailableHeads] = useState<TeamMember[]>([]);
   const [loadingHeads, setLoadingHeads] = useState(true);
   const [fileError, setFileError] = useState<string | null>(null);
-  const [nameError, setNameError] = useState<string | null>(null);
 
   const isFaculty = type === "faculty";
   const headType = isFaculty ? PROFBURO_HEAD_TYPE : VIDDIL_HEAD_TYPE;
 
-  useEffect(() => {
-    if (!formData.name) {
-      setNameError(null);
-      return;
-    }
-
-    const isDuplicate = allData.some(
-      (item) =>
-        item.name.trim().toLowerCase() ===
-          formData.name!.trim().toLowerCase() && item.id !== editingItem?.id,
-    );
-
-    if (isDuplicate) {
-      setNameError("Ця назва вже використовується. Оберіть іншу.");
-    } else {
-      setNameError(null);
-    }
-  }, [formData.name, allData, editingItem]);
+  const duplicateNameError = useMemo(
+    () =>
+      isDuplicateStructureName(formData.name, allData, editingItem?.id)
+        ? DUPLICATE_NAME_MESSAGE
+        : null,
+    [formData.name, allData, editingItem],
+  );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -196,7 +190,7 @@ const StructureModal: React.FC<StructureModalProps> = ({
 
   const handleLocalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (nameError) return;
+    if (duplicateNameError) return;
     onSubmit(e);
   };
 
@@ -238,7 +232,7 @@ const StructureModal: React.FC<StructureModalProps> = ({
             id="name"
             type="text"
             required
-            maxLength={100}
+            maxLength={FIELD_LIMITS.structureName}
             value={formData.name || ""}
             onChange={(e) => {
               const lettersOnly = e.target.value.replace(
@@ -249,8 +243,11 @@ const StructureModal: React.FC<StructureModalProps> = ({
             }}
             placeholder={isFaculty ? "Факультет електроніки" : "Відділ дизайну"}
           />
-          {nameError && (
-            <p className="mt-1 text-xs font-medium text-red-600">{nameError}</p>
+          <CharCounter current={(formData.name || "").length} max={FIELD_LIMITS.structureName} />
+          {duplicateNameError && (
+            <p className="mt-1 text-xs font-medium text-red-600">
+              {duplicateNameError}
+            </p>
           )}
         </div>
 
@@ -339,12 +336,16 @@ const StructureModal: React.FC<StructureModalProps> = ({
                 id="address"
                 type="text"
                 required
-                maxLength={200}
+                maxLength={FIELD_LIMITS.address}
                 value={(formData as FacultyFormData).address || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, address: e.target.value })
                 }
                 placeholder="вул. Університетська, 1"
+              />
+              <CharCounter
+                current={((formData as FacultyFormData).address || "").length}
+                max={FIELD_LIMITS.address}
               />
             </div>
             <div>
@@ -354,12 +355,16 @@ const StructureModal: React.FC<StructureModalProps> = ({
               <ModalInput
                 id="room"
                 type="text"
-                maxLength={100}
+                maxLength={FIELD_LIMITS.room}
                 value={(formData as FacultyFormData).room || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, room: e.target.value })
                 }
                 placeholder="2 поверх, аудиторія 125"
+              />
+              <CharCounter
+                current={((formData as FacultyFormData).room || "").length}
+                max={FIELD_LIMITS.room}
               />
             </div>
           </div>
@@ -370,12 +375,16 @@ const StructureModal: React.FC<StructureModalProps> = ({
               <ModalInput
                 id="telegram_link"
                 type="url"
-                maxLength={200}
+                maxLength={FIELD_LIMITS.url}
                 value={(formData as FacultyFormData).telegram_Link || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, telegram_Link: e.target.value })
                 }
                 placeholder="https://t.me/..."
+              />
+              <CharCounter
+                current={((formData as FacultyFormData).telegram_Link || "").length}
+                max={FIELD_LIMITS.url}
               />
             </div>
             <div>
@@ -383,12 +392,16 @@ const StructureModal: React.FC<StructureModalProps> = ({
               <ModalInput
                 id="instagram_link"
                 type="url"
-                maxLength={200}
+                maxLength={FIELD_LIMITS.url}
                 value={(formData as FacultyFormData).instagram_Link || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, instagram_Link: e.target.value })
                 }
                 placeholder="https://instagram.com/..."
+              />
+              <CharCounter
+                current={((formData as FacultyFormData).instagram_Link || "").length}
+                max={FIELD_LIMITS.url}
               />
             </div>
           </div>
@@ -402,12 +415,16 @@ const StructureModal: React.FC<StructureModalProps> = ({
                 id="schedule"
                 type="text"
                 required
-                maxLength={100}
+                maxLength={FIELD_LIMITS.schedule}
                 value={(formData as FacultyFormData).schedule || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, schedule: e.target.value })
                 }
                 placeholder="Пн-Пт: 9:00-17:00"
+              />
+              <CharCounter
+                current={((formData as FacultyFormData).schedule || "").length}
+                max={FIELD_LIMITS.schedule}
               />
             </div>
 
@@ -509,9 +526,9 @@ const StructureModal: React.FC<StructureModalProps> = ({
           disabled={
             loadingHeads ||
             (availableHeads.length === 0 && !editingItem?.headId) ||
-            !!nameError
+            !!duplicateNameError
           }
-          className={nameError ? "opacity-50 cursor-not-allowed" : ""}
+          className={duplicateNameError ? "opacity-50 cursor-not-allowed" : ""}
         >
           {editingItem
             ? "Зберегти зміни"

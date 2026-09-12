@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.RateLimiting;
+using System.ComponentModel.DataAnnotations;
+using ProfkomBackend.Utils;
 
 namespace ProfkomBackend.Controllers
 {
@@ -32,10 +34,13 @@ namespace ProfkomBackend.Controllers
         [EnableRateLimiting("LoginPolicy")]
         public async Task<IActionResult> Login(AuthRequest req)
         {
-            var admin = await _db.Admins.FirstOrDefaultAsync(a => a.Username == req.Username);
+            var username = req.Username?.Trim() ?? string.Empty;
+            var password = req.Password?.Trim() ?? string.Empty;
+
+            var admin = await _db.Admins.FirstOrDefaultAsync(a => a.Username == username);
             if (admin == null) return Unauthorized(new { message = "Invalid username or password" });
 
-            if (!BCrypt.Net.BCrypt.Verify(req.Password, admin.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(password, admin.PasswordHash))
                 return Unauthorized(new { message = "Invalid username or password" });
 
             var jwtKey = _cfg["JwtSettings:SecretKey"]
@@ -94,22 +99,25 @@ namespace ProfkomBackend.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] AdminCreateRequest req)
         {
-            if (string.IsNullOrEmpty(req.Username) || string.IsNullOrEmpty(req.Password))
+            var username = req.Username?.Trim() ?? string.Empty;
+            var password = req.Password?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
                 return BadRequest(new { message = "Логін і пароль обов'язкові" });
 
-            if (!IsValidUsername(req.Username))
-                return BadRequest(new { message = "Логін може містити лише літери, цифри та підкреслення (3–50 символів)" });
+            if (!FieldLimits.IsValidEmail(username))
+                return BadRequest(new { message = FieldLimits.EmailFormatMessage });
 
-            if (!IsValidPassword(req.Password))
+            if (!IsValidPassword(password))
                 return BadRequest(new { message = "Пароль не відповідає вимогам безпеки" });
 
-            if (await _db.Admins.AnyAsync(a => a.Username == req.Username))
+            if (await _db.Admins.AnyAsync(a => a.Username == username))
                 return Conflict(new { message = "Адміністратор з таким логіном вже існує" });
 
             var admin = new Admin
             {
-                Username = req.Username,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
+                Username = username,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
                 Role = "admin"
             };
 
@@ -127,19 +135,19 @@ namespace ProfkomBackend.Controllers
             var admin = await _db.Admins.FindAsync(id);
             if (admin == null) return NotFound(new { message = "Адміністратор не знайдений" });
 
-            // Якщо поле Password присутнє в тілі запиту (навіть порожнє) — валідуємо
             if (req.Password != null)
             {
-                if (req.Password == string.Empty)
-                    return BadRequest(new { message = "Пароль не може бути порожнім" });
+                var password = req.Password.Trim();
+                if (string.IsNullOrWhiteSpace(password))
+                    return BadRequest(new { message = "Пароль не може бути порожнім або складатися лише з пробілів" });
 
                 if (!TryGetCurrentAdminId(out var currentAdminId) || currentAdminId != id)
                     return Forbid();
 
-                if (!IsValidPassword(req.Password))
+                if (!IsValidPassword(password))
                     return BadRequest(new { message = "Пароль не відповідає вимогам безпеки" });
 
-                admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password);
+                admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
             }
 
             admin.Role = "admin";
@@ -154,7 +162,10 @@ namespace ProfkomBackend.Controllers
         [HttpPut("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest req)
         {
-            if (string.IsNullOrEmpty(req.CurrentPassword) || string.IsNullOrEmpty(req.NewPassword))
+            var currentPassword = req.CurrentPassword?.Trim() ?? string.Empty;
+            var newPassword = req.NewPassword?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(currentPassword) || string.IsNullOrWhiteSpace(newPassword))
                 return BadRequest(new { message = "Поточний і новий пароль обов'язкові" });
 
             if (!TryGetCurrentAdminId(out var currentAdminId))
@@ -163,13 +174,13 @@ namespace ProfkomBackend.Controllers
             var admin = await _db.Admins.FindAsync(currentAdminId);
             if (admin == null) return NotFound(new { message = "Адміністратор не знайдений" });
 
-            if (!BCrypt.Net.BCrypt.Verify(req.CurrentPassword, admin.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(currentPassword, admin.PasswordHash))
                 return BadRequest(new { message = "Невірний поточний пароль" });
 
-            if (!IsValidPassword(req.NewPassword))
+            if (!IsValidPassword(newPassword))
                 return BadRequest(new { message = "Пароль не відповідає вимогам безпеки" });
 
-            admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
+            admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
             await _db.SaveChangesAsync();
 
             return Ok(new { message = "Пароль змінено" });
@@ -197,15 +208,15 @@ namespace ProfkomBackend.Controllers
             return int.TryParse(adminIdClaim, out adminId);
         }
 
-        private static bool IsValidPassword(string password)
+        private static bool IsValidPassword(string? password)
         {
-            if (string.IsNullOrEmpty(password)) return false;
-            // Обмеження довжини: мін 8, макс 128 символів
+            if (string.IsNullOrWhiteSpace(password)) return false;
+
+            password = password.Trim();
             if (password.Length < 8 || password.Length > 128) return false;
-            // Делегуємо перевірку ін'єкцій центральному валідатору
             if (InputValidator.ValidateTextField(password, "Пароль", maxLength: 128) != null)
                 return false;
-            // Вимоги до надійності: хоч одна велика, цифра, спецсимвол
+
             var regex = new Regex(@"^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$");
             return regex.IsMatch(password);
         }
@@ -237,7 +248,10 @@ namespace ProfkomBackend.Controllers
     // DTO для створення
     public class AdminCreateRequest
     {
+        [MaxLength(FieldLimits.AdminUsername)]
+        [RegularExpression(FieldLimits.EmailPattern, ErrorMessage = FieldLimits.EmailFormatMessage)]
         public string Username { get; set; } = string.Empty;
+        [MaxLength(FieldLimits.Password)]
         public string Password { get; set; } = string.Empty;
         public string? Role { get; set; }
     }
@@ -245,6 +259,7 @@ namespace ProfkomBackend.Controllers
     // DTO для редагування
     public class AdminEditRequest
     {
+        [MaxLength(FieldLimits.Password)]
         public string? Password { get; set; }
         public string? Role { get; set; }
     }
@@ -252,7 +267,9 @@ namespace ProfkomBackend.Controllers
     // DTO для зміни пароля собі
     public class ChangePasswordRequest
     {
+        [MaxLength(FieldLimits.Password)]
         public string CurrentPassword { get; set; } = string.Empty;
+        [MaxLength(FieldLimits.Password)]
         public string NewPassword { get; set; } = string.Empty;
     }
 }

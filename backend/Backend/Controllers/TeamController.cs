@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
 using ProfkomBackend.Utils;
+using Ganss.Xss;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProfkomBackend.Controllers
 {
@@ -37,7 +39,6 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<Team>> Create([FromForm] TeamFormData formData)
         {
-            // === Валідація вхідних даних ===
             if (string.IsNullOrWhiteSpace(formData.Name))
                 return BadRequest(new { message = "Ім'я обов'язкове" });
 
@@ -59,6 +60,17 @@ namespace ProfkomBackend.Controllers
             {
                 var imgErr = InputValidator.ValidateTextField(formData.ImageUrl, "ImageUrl", maxLength: 500);
                 if (imgErr != null) return BadRequest(new { message = imgErr });
+            }
+
+            if (formData.OrderInd < 0)
+            {
+                return BadRequest(new { message = "Порядок не може бути від’ємним." });
+            }
+
+            var createOccupant = await FindOrderOccupantAsync(formData.Type, formData.OrderInd);
+            if (createOccupant != null)
+            {
+                return Conflict(OrderTakenResult(formData.OrderInd, createOccupant.Name));
             }
 
             string? imageUrl = null;
@@ -95,7 +107,8 @@ namespace ProfkomBackend.Controllers
                 IsTemporary = formData.IsTemporary,
                 ImageUrl = imageUrl ?? formData.ImageUrl,
                 IsChoosed = formData.IsChoosed,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
 
             _db.Team.Add(member);
@@ -133,6 +146,24 @@ namespace ProfkomBackend.Controllers
 
             var member = await _db.Team.FindAsync(id);
             if (member == null) return NotFound(new { message = "Член команди не знайдений" });
+
+            if (formData.OrderInd < 0)
+            {
+                return BadRequest(new { message = "Порядок не може бути від’ємним." });
+            }
+
+            var occupant = await FindOrderOccupantAsync(formData.Type, formData.OrderInd, excludeId: id);
+            if (occupant != null)
+            {
+                var canSwap = formData.SwapOrder && member.Type == formData.Type;
+                if (!canSwap)
+                {
+                    return Conflict(OrderTakenResult(formData.OrderInd, occupant.Name));
+                }
+
+                occupant.OrderInd = member.OrderInd;
+                occupant.UpdatedAt = DateTime.UtcNow;
+            }
 
             string? oldImageUrl = member.ImageUrl;
             string? newImageUrl = member.ImageUrl;
@@ -191,18 +222,41 @@ namespace ProfkomBackend.Controllers
             await _db.SaveChangesAsync();
             return NoContent();
         }
+
+        private Task<Team?> FindOrderOccupantAsync(MemberType type, int orderInd, int? excludeId = null)
+        {
+            var query = _db.Team.Where(t => t.Type == type && t.OrderInd == orderInd);
+            if (excludeId.HasValue)
+            {
+                query = query.Where(t => t.Id != excludeId.Value);
+            }
+
+            return query.FirstOrDefaultAsync();
+        }
+
+        private static object OrderTakenResult(int orderInd, string occupantName) => new
+        {
+            message = $"Порядок {orderInd} вже зайнятий членом команди \"{occupantName}\".",
+            occupantName
+        };
     }
 
     public class TeamFormData
     {
+        [MaxLength(FieldLimits.PersonName)]
         public string Name { get; set; } = string.Empty;
+        [MaxLength(FieldLimits.Position)]
         public string Position { get; set; } = string.Empty;
         public MemberType Type { get; set; }
+        [MaxLength(FieldLimits.Email)]
+        [RegularExpression(FieldLimits.EmailPattern, ErrorMessage = FieldLimits.EmailFormatMessage)]
         public string? Email { get; set; }
+        [Range(0, int.MaxValue, ErrorMessage = "Порядок не може бути від’ємним.")]
         public int OrderInd { get; set; }
         public bool IsTemporary { get; set; }
         public string? ImageUrl { get; set; }
         public IFormFile? Image { get; set; }
         public bool IsChoosed { get; set; } = false;
+        public bool SwapOrder { get; set; } = false;
     }
 }
