@@ -115,8 +115,16 @@ const NewsDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600"></div>
+      <div
+        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        role="status"
+        aria-label="Завантаження"
+      >
+        <span className="sr-only">Завантаження</span>
+        <div
+          className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600"
+          aria-hidden="true"
+        ></div>
       </div>
     );
   }
@@ -158,8 +166,9 @@ const NewsDetailPage: React.FC = () => {
           </button>
           
           <button 
-            onClick={handleShare} 
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-50 hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-all font-medium text-sm border border-gray-100"
+            onClick={handleShare}
+            aria-label="Поділитися"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-50 hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-all font-medium text-sm border border-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             <Share2 className="h-4 w-4" />
             <span className="hidden sm:inline">Поділитися</span>
@@ -193,22 +202,35 @@ const NewsDetailPage: React.FC = () => {
                     {hasMultipleImages && (
                       <>
                         <button
+                          type="button"
                           onClick={handlePrevImage}
-                          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-3 rounded-full opacity-0 translate-x-4 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 border border-white/20"
+                          aria-label="Попереднє зображення"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-3 rounded-full opacity-0 translate-x-4 group-hover:translate-x-0 group-hover:opacity-100 focus:opacity-100 focus:translate-x-0 transition-all duration-300 border border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         >
-                          <ChevronLeft size={24} />
+                          <ChevronLeft size={24} aria-hidden="true" />
                         </button>
                         <button
+                          type="button"
                           onClick={handleNextImage}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-3 rounded-full opacity-0 -translate-x-4 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 border border-white/20"
+                          aria-label="Наступне зображення"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-3 rounded-full opacity-0 -translate-x-4 group-hover:translate-x-0 group-hover:opacity-100 focus:opacity-100 focus:translate-x-0 transition-all duration-300 border border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         >
-                          <ChevronRight size={24} />
+                          <ChevronRight size={24} aria-hidden="true" />
                         </button>
 
                         {/* Кастомний індикатор зображень (1/3) */}
-                        <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-1.5">
-                          <ImageIcon className="w-3.5 h-3.5" />
-                          {currentImageIndex + 1} / {availableImages.length}
+                        <div
+                          className="absolute top-4 right-4 bg-black/40 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-1.5"
+                          aria-live="polite"
+                          aria-atomic="true"
+                        >
+                          <ImageIcon className="w-3.5 h-3.5" aria-hidden="true" />
+                          <span className="sr-only">
+                            Зображення {currentImageIndex + 1} з {availableImages.length}
+                          </span>
+                          <span aria-hidden="true">
+                            {currentImageIndex + 1} / {availableImages.length}
+                          </span>
                         </div>
                       </>
                     )}

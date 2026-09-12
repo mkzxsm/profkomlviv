@@ -81,7 +81,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
     return tmp.textContent || tmp.innerText || "";
   };
 
-  const className = `group flex flex-col bg-white rounded-3xl overflow-hidden transition-all duration-500 border border-gray-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.12)] hover:-translate-y-1 cursor-pointer h-full`;
+  const className = `group relative flex flex-col bg-white rounded-3xl overflow-hidden transition-all duration-500 border border-gray-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.12)] hover:-translate-y-1 h-full`;
 
   const cardContent = (
     <>
@@ -100,14 +100,18 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
 
             {/* Контроли слайдера */}
             {hasMultipleImages && (
-              <>
+              <div className="relative z-30" aria-hidden="true">
                 <button
+                  type="button"
+                  tabIndex={-1}
                   onClick={handlePrev}
                   className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-1.5 rounded-full opacity-0 -translate-x-2 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 z-10"
                 >
                   <ChevronLeft size={20} />
                 </button>
                 <button
+                  type="button"
+                  tabIndex={-1}
                   onClick={handleNext}
                   className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-1.5 rounded-full opacity-0 translate-x-2 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 z-10"
                 >
@@ -119,16 +123,18 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
                   {availableImages.map((_, idx) => (
                     <button
                       key={idx}
+                      type="button"
+                      tabIndex={-1}
                       onClick={(e) => handleDotClick(e, idx)}
                       className={`transition-all duration-300 rounded-full ${
                         currentImageIndex === idx
-                          ? 'bg-white w-3 h-1.5' // Активний ширший
+                          ? 'bg-white w-3 h-1.5'
                           : 'bg-white/50 hover:bg-white/80 w-1.5 h-1.5'
                       }`}
                     />
                   ))}
                 </div>
-              </>
+              </div>
             )}
           </>
         ) : (
@@ -149,8 +155,8 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
       {/* Блок з текстом */}
       <div className="flex flex-col flex-grow p-6">
         <div className="flex items-center text-gray-400 text-xs font-medium uppercase tracking-wider mb-3">
-          <Calendar className="h-3.5 w-3.5 mr-1.5" />
-          {formatDate(news.publishedAt)}
+          <Calendar className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
+          <time dateTime={news.publishedAt}>{formatDate(news.publishedAt)}</time>
         </div>
         
         <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors">
@@ -163,20 +169,29 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
         
         {/* Футер карточки */}
         <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-50">
-          <span className="text-sm font-semibold text-blue-600 flex items-center opacity-80 group-hover:opacity-100 transition-opacity">
-            Читати повністю
-            <ChevronRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
-          </span>
+          {isPreview ? (
+            <span className="text-sm font-semibold text-blue-600 flex items-center opacity-80">
+              Читати повністю
+              <ChevronRight className="w-4 h-4 ml-1" aria-hidden="true" />
+            </span>
+          ) : (
+            <Link
+              to={`/news/${news.id}`}
+              className="text-sm font-semibold text-blue-600 flex items-center opacity-80 group-hover:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg after:absolute after:inset-0 after:z-20 after:content-['']"
+              aria-label={`Новина «${news.title}». ${
+                news.isImportant ? "Важлива. " : ""
+              }${formatDate(news.publishedAt)}. ${stripHtml(news.content).slice(0, 160)}. Відкрити повний текст`}
+            >
+              Читати повністю
+              <ChevronRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+            </Link>
+          )}
         </div>
       </div>
     </>
   );
 
-  return isPreview ? (
-    <div className={className}>{cardContent}</div>
-  ) : (
-    <Link to={`/news/${news.id}`} className={className}>{cardContent}</Link>
-  );
+  return <article className={className}>{cardContent}</article>;
 };
 
 export default NewsCard;

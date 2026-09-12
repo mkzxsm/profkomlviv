@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: 0;
+  z-index: 100000;
+  transform: translateY(-150%);
+  padding: 0.75rem 1.25rem;
+  background: #1e3a8a;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(1rem);
+  outline: 2px solid #facc15;
+  outline-offset: 3px;
+}
+
 @keyframes fade-in-up {
   from {
     opacity: 0;

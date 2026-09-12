@@ -1,3 +1,4 @@
+import type { MouseEvent } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -20,11 +21,28 @@ import ScrollToTop from "./ScrollToTop";
 import ServicesPage from "./pages/ServicesPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
+const SkipLink = () => {
+  const handleSkip = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    const main = document.getElementById("main-content");
+    if (!main) return;
+    main.focus();
+    main.scrollIntoView({ block: "start" });
+  };
+
+  return (
+    <a href="#main-content" className="skip-link" onClick={handleSkip}>
+      Перейти до вмісту
+    </a>
+  );
+};
+
 const LayoutWithFooter = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      <SkipLink />
       <Header />
-      <main className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
         <ScrollToTop />
         <Outlet />
       </main>
@@ -36,8 +54,13 @@ const LayoutWithFooter = () => {
 const LayoutWithoutFooter = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      <SkipLink />
       <Header />
-      <main className="flex-1 flex flex-col">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex-1 flex flex-col outline-none"
+      >
         <ScrollToTop />
         <Outlet />
       </main>
