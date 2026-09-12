@@ -26,3 +26,5 @@ backend/**/bin/
 backend/**/obj/
 backend/**/appsettings.Development.json
 .postman/*
+postman/*
+.github/workflows/*
