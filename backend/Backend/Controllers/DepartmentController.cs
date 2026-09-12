@@ -70,6 +70,13 @@ namespace ProfkomBackend.Controllers
                 if (descError != null) return BadRequest(new { message = descError });
             }
 
+            // Валідація LogoUrl (якщо передано текстовий URL замість файлу)
+            if (!string.IsNullOrEmpty(formData.LogoUrl))
+            {
+                var logoUrlError = InputValidator.ValidateTextField(formData.LogoUrl, "LogoUrl", maxLength: 500);
+                if (logoUrlError != null) return BadRequest(new { message = logoUrlError });
+            }
+
             string? logoUrl = null;
 
             if (formData.Logo != null && formData.Logo.Length > 0)
@@ -143,6 +150,13 @@ namespace ProfkomBackend.Controllers
             {
                 var descError2 = InputValidator.ValidateTextField(formData.Description, "Опис", maxLength: 2000);
                 if (descError2 != null) return BadRequest(new { message = descError2 });
+            }
+
+            // Валідація LogoUrl
+            if (!string.IsNullOrEmpty(formData.LogoUrl))
+            {
+                var logoUrlError2 = InputValidator.ValidateTextField(formData.LogoUrl, "LogoUrl", maxLength: 500);
+                if (logoUrlError2 != null) return BadRequest(new { message = logoUrlError2 });
             }
 
             var department = await _db.Departments

@@ -5,7 +5,6 @@ using ProfkomBackend.Data;
 using ProfkomBackend.Models;
 using ProfkomBackend.Utils;
 using System.ComponentModel.DataAnnotations;
-using Ganss.Xss;
 
 namespace ProfkomBackend.Controllers
 {
@@ -49,12 +48,24 @@ namespace ProfkomBackend.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var sanitizer = new HtmlSanitizer();
+            // Валідація Title
+            if (string.IsNullOrWhiteSpace(newsDto.Title))
+                return BadRequest(new { message = "Заголовок обов'язковий" });
+
+            var titleErr = InputValidator.ValidateTextField(newsDto.Title, "Заголовок", maxLength: 500);
+            if (titleErr != null) return BadRequest(new { message = titleErr });
+
+            // Валідація Content
+            if (!string.IsNullOrEmpty(newsDto.Content))
+            {
+                var contentErr = InputValidator.ValidateTextField(newsDto.Content, "Зміст", maxLength: 50000);
+                if (contentErr != null) return BadRequest(new { message = contentErr });
+            }
 
             var news = new News
             {
-                Title = sanitizer.Sanitize(newsDto.Title),
-                Content = sanitizer.Sanitize(newsDto.Content ?? string.Empty),
+                Title = newsDto.Title,
+                Content = newsDto.Content ?? string.Empty,
                 IsImportant = newsDto.IsImportant,
                 PublishedAt = DateTime.UtcNow
             };
@@ -105,10 +116,22 @@ namespace ProfkomBackend.Controllers
 
             if (existingNews == null) return NotFound();
 
-            var sanitizer = new HtmlSanitizer();
+            // Валідація Title
+            if (string.IsNullOrWhiteSpace(newsDto.Title))
+                return BadRequest(new { message = "Заголовок обов'язковий" });
 
-            existingNews.Title = sanitizer.Sanitize(newsDto.Title);
-            existingNews.Content = sanitizer.Sanitize(newsDto.Content ?? string.Empty);
+            var titleErr2 = InputValidator.ValidateTextField(newsDto.Title, "Заголовок", maxLength: 500);
+            if (titleErr2 != null) return BadRequest(new { message = titleErr2 });
+
+            // Валідація Content
+            if (!string.IsNullOrEmpty(newsDto.Content))
+            {
+                var contentErr2 = InputValidator.ValidateTextField(newsDto.Content, "Зміст", maxLength: 50000);
+                if (contentErr2 != null) return BadRequest(new { message = contentErr2 });
+            }
+
+            existingNews.Title = newsDto.Title;
+            existingNews.Content = newsDto.Content ?? string.Empty;
             existingNews.IsImportant = newsDto.IsImportant;
 
             if (newsDto.Images != null && newsDto.Images.Count > 0)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -64,6 +64,49 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<Faculty>> Create([FromForm] FacultyFormData formData)
         {
+            // === Валідація вхідних даних ===
+            if (string.IsNullOrWhiteSpace(formData.Name))
+                return BadRequest(new { message = "Назва факультету обов'язкова" });
+
+            var nameErr = InputValidator.ValidateTextField(formData.Name, "Назва", maxLength: 300);
+            if (nameErr != null) return BadRequest(new { message = nameErr });
+
+            if (!string.IsNullOrEmpty(formData.Address))
+            {
+                var err = InputValidator.ValidateTextField(formData.Address, "Адреса", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.Room))
+            {
+                var err = InputValidator.ValidateTextField(formData.Room, "Кімната", maxLength: 100);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.Instagram_Link))
+            {
+                var err = InputValidator.ValidateTextField(formData.Instagram_Link, "Instagram Link", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.Telegram_Link))
+            {
+                var err = InputValidator.ValidateTextField(formData.Telegram_Link, "Telegram Link", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.Schedule))
+            {
+                var err = InputValidator.ValidateTextField(formData.Schedule, "Розклад", maxLength: 2000);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.Summary))
+            {
+                var err = InputValidator.ValidateTextField(formData.Summary, "Опис", maxLength: 3000);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.ImageUrl))
+            {
+                var err = InputValidator.ValidateTextField(formData.ImageUrl, "ImageUrl", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+
             Team? headTeam = null;
             if (formData.HeadId.HasValue)
             {
@@ -134,6 +177,49 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(int id, [FromForm] FacultyFormData formData)
         {
+            // === Валідація вхідних даних ===
+            if (string.IsNullOrWhiteSpace(formData.Name))
+                return BadRequest(new { message = "Назва факультету обов'язкова" });
+
+            var nameErr2 = InputValidator.ValidateTextField(formData.Name, "Назва", maxLength: 300);
+            if (nameErr2 != null) return BadRequest(new { message = nameErr2 });
+
+            if (!string.IsNullOrEmpty(formData.Address))
+            {
+                var err = InputValidator.ValidateTextField(formData.Address, "Адреса", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.Room))
+            {
+                var err = InputValidator.ValidateTextField(formData.Room, "Кімната", maxLength: 100);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.Instagram_Link))
+            {
+                var err = InputValidator.ValidateTextField(formData.Instagram_Link, "Instagram Link", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.Telegram_Link))
+            {
+                var err = InputValidator.ValidateTextField(formData.Telegram_Link, "Telegram Link", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.Schedule))
+            {
+                var err = InputValidator.ValidateTextField(formData.Schedule, "Розклад", maxLength: 2000);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.Summary))
+            {
+                var err = InputValidator.ValidateTextField(formData.Summary, "Опис", maxLength: 3000);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.ImageUrl))
+            {
+                var err = InputValidator.ValidateTextField(formData.ImageUrl, "ImageUrl", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+
             var faculty = await _db.Faculties
                 .Include(f => f.Head) 
                 .FirstOrDefaultAsync(f => f.Id == id);

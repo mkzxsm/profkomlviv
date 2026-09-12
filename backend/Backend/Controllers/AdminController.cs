@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -6,10 +6,10 @@ using System.Security.Claims;
 using System.Text;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
+using ProfkomBackend.Utils;
 using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Ganss.Xss;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ProfkomBackend.Controllers
@@ -127,8 +127,12 @@ namespace ProfkomBackend.Controllers
             var admin = await _db.Admins.FindAsync(id);
             if (admin == null) return NotFound(new { message = "Адміністратор не знайдений" });
 
-            if (!string.IsNullOrEmpty(req.Password))
+            // Якщо поле Password присутнє в тілі запиту (навіть порожнє) — валідуємо
+            if (req.Password != null)
             {
+                if (req.Password == string.Empty)
+                    return BadRequest(new { message = "Пароль не може бути порожнім" });
+
                 if (!TryGetCurrentAdminId(out var currentAdminId) || currentAdminId != id)
                     return Forbid();
 
@@ -197,10 +201,11 @@ namespace ProfkomBackend.Controllers
         {
             if (string.IsNullOrEmpty(password)) return false;
             // Обмеження довжини: мін 8, макс 128 символів
-            if (password.Length > 128) return false;
-            // Забороняємо HTML-теги та JNDI/template injection символи
-            if (password.Contains('<') || password.Contains('>') || password.Contains("${"))
+            if (password.Length < 8 || password.Length > 128) return false;
+            // Делегуємо перевірку ін'єкцій центральному валідатору
+            if (InputValidator.ValidateTextField(password, "Пароль", maxLength: 128) != null)
                 return false;
+            // Вимоги до надійності: хоч одна велика, цифра, спецсимвол
             var regex = new Regex(@"^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$");
             return regex.IsMatch(password);
         }

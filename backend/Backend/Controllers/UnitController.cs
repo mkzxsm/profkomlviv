@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
 using ProfkomBackend.Utils;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Ganss.Xss;
 
 namespace ProfkomBackend.Controllers
 {
@@ -47,6 +43,24 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<Unit>> Create([FromForm] UnitFormData formData)
         {
+            // === Валідація вхідних даних ===
+            if (string.IsNullOrWhiteSpace(formData.Name))
+                return BadRequest(new { message = "Назва блоку обов'язкова" });
+
+            var nameErr = InputValidator.ValidateTextField(formData.Name, "Назва", maxLength: 300);
+            if (nameErr != null) return BadRequest(new { message = nameErr });
+
+            if (!string.IsNullOrEmpty(formData.Content))
+            {
+                var contentErr = InputValidator.ValidateTextField(formData.Content, "Зміст", maxLength: 50000);
+                if (contentErr != null) return BadRequest(new { message = contentErr });
+            }
+            if (!string.IsNullOrEmpty(formData.ImageUrl))
+            {
+                var imgErr = InputValidator.ValidateTextField(formData.ImageUrl, "ImageUrl", maxLength: 500);
+                if (imgErr != null) return BadRequest(new { message = imgErr });
+            }
+
             string? imageUrl = null;
 
             // Обробка файлу, якщо він наданий
@@ -103,6 +117,24 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(int id, [FromForm] UnitFormData formData)
         {
+            // === Валідація вхідних даних ===
+            if (string.IsNullOrWhiteSpace(formData.Name))
+                return BadRequest(new { message = "Назва блоку обов'язкова" });
+
+            var nameErr2 = InputValidator.ValidateTextField(formData.Name, "Назва", maxLength: 300);
+            if (nameErr2 != null) return BadRequest(new { message = nameErr2 });
+
+            if (!string.IsNullOrEmpty(formData.Content))
+            {
+                var contentErr2 = InputValidator.ValidateTextField(formData.Content, "Зміст", maxLength: 50000);
+                if (contentErr2 != null) return BadRequest(new { message = contentErr2 });
+            }
+            if (!string.IsNullOrEmpty(formData.ImageUrl))
+            {
+                var imgErr2 = InputValidator.ValidateTextField(formData.ImageUrl, "ImageUrl", maxLength: 500);
+                if (imgErr2 != null) return BadRequest(new { message = imgErr2 });
+            }
+
             var unit = await _db.Unit.FindAsync(id);
             if (unit == null) return NotFound(new { message = "Блок не знайдений" });
             if (id != unit.Id) return UnprocessableEntity(new { message = "ID в URL не відповідає ID об'єкту" });

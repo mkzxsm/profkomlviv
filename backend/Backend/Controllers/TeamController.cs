@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
 using ProfkomBackend.Utils;
-using Ganss.Xss; // 👈 Додано санітайзер
 
 namespace ProfkomBackend.Controllers
 {
@@ -38,6 +37,30 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<Team>> Create([FromForm] TeamFormData formData)
         {
+            // === Валідація вхідних даних ===
+            if (string.IsNullOrWhiteSpace(formData.Name))
+                return BadRequest(new { message = "Ім'я обов'язкове" });
+
+            var nameErr = InputValidator.ValidateTextField(formData.Name, "Ім'я", maxLength: 200);
+            if (nameErr != null) return BadRequest(new { message = nameErr });
+
+            if (string.IsNullOrWhiteSpace(formData.Position))
+                return BadRequest(new { message = "Посада обов'язкова" });
+
+            var posErr = InputValidator.ValidateTextField(formData.Position, "Посада", maxLength: 300);
+            if (posErr != null) return BadRequest(new { message = posErr });
+
+            if (!string.IsNullOrEmpty(formData.Email))
+            {
+                var emailErr = InputValidator.ValidateTextField(formData.Email, "Email", maxLength: 200);
+                if (emailErr != null) return BadRequest(new { message = emailErr });
+            }
+            if (!string.IsNullOrEmpty(formData.ImageUrl))
+            {
+                var imgErr = InputValidator.ValidateTextField(formData.ImageUrl, "ImageUrl", maxLength: 500);
+                if (imgErr != null) return BadRequest(new { message = imgErr });
+            }
+
             string? imageUrl = null;
 
             if (formData.Image != null && formData.Image.Length > 0)
@@ -62,14 +85,12 @@ namespace ProfkomBackend.Controllers
                 imageUrl = $"/uploads/team/{fileName}";
             }
 
-            var sanitizer = new HtmlSanitizer(); // 👈 Ініціалізація санітайзера
-
             var member = new Team
             {
-                Name = sanitizer.Sanitize(formData.Name),           // 👈 Захист від XSS
-                Position = sanitizer.Sanitize(formData.Position),   // 👈 Захист від XSS
+                Name = formData.Name,
+                Position = formData.Position,
                 Type = formData.Type,
-                Email = string.IsNullOrEmpty(formData.Email) ? null : sanitizer.Sanitize(formData.Email), // 👈 Захист від XSS
+                Email = string.IsNullOrEmpty(formData.Email) ? null : formData.Email,
                 OrderInd = formData.OrderInd,
                 IsTemporary = formData.IsTemporary,
                 ImageUrl = imageUrl ?? formData.ImageUrl,
@@ -86,6 +107,30 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(int id, [FromForm] TeamFormData formData)
         {
+            // === Валідація вхідних даних ===
+            if (string.IsNullOrWhiteSpace(formData.Name))
+                return BadRequest(new { message = "Ім'я обов'язкове" });
+
+            var nameErr2 = InputValidator.ValidateTextField(formData.Name, "Ім'я", maxLength: 200);
+            if (nameErr2 != null) return BadRequest(new { message = nameErr2 });
+
+            if (string.IsNullOrWhiteSpace(formData.Position))
+                return BadRequest(new { message = "Посада обов'язкова" });
+
+            var posErr2 = InputValidator.ValidateTextField(formData.Position, "Посада", maxLength: 300);
+            if (posErr2 != null) return BadRequest(new { message = posErr2 });
+
+            if (!string.IsNullOrEmpty(formData.Email))
+            {
+                var emailErr2 = InputValidator.ValidateTextField(formData.Email, "Email", maxLength: 200);
+                if (emailErr2 != null) return BadRequest(new { message = emailErr2 });
+            }
+            if (!string.IsNullOrEmpty(formData.ImageUrl))
+            {
+                var imgErr2 = InputValidator.ValidateTextField(formData.ImageUrl, "ImageUrl", maxLength: 500);
+                if (imgErr2 != null) return BadRequest(new { message = imgErr2 });
+            }
+
             var member = await _db.Team.FindAsync(id);
             if (member == null) return NotFound(new { message = "Член команди не знайдений" });
 
@@ -114,12 +159,10 @@ namespace ProfkomBackend.Controllers
                 }
             }
 
-            var sanitizer = new HtmlSanitizer(); // 👈 Ініціалізація санітайзера
-
-            member.Name = sanitizer.Sanitize(formData.Name);
-            member.Position = sanitizer.Sanitize(formData.Position);
+            member.Name = formData.Name;
+            member.Position = formData.Position;
             member.Type = formData.Type;
-            member.Email = string.IsNullOrEmpty(formData.Email) ? null : sanitizer.Sanitize(formData.Email);
+            member.Email = string.IsNullOrEmpty(formData.Email) ? null : formData.Email;
             member.OrderInd = formData.OrderInd;
             member.IsTemporary = formData.IsTemporary;
             member.ImageUrl = newImageUrl ?? formData.ImageUrl;
