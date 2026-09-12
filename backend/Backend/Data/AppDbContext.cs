@@ -17,6 +17,55 @@ namespace ProfkomBackend.Data
         public DbSet<Department> Departments { get; set; }
         public DbSet<Document> Documents { get; set; }
 
+        public override int SaveChanges()
+        {
+            NormalizeInvalidDateTimes();
+            return base.SaveChanges();
+        }
+
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            NormalizeInvalidDateTimes();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            NormalizeInvalidDateTimes();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            NormalizeInvalidDateTimes();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private const int MySqlDatetimeMinYear = 1000;
+
+        private void NormalizeInvalidDateTimes()
+        {
+            var replacement = DateTime.UtcNow;
+
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.State is not (EntityState.Added or EntityState.Modified))
+                    continue;
+
+                foreach (var property in entry.Properties)
+                {
+                    var clrType = property.Metadata.ClrType;
+                    if (clrType != typeof(DateTime) && clrType != typeof(DateTime?))
+                        continue;
+
+                    if (property.CurrentValue is DateTime dt && dt.Year < MySqlDatetimeMinYear)
+                    {
+                        property.CurrentValue = replacement;
+                    }
+                }
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

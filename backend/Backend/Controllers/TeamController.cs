@@ -86,7 +86,8 @@ namespace ProfkomBackend.Controllers
                 IsTemporary = formData.IsTemporary,
                 ImageUrl = imageUrl ?? formData.ImageUrl,
                 IsChoosed = formData.IsChoosed,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
 
             _db.Team.Add(member);

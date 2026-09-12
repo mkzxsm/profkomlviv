@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using NetEscapades.AspNetCore.SecurityHeaders;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using MySqlConnector;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,10 +60,15 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // === EF Core ===
-var conn = builder.Configuration.GetConnectionString("DefaultConnection");
+var conn = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
+var mysqlConnection = new MySqlConnectionStringBuilder(conn)
+{
+    ConvertZeroDateTime = true
+};
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(conn, new MariaDbServerVersion(new Version(10, 4, 32)))
+    options.UseMySql(mysqlConnection.ConnectionString, new MariaDbServerVersion(new Version(10, 4, 32)))
            .EnableSensitiveDataLogging()
            .EnableDetailedErrors()
 );
