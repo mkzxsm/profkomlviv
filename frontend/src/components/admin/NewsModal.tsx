@@ -31,6 +31,11 @@ const MAX_FILE_SIZE_MB = 5;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const MAX_FILES_COUNT = 5;
 
+const resolveMediaUrl = (path: string) => {
+    if (path.startsWith('blob:') || path.startsWith('http')) return path;
+    return `${import.meta.env.VITE_API_URL}${path}`;
+};
+
 // НОВЕ: Уніфікований тип для черги зображень
 type UnifiedMedia = {
     uniqueId: string;
@@ -51,6 +56,7 @@ const NewsModal: React.FC<NewsModalProps> = ({
 }) => {
     const [contentError, setContentError] = useState(false);
     const [fileError, setFileError] = useState<string | null>(null);
+    const [editorInitialData] = useState(formData.content || '');
     
     // НОВЕ: Єдина черга для сортування старих і нових зображень
     const [mediaQueue, setMediaQueue] = useState<UnifiedMedia[]>([]);
@@ -68,16 +74,15 @@ const NewsModal: React.FC<NewsModalProps> = ({
                 initialQueue = editingItem.images.map(img => ({
                     uniqueId: `old-${img.id}`,
                     isNew: false,
-                    url: img.imagePath,
+                    url: resolveMediaUrl(img.imagePath),
                     serverId: img.id
                 }));
             } else if (editingItem.imageUrl) {
-                // Фоллбек для старої структури бази (якщо є тільки 1 фото)
                 initialQueue = [{
                     uniqueId: 'old-fallback',
                     isNew: false,
-                    url: editingItem.imageUrl,
-                    serverId: -1 // Або інший маркер для бекенду
+                    url: resolveMediaUrl(editingItem.imageUrl),
+                    serverId: -1
                 }];
             }
             setMediaQueue(initialQueue);
@@ -294,7 +299,7 @@ const NewsModal: React.FC<NewsModalProps> = ({
                 <div className={contentError ? 'rounded-lg ring-2 ring-red-500' : ''}>
                     <CKEditor
                         editor={ClassicEditor}
-                        data={formData.content}
+                        data={editorInitialData}
                         onChange={(_, editor: any) => {
                             const data = editor.getData();
                             setFormData(prev => ({ ...prev, content: data }));

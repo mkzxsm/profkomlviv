@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
 using ProfkomBackend.Utils;
+using Ganss.Xss;
 using System.ComponentModel.DataAnnotations;
 
 namespace ProfkomBackend.Controllers
@@ -12,6 +13,8 @@ namespace ProfkomBackend.Controllers
     [Route("api/[controller]")]
     public class NewsController : ControllerBase
     {
+        private const int NewsContentMaxLength = 50000;
+
         private readonly AppDbContext _db;
         private readonly IWebHostEnvironment _env;
 
@@ -48,58 +51,22 @@ namespace ProfkomBackend.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            // Валідація Title
-            if (string.IsNullOrWhiteSpace(newsDto.Title))
-                return BadRequest(new { message = "Заголовок обов'язковий" });
+            var titleError = ValidateTitle(newsDto.Title);
+            if (titleError != null) return BadRequest(new { message = titleError });
 
-            var titleErr = InputValidator.ValidateTextField(newsDto.Title, "Заголовок", maxLength: 500);
-            if (titleErr != null) return BadRequest(new { message = titleErr });
-
-            // Валідація Content
-            if (!string.IsNullOrEmpty(newsDto.Content))
-            {
-                var contentErr = InputValidator.ValidateTextField(newsDto.Content, "Зміст", maxLength: 50000);
-                if (contentErr != null) return BadRequest(new { message = contentErr });
-            }
+            var contentError = ValidateAndSanitizeContent(newsDto.Content, out var sanitizedContent);
+            if (contentError != null) return BadRequest(new { message = contentError });
 
             var news = new News
             {
-                Title = newsDto.Title,
-                Content = newsDto.Content ?? string.Empty,
+                Title = newsDto.Title.Trim(),
+                Content = sanitizedContent,
                 IsImportant = newsDto.IsImportant,
                 PublishedAt = DateTime.UtcNow
             };
 
-            if (newsDto.Images != null && newsDto.Images.Count > 0)
-            {
-                var uploads = Path.Combine(_env.ContentRootPath, "uploads", "news");
-                if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
-
-                foreach (var file in newsDto.Images)
-                {
-                    if (file.Length > 0)
-                    {
-                        var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(file, FileValidationHelper.MAX_IMAGE_SIZE);
-                        if (!sizeValid) return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
-
-                        var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(file);
-                        if (!mimeValid) return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
-
-                        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-                        var filePath = Path.Combine(uploads, fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-
-                        news.Images.Add(new NewsImage
-                        {
-                            ImagePath = $"/uploads/news/{fileName}"
-                        });
-                    }
-                }
-            }
+            var imagesError = await AddImagesAsync(news.Images, newsDto.Images);
+            if (imagesError != null) return imagesError;
 
             _db.News.Add(news);
             await _db.SaveChangesAsync();
@@ -116,48 +83,31 @@ namespace ProfkomBackend.Controllers
 
             if (existingNews == null) return NotFound();
 
-            // Валідація Title
-            if (string.IsNullOrWhiteSpace(newsDto.Title))
-                return BadRequest(new { message = "Заголовок обов'язковий" });
+            var titleError = ValidateTitle(newsDto.Title);
+            if (titleError != null) return BadRequest(new { message = titleError });
 
-            var titleErr2 = InputValidator.ValidateTextField(newsDto.Title, "Заголовок", maxLength: 500);
-            if (titleErr2 != null) return BadRequest(new { message = titleErr2 });
+            var contentError = ValidateAndSanitizeContent(newsDto.Content, out var sanitizedContent);
+            if (contentError != null) return BadRequest(new { message = contentError });
 
-            // Валідація Content
-            if (!string.IsNullOrEmpty(newsDto.Content))
-            {
-                var contentErr2 = InputValidator.ValidateTextField(newsDto.Content, "Зміст", maxLength: 50000);
-                if (contentErr2 != null) return BadRequest(new { message = contentErr2 });
-            }
-
-            existingNews.Title = newsDto.Title;
-            existingNews.Content = newsDto.Content ?? string.Empty;
+            existingNews.Title = newsDto.Title.Trim();
+            existingNews.Content = sanitizedContent;
             existingNews.IsImportant = newsDto.IsImportant;
 
-            if (newsDto.Images != null && newsDto.Images.Count > 0)
+            if (newsDto.RemovedImageIds != null && newsDto.RemovedImageIds.Count > 0)
             {
-                var uploads = Path.Combine(_env.ContentRootPath, "uploads", "news");
-                if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
+                var idsToRemove = newsDto.RemovedImageIds.Where(imageId => imageId > 0).ToHashSet();
+                var toRemove = existingNews.Images.Where(img => idsToRemove.Contains(img.Id)).ToList();
 
-                foreach (var file in newsDto.Images)
+                foreach (var img in toRemove)
                 {
-                    if (file.Length > 0)
-                    {
-                        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-                        var filePath = Path.Combine(uploads, fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-
-                        existingNews.Images.Add(new NewsImage
-                        {
-                            ImagePath = $"/uploads/news/{fileName}"
-                        });
-                    }
+                    DeleteImageFile(img.ImagePath);
+                    existingNews.Images.Remove(img);
+                    _db.NewsImages.Remove(img);
                 }
             }
+
+            var imagesError = await AddImagesAsync(existingNews.Images, newsDto.Images);
+            if (imagesError != null) return imagesError;
 
             await _db.SaveChangesAsync();
             return Ok(existingNews);
@@ -175,8 +125,7 @@ namespace ProfkomBackend.Controllers
 
             foreach (var img in news.Images)
             {
-                var filePath = Path.Combine(_env.ContentRootPath, img.ImagePath.TrimStart('/'));
-                if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
+                DeleteImageFile(img.ImagePath);
             }
 
             _db.News.Remove(news);
@@ -191,12 +140,77 @@ namespace ProfkomBackend.Controllers
             var image = await _db.NewsImages.FindAsync(imageId);
             if (image == null) return NotFound();
 
-            var filePath = Path.Combine(_env.ContentRootPath, image.ImagePath.TrimStart('/'));
-            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
+            DeleteImageFile(image.ImagePath);
 
             _db.NewsImages.Remove(image);
             await _db.SaveChangesAsync();
             return NoContent();
+        }
+
+        private static string? ValidateTitle(string? title)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                return "Заголовок обов'язковий";
+
+            return InputValidator.ValidateTextField(title, "Заголовок", maxLength: FieldLimits.Title);
+        }
+
+        private static string? ValidateAndSanitizeContent(string? content, out string sanitized)
+        {
+            sanitized = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(content))
+                return "Зміст обов'язковий";
+
+            if (content.Contains('\0') || content.Contains("%00"))
+                return "Зміст містить недозволений символ";
+
+            if (content.Length > NewsContentMaxLength)
+                return $"Зміст не може перевищувати {NewsContentMaxLength} символів";
+
+            var sanitizer = new HtmlSanitizer();
+            sanitized = sanitizer.Sanitize(content);
+            return null;
+        }
+
+        private async Task<IActionResult?> AddImagesAsync(ICollection<NewsImage> target, List<IFormFile>? files)
+        {
+            if (files == null || files.Count == 0) return null;
+
+            var uploads = Path.Combine(_env.ContentRootPath, "uploads", "news");
+            Directory.CreateDirectory(uploads);
+
+            foreach (var file in files)
+            {
+                if (file.Length <= 0) continue;
+
+                var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(file, FileValidationHelper.MAX_IMAGE_SIZE);
+                if (!sizeValid) return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
+
+                var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(file);
+                if (!mimeValid) return StatusCode(StatusCodes.Status415UnsupportedMediaType, new { message = mimeError });
+
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                var filePath = Path.Combine(uploads, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                target.Add(new NewsImage
+                {
+                    ImagePath = $"/uploads/news/{fileName}"
+                });
+            }
+
+            return null;
+        }
+
+        private void DeleteImageFile(string imagePath)
+        {
+            var filePath = Path.Combine(_env.ContentRootPath, imagePath.TrimStart('/'));
+            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
         }
     }
 
@@ -208,5 +222,6 @@ namespace ProfkomBackend.Controllers
         public string? Content { get; set; }
         public List<IFormFile>? Images { get; set; }
         public bool IsImportant { get; set; }
+        public List<int>? RemovedImageIds { get; set; }
     }
 }

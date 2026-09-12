@@ -58,17 +58,18 @@ const NewsManager: React.FC<NewsManagerProps> = ({ data, loading, fetchData }) =
 
         const dataToSend = new FormData();
         dataToSend.append('Title', formData.title);
-        // Якщо content null або undefined, відправляємо пустий рядок
         dataToSend.append('Content', formData.content || ''); 
         dataToSend.append('IsImportant', formData.isImportant.toString());
 
-        // ЗМІНА 2: Логіка додавання багатьох картинок
         if (selectedFiles && selectedFiles.length > 0) {
             for (let i = 0; i < selectedFiles.length; i++) {
-                // Важливо: ключ має бути 'Images', як у C# DTO (public List<IFormFile> Images)
                 dataToSend.append('Images', selectedFiles[i]);
             }
-        } 
+        }
+
+        (formData.removedImageIds || [])
+            .filter((id) => id > 0)
+            .forEach((id) => dataToSend.append('RemovedImageIds', id.toString()));
         
         // Примітка: Ми не відправляємо старий ImageUrl назад на сервер, 
         // бо сервер сам знає старі картинки. Ми відправляємо тільки НОВІ файли.
@@ -87,9 +88,14 @@ const NewsManager: React.FC<NewsManagerProps> = ({ data, loading, fetchData }) =
             await fetchData();
             handleCloseModal();
         } catch (error) {
-            const axiosError = error as AxiosError;
+            const axiosError = error as AxiosError<any>;
             console.error('Error saving news:', axiosError.response?.data || axiosError.message);
-            alert('Помилка при збереженні. Перевірте консоль.');
+            const payload = axiosError.response?.data;
+            const message =
+                payload?.message ||
+                (typeof payload === 'string' ? payload : null) ||
+                'Помилка при збереженні новини.';
+            alert(message);
         }
     }, [formData, selectedFiles, editingItem, fetchData, handleCloseModal]);
 

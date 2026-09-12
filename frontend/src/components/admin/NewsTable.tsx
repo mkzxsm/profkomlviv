@@ -40,13 +40,16 @@ const NewsTable: React.FC<NewsTableProps> = ({ data, loading, onEdit, onDelete, 
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <div className="flex items-center justify-center h-full"> 
-                                        {item.imageUrl ? (
-                                            <a href={`${import.meta.env.VITE_API_URL}${item.imageUrl}`} target="_blank" rel="noopener noreferrer">
+                                        {(() => {
+                                            const cover = item.images?.[0]?.imagePath || item.imageUrl;
+                                            return cover ? (
+                                            <a href={`${import.meta.env.VITE_API_URL}${cover}`} target="_blank" rel="noopener noreferrer">
                                                 <Image className="h-5 w-5 text-gray-500 cursor-pointer hover:text-gray-900" />
                                             </a>
-                                        ) : (
+                                            ) : (
                                             <span className="text-gray-300">—</span>
-                                        )}
+                                            );
+                                        })()}
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">{formatDate(item.publishedAt)}</td>
