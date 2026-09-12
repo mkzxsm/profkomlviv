@@ -12,7 +12,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.RateLimiting;
 using System.ComponentModel.DataAnnotations;
-using ProfkomBackend.Utils;
 
 namespace ProfkomBackend.Controllers
 {
