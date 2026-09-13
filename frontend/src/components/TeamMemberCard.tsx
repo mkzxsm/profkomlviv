@@ -60,10 +60,18 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
         {/* 1. ЗАМІНЕНО truncate на break-words
           2. ДОДАНО transition-colors duration-300 для плавної зміни кольору на синій
         */}
-        <h3 className="text-2xl font-bold text-[#1E2A5A] w-full break-words transition-colors duration-300 group-hover:text-blue-600">
+        <h3
+          className="text-2xl font-bold text-[#1E2A5A] w-full transition-colors duration-500 ease-out group-hover:text-blue-600 overflow-hidden break-words"
+          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', overflowWrap: 'anywhere' }}
+          title={member.name}
+        >
           {member.name}
         </h3>
-        <p className="mt-1 text-lg italic text-[#1E2A5A] w-full break-words">
+        <p
+          className="mt-1 text-lg italic text-[#1E2A5A] w-full overflow-hidden break-words"
+          style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', overflowWrap: 'anywhere' }}
+          title={member.isTemporary ? member.position.replace('Керівник', 'В.О. Керівника') : member.position}
+        >
           {member.isTemporary 
             ? member.position.replace("Керівник", "В.О. Керівника") 
             : member.position}

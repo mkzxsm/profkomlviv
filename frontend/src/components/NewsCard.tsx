@@ -159,7 +159,17 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, isPreview = false }) => {
           <time dateTime={news.publishedAt}>{formatDate(news.publishedAt)}</time>
         </div>
         
-        <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors">
+        <h3
+          className="text-xl font-bold text-gray-900 mb-3 leading-tight group-hover:text-blue-600 transition-colors overflow-hidden break-words"
+          style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            overflowWrap: 'anywhere',
+          }}
+          title={news.title}
+        >
           {news.title}
         </h3>
         

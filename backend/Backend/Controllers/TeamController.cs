@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using ProfkomBackend.Data;
 using ProfkomBackend.Models;
 using ProfkomBackend.Utils;
-using Ganss.Xss;
 using System.ComponentModel.DataAnnotations;
 
 namespace ProfkomBackend.Controllers

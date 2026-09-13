@@ -264,6 +264,7 @@ const TeamPage: React.FC = () => {
           ) : (
             <>
               <Swiper
+                key={selectedType}
                 modules={[Autoplay, Pagination]}
                 spaceBetween={20}
                 slidesPerView={3}
@@ -271,7 +272,7 @@ const TeamPage: React.FC = () => {
                 speed={800}
                 autoplay={{ delay: 5000, disableOnInteraction: false }}
                 onSwiper={(swiper) => (swiperRef.current = swiper)}
-                pagination={{ clickable: true }}
+                pagination={{ clickable: true, dynamicBullets: true }}
                 className="team-swiper relative pb-12 pt-4"
                 breakpoints={{
                   0: { slidesPerView: 1 },
@@ -281,8 +282,10 @@ const TeamPage: React.FC = () => {
                 wrapperClass="items-stretch overflow-visible"
               >
                 {displayMembers.map((member) => (
-                  <SwiperSlide key={member.id}>
-                    <TeamMemberCard member={member} />
+                  <SwiperSlide key={member.id} className="h-auto">
+                    <div className="h-full">
+                      <TeamMemberCard member={member} />
+                    </div>
                   </SwiperSlide>
                 ))}
               </Swiper>

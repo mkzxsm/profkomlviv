@@ -303,12 +303,12 @@ const HomePage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigate("/services")}
-                className="group relative inline-flex items-center justify-center px-8 py-3.5 text-base font-bold text-[#0f172a] bg-white rounded-full overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_30px_rgba(255,255,255,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                className="group relative inline-flex items-center justify-center px-8 py-3.5 text-base font-bold text-[#0f172a] bg-white rounded-full overflow-hidden transition-all duration-500 ease-out hover:scale-[1.03] hover:shadow-[0_0_30px_rgba(255,255,255,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
                 aria-label="Дізнатися більше про сервіси профкому студентів"
               >
                 <span className="relative z-10 flex items-center gap-2">
                   Дізнатися більше
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-500 ease-out" />
                 </span>
               </button>
             </div>
@@ -337,13 +337,13 @@ const HomePage: React.FC = () => {
                 (currentSlide - 1 + heroSlides.length) % heroSlides.length,
               )
             }
-            className="hidden lg:flex absolute left-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-300 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20 cursor-pointer"
+            className="hidden lg:flex absolute left-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-500 ease-out p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20 cursor-pointer"
           >
             <ChevronLeft className="w-8 h-8" />
           </div>
           <div
             onClick={() => goToSlide((currentSlide + 1) % heroSlides.length)}
-            className="hidden lg:flex absolute right-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-300 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20 cursor-pointer"
+            className="hidden lg:flex absolute right-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-500 ease-out p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20 cursor-pointer"
           >
             <ChevronRight className="w-8 h-8" />
           </div>
@@ -378,10 +378,10 @@ const HomePage: React.FC = () => {
                   </p>
                   <button
                     onClick={() => navigate("/services")}
-                    className="bg-blue-600 text-white py-3.5 px-8 rounded-2xl font-bold hover:bg-blue-700 hover:scale-[1.02] transition-all duration-300 shadow-[0_4px_12px_rgba(37,99,235,0.3)] flex items-center gap-2 group"
+                    className="bg-blue-600 text-white py-3.5 px-8 rounded-2xl font-bold hover:bg-blue-700 hover:scale-[1.02] transition-all duration-500 ease-out shadow-[0_4px_12px_rgba(37,99,235,0.3)] flex items-center gap-2 group"
                   >
                     Всі сервіси
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-500 ease-out" />
                   </button>
                 </div>
               </div>
@@ -424,7 +424,7 @@ const HomePage: React.FC = () => {
                       left: "calc(50% - 160px)",
                       transformOrigin: "bottom left",
                       transition:
-                        "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease-out",
+                        "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease-out, box-shadow 0.5s ease-out",
                     }}
                     onClick={() => window.open(service.url, "_blank")}
                   >
@@ -486,10 +486,10 @@ const HomePage: React.FC = () => {
 
             <Link
               to="/news"
-              className="hidden sm:inline-flex items-center justify-center px-6 py-2.5 rounded-xl font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-500 group"
+              className="hidden sm:inline-flex items-center justify-center px-6 py-2.5 rounded-xl font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 transition-all duration-500 ease-out group"
             >
               Усі новини
-              <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform duration-500 ease-out" />
             </Link>
           </div>
 
@@ -534,7 +534,7 @@ const HomePage: React.FC = () => {
               {news.slice(0, 3).map((article, index) => (
                 <SwiperSlide key={article.id}>
                   <div
-                    className="h-full transition-transform duration-500 hover:-translate-y-2"
+                    className="h-full transition-all duration-500 ease-out hover:-translate-y-2"
                     style={{ animationDelay: `${index * 150}ms` }}
                   >
                     <NewsCard news={article} />
@@ -548,10 +548,10 @@ const HomePage: React.FC = () => {
           <div className="text-center mt-8 sm:hidden">
             <Link
               to="/news"
-              className="inline-flex w-full items-center justify-center px-6 py-3.5 rounded-xl font-semibold text-blue-600 bg-blue-50 active:bg-blue-100 transition-colors"
+              className="inline-flex w-full items-center justify-center px-6 py-3.5 rounded-xl font-semibold text-blue-600 bg-blue-50 active:bg-blue-100 transition-all duration-500 ease-out"
             >
               Всі новини
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-500 ease-out" />
             </Link>
           </div>
         </div>
