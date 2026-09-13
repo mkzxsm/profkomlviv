@@ -63,11 +63,17 @@ const DepartmentCard: React.FC<DepartmentCardProps> = ({ department, index }) =>
       </div>
 
       {/* 2. Основна інформація */}
-      <div className="flex-1 flex flex-col justify-center text-center md:text-left z-10">
-        <h3 className="text-2xl font-bold text-[#1E2A5A] mb-3 group-hover:text-blue-600 transition-colors duration-300">
+      <div className="flex-1 flex flex-col justify-center text-center md:text-left z-10 min-w-0">
+        <h3 
+          className="text-2xl font-bold text-[#1E2A5A] mb-3 group-hover:text-blue-600 transition-colors duration-300 w-full"
+          style={{ overflowWrap: 'anywhere' }}
+        >
           {department.name}
         </h3>
-        <p className="text-gray-600 leading-relaxed text-sm md:text-base max-w-3xl">
+        <p 
+          className="text-gray-600 leading-relaxed text-sm md:text-base w-full"
+          style={{ overflowWrap: 'anywhere' }}
+        >
           {department.description}
         </p>
       </div>

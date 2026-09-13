@@ -23,7 +23,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ data, loading, onEdit, on
   const colSpanValue = 6;
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString.endsWith('Z') ? dateString : dateString + 'Z');
     return date.toLocaleDateString('uk-UA', {
       day: '2-digit', 
       month: '2-digit', 

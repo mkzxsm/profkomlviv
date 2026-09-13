@@ -198,7 +198,6 @@ const TeamPage: React.FC = () => {
                       key={role.id}
                       onClick={() => {
                         setSelectedType(role.id);
-                        setSearchTerm("");
                         setIsDropdownOpen(false);
                         if (swiperRef.current) swiperRef.current.slideTo(0, 0);
                       }}

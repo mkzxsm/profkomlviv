@@ -114,7 +114,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ data, loading, fetchData }) =
     }, [fetchData]);
 
     const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
+        const date = new Date(dateString.endsWith('Z') ? dateString : dateString + 'Z');
         return date.toLocaleDateString('uk-UA', {
             year: 'numeric', month: 'long', day: 'numeric',
             hour: '2-digit', minute: '2-digit'

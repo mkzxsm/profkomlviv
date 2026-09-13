@@ -16,9 +16,9 @@ namespace ProfkomBackend.Utils
         public const int Address = 200;
         public const int Url = 255;
 
-        /// <summary>local@domain.tld — дозволяє lnu.edu.ua, gmail.com, yahoo.com тощо.</summary>
-        public const string EmailPattern = @"^[^\s@]+@[^\s@]+\.[^\s@]+$";
-        public const string EmailFormatMessage = "Введіть email у форматі name@domain.com";
+        /// <summary>Строга валідація email: вимагає коректний домен (напр. @gmail.com, @lnu.edu.ua)</summary>
+        public const string EmailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+        public const string EmailFormatMessage = "Введіть коректний email у форматі name@domain.com";
 
         public static bool IsValidEmail(string? value)
         {

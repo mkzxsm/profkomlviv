@@ -602,8 +602,6 @@ const StructurePage: React.FC = () => {
 
                         setSelectedType(type.id);
 
-                        setSearchTerm("");
-
                         setCurrentPage(1);
 
                         setIsDropdownOpen(false);

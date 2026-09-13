@@ -66,13 +66,19 @@ const FacultyCard: React.FC<FacultyCardProps> = ({ union, index }) => {
       </div>
 
       {/* 2. Основна інформація */}
-      <div className="flex-1 flex flex-col justify-center text-center md:text-left z-10">
-        <h3 className="text-2xl font-bold text-[#1E2A5A] mb-3 group-hover:text-blue-600 transition-colors duration-300">
+      <div className="flex-1 flex flex-col justify-center text-center md:text-left z-10 min-w-0">
+        <h3 
+          className="text-2xl font-bold text-[#1E2A5A] mb-3 group-hover:text-blue-600 transition-colors duration-300 w-full"
+          style={{ overflowWrap: 'anywhere' }}
+        >
           {union.name}
         </h3>
         
         {union.summary && (
-          <p className="text-gray-600 leading-relaxed text-sm md:text-base max-w-3xl mb-4">
+          <p 
+            className="text-gray-600 leading-relaxed text-sm md:text-base w-full mb-4"
+            style={{ overflowWrap: 'anywhere' }}
+          >
             {union.summary}
           </p>
         )}
@@ -84,17 +90,19 @@ const FacultyCard: React.FC<FacultyCardProps> = ({ union, index }) => {
               href={`http://maps.google.com/?q=$${encodeURIComponent("м. Львів, " + (union.address || ""))}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 px-3 py-1.5 rounded-full border border-gray-200 transition-colors"
+              className="flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 px-3 py-1.5 rounded-full border border-gray-200 transition-colors max-w-full"
             >
-              <MapPin className="w-3.5 h-3.5" />
-              {union.address}{union.room ? `, ${union.room}` : ""}
+              <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">
+                {union.address}{union.room ? `, ${union.room}` : ""}
+              </span>
             </a>
           )}
           
           {union.schedule && (
-            <div className="flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
-              <Clock className="w-3.5 h-3.5" />
-              {union.schedule}
+            <div className="flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200 max-w-full">
+              <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">{union.schedule}</span>
             </div>
           )}
         </div>

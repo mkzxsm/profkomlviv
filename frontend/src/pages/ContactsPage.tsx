@@ -178,14 +178,20 @@ const ContactsPage: React.FC = () => {
                 Маєте термінове питання? Зв'яжіться з нами прямо зараз!
               </p>
               <div className="space-y-3 relative z-10">
+                {/* TODO: Заповнити номер телефону для кнопки "Подзвонити" */}
                 <button className="w-full bg-white text-[#1E2A5A] py-3 px-4 rounded-xl font-semibold hover:bg-gray-50 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center shadow-sm">
                   <Phone className="h-4 w-4 mr-2" />
                   Подзвонити
                 </button>
-                <button className="w-full border border-white/30 bg-white/10 backdrop-blur-sm text-white py-3 px-4 rounded-xl font-semibold hover:bg-white/20 transition-all duration-300 flex items-center justify-center">
+                <a 
+                  href="https://t.me/profkomlnu"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full border border-white/30 bg-white/10 backdrop-blur-sm text-white py-3 px-4 rounded-xl font-semibold hover:bg-white/20 transition-all duration-300 flex items-center justify-center"
+                >
                   <MessageSquare className="h-4 w-4 mr-2" />
                   Написати
-                </button>
+                </a>
               </div>
             </div>
 

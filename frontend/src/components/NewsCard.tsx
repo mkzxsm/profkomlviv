@@ -23,7 +23,7 @@ interface NewsCardProps {
 }
 
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
+  const date = new Date(dateString.endsWith('Z') ? dateString : dateString + 'Z');
   return date.toLocaleDateString('uk-UA', {
     year: 'numeric',
     month: 'long',

@@ -12,10 +12,10 @@ export const FIELD_LIMITS = {
   url: 255,
 } as const;
 
-/** local@domain.tld — дозволяє lnu.edu.ua, gmail.com, yahoo.com тощо */
-export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-export const EMAIL_INPUT_PATTERN = '[^\\s@]+@[^\\s@]+\\.[^\\s@]+';
-export const EMAIL_HINT = 'Формат: name@domain.com';
+/** Строга валідація email: вимагає коректний домен (напр. @gmail.com, @lnu.edu.ua) */
+export const EMAIL_PATTERN = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+export const EMAIL_INPUT_PATTERN = '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}';
+export const EMAIL_HINT = 'Введіть коректний email у форматі name@domain.com';
 
 export const isValidEmail = (value: string) => EMAIL_PATTERN.test(value.trim());
 

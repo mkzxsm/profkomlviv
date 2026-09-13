@@ -110,7 +110,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
     : null;
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString.endsWith('Z') ? dateString : dateString + 'Z');
     return date.toLocaleDateString('uk-UA', {
       year: 'numeric',
       month: 'long',
@@ -142,13 +142,19 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
           </span>
         </div>
 
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-[#1E2A5A] mb-2 line-clamp-2 group-hover:text-blue-600">
+        <div className="flex-1 min-w-0">
+          <h3 
+            className="text-lg font-semibold text-[#1E2A5A] mb-2 line-clamp-2 group-hover:text-blue-600 break-words"
+            style={{ overflowWrap: 'anywhere' }}
+          >
             {document.title}
           </h3>
 
           {document.description && (
-            <p className="text-[#1E2A5A] text-sm mb-4 line-clamp-3 italic">
+            <p 
+              className="text-[#1E2A5A] text-sm mb-4 line-clamp-3 italic break-words"
+              style={{ overflowWrap: 'anywhere' }}
+            >
               {document.description}
             </p>
           )}

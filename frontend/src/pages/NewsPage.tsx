@@ -69,8 +69,8 @@ const NewsPage: React.FC = () => {
     const matchesSearch =
       query.length < 3
         ? true
-        : article.title.toLowerCase().includes(query) ||
-          article.content.toLowerCase().includes(query);
+        : (article.title?.toLowerCase() || "").includes(query) ||
+          (article.content?.toLowerCase() || "").includes(query);
 
     const matchesFilter =
       filterType === "all" ||
