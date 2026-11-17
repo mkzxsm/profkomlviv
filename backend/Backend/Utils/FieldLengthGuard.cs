@@ -27,6 +27,10 @@ namespace ProfkomBackend.Utils
             Check("Faculties.Schedule", db.Faculties.Max(x => (int?)(x.Schedule != null ? x.Schedule.Length : 0)) ?? 0, FieldLimits.Schedule);
             Check("Faculties.Telegram_Link", db.Faculties.Max(x => (int?)(x.Telegram_Link != null ? x.Telegram_Link.Length : 0)) ?? 0, FieldLimits.Url);
             Check("Faculties.Instagram_Link", db.Faculties.Max(x => (int?)(x.Instagram_Link != null ? x.Instagram_Link.Length : 0)) ?? 0, FieldLimits.Url);
+            Check("Faculties.TikTok_Link", db.Faculties.Max(x => (int?)(x.Instagram_Link != null ? x.Instagram_Link.Length : 0)) ?? 0, FieldLimits.Url);
+            Check("Department.Telegram_Link", db.Faculties.Max(x => (int?)(x.Telegram_Link != null ? x.Telegram_Link.Length : 0)) ?? 0, FieldLimits.Url);
+            Check("Department.Instagram_Link", db.Faculties.Max(x => (int?)(x.Instagram_Link != null ? x.Instagram_Link.Length : 0)) ?? 0, FieldLimits.Url);
+            Check("Department.TikTok_Link", db.Faculties.Max(x => (int?)(x.Instagram_Link != null ? x.Instagram_Link.Length : 0)) ?? 0, FieldLimits.Url);
 
             if (violations.Count > 0)
             {

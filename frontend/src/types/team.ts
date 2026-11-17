@@ -7,7 +7,7 @@ export const VIDDIL_HEAD_TYPE  = 2;
 export const MEMBER_TYPE_OPTIONS = [
   { id: APARAT_TYPE, label: "Член Президії", filterLabel: "Члени Президії" },
   { id: PROFBURO_HEAD_TYPE, label: "Голова Профбюро Студентів", filterLabel: "Голови Профбюро Студентів" },
-  { id: VIDDIL_HEAD_TYPE, label: "Голова Відділу", filterLabel: "Голови Відділів" },
+  { id: VIDDIL_HEAD_TYPE, label: "Голова Відділу", filterLabel: "Керівники Відділів" },
 ] as const;
 
 export const MEMBER_TYPE_LABELS: Record<number, string> = Object.fromEntries(

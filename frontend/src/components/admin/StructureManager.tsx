@@ -60,6 +60,7 @@ const StructureManager: React.FC<StructureManagerProps> = ({
     summary: "",
     telegram_Link: "",
     instagram_Link: "",
+    tiktok_Link: "",
     isActive: true,
     imageUrl: "",
     isCollege: false,
@@ -69,6 +70,9 @@ const StructureManager: React.FC<StructureManagerProps> = ({
     name: "",
     headId: null,
     description: "",
+    telegram_Link: "",
+    instagram_Link: "",
+    tiktok_Link: "",
     logoUrl: "",
     isActive: true,
   });
@@ -124,8 +128,10 @@ const StructureManager: React.FC<StructureManagerProps> = ({
           room: faculty.room || "",
           schedule: faculty.schedule || "Пн-Пт: 10:00-16:00",
           summary: faculty.summary || "",
-          telegram_Link: faculty.telegram_Link || "",
-          instagram_Link: faculty.instagram_Link || "",
+          // Безпечне зчитування для Профбюро
+          telegram_Link: (faculty as any).telegram_Link || faculty.telegram_Link || "",
+          instagram_Link: (faculty as any).instagram_Link || faculty.instagram_Link || "",
+          tiktok_Link: (faculty as any).tikTok_Link || faculty.tiktok_Link || "",
           isActive: faculty.isActive,
           imageUrl: faculty.imageUrl || "",
           isCollege: faculty.isCollege || false,
@@ -137,6 +143,10 @@ const StructureManager: React.FC<StructureManagerProps> = ({
           name: dept.name,
           headId: dept.headId,
           description: dept.description || "",
+          // Безпечне зчитування для Відділів
+          telegram_Link: (dept as any).telegram_Link || dept.telegram_Link || "",
+          instagram_Link: (dept as any).instagram_Link || dept.instagram_Link || "",
+          tiktok_Link: (dept as any).tikTok_Link || dept.tiktok_Link || "",
           logoUrl: dept.logoUrl || "",
           isActive: dept.isActive,
         });
@@ -166,6 +176,9 @@ const StructureManager: React.FC<StructureManagerProps> = ({
           ...getInitialDepartmentFormData(),
           ...shared,
           description: prev.summary || prev.description || "",
+          telegram_Link: prev.telegram_Link || "",
+          instagram_Link: prev.instagram_Link || "",
+          tiktok_Link: prev.tiktok_Link || "",
         };
       });
       setSelectedFile(null);
@@ -222,6 +235,7 @@ const StructureManager: React.FC<StructureManagerProps> = ({
 
         dataToSend.append("Telegram_Link", fd.telegram_Link || "");
         dataToSend.append("Instagram_Link", fd.instagram_Link || "");
+        dataToSend.append("TikTok_Link", fd.tiktok_Link || "");
 
         if (selectedFile) {
           dataToSend.append("Image", selectedFile);
@@ -238,7 +252,6 @@ const StructureManager: React.FC<StructureManagerProps> = ({
           return;
         }
 
-        // ДОДАНО СУВОРУ ПЕРЕВІРКУ ДЛЯ ВІДДІЛІВ
         if (!dd.description || dd.description.trim() === "") {
           alert("Опис діяльності є обов'язковим полем для відділу.");
           return;
@@ -248,6 +261,10 @@ const StructureManager: React.FC<StructureManagerProps> = ({
         dataToSend.append("HeadId", dd.headId.toString());
         dataToSend.append("Description", dd.description || "");
         dataToSend.append("IsActive", dd.isActive.toString());
+
+        dataToSend.append("Telegram_Link", dd.telegram_Link || "");
+        dataToSend.append("Instagram_Link", dd.instagram_Link || "");
+        dataToSend.append("TikTok_Link", dd.tiktok_Link || "");
 
         if (selectedFile) {
           dataToSend.append("Logo", selectedFile);

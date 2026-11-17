@@ -171,6 +171,7 @@ const StructureModal: React.FC<StructureModalProps> = ({
     summary: (formData as FacultyFormData).summary || "Опис...",
     telegram_Link: (formData as FacultyFormData).telegram_Link || "",
     instagram_Link: (formData as FacultyFormData).instagram_Link || "",
+    tiktok_Link: (formData as FacultyFormData).tiktok_Link || "",
     isActive: formData.isActive ?? true,
     imageUrl: previewImageUrl,
     isCollege: (formData as FacultyFormData).isCollege || false,
@@ -183,6 +184,9 @@ const StructureModal: React.FC<StructureModalProps> = ({
     head: previewHead || undefined,
     description: (formData as DepartmentFormData).description || "Опис...",
     logoUrl: previewImageUrl,
+    telegram_Link: (formData as DepartmentFormData).telegram_Link || "",
+    instagram_Link: (formData as DepartmentFormData).instagram_Link || "",
+    tiktok_Link: (formData as DepartmentFormData).tiktok_Link || "",
     isActive: formData.isActive ?? true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -369,7 +373,8 @@ const StructureModal: React.FC<StructureModalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Поля соцмереж для Профбюро */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <ModalLabel htmlFor="telegram_link">Телеграм</ModalLabel>
               <ModalInput
@@ -381,10 +386,6 @@ const StructureModal: React.FC<StructureModalProps> = ({
                   setFormData({ ...formData, telegram_Link: e.target.value })
                 }
                 placeholder="https://t.me/..."
-              />
-              <CharCounter
-                current={((formData as FacultyFormData).telegram_Link || "").length}
-                max={FIELD_LIMITS.url}
               />
             </div>
             <div>
@@ -399,9 +400,18 @@ const StructureModal: React.FC<StructureModalProps> = ({
                 }
                 placeholder="https://instagram.com/..."
               />
-              <CharCounter
-                current={((formData as FacultyFormData).instagram_Link || "").length}
-                max={FIELD_LIMITS.url}
+            </div>
+            <div>
+              <ModalLabel htmlFor="tiktok_link">TikTok</ModalLabel>
+              <ModalInput
+                id="tiktok_link"
+                type="url"
+                maxLength={FIELD_LIMITS.url}
+                value={(formData as FacultyFormData).tiktok_Link || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, tiktok_Link: e.target.value })
+                }
+                placeholder="https://tiktok.com/@..."
               />
             </div>
           </div>
@@ -482,7 +492,6 @@ const StructureModal: React.FC<StructureModalProps> = ({
           </div>
 
           <div>
-            {/* ДОДАНО REQUIRED ДЛЯ ВІДДІЛУ */}
             <ModalLabel htmlFor="description" required>
               Опис діяльності
             </ModalLabel>
@@ -502,6 +511,49 @@ const StructureModal: React.FC<StructureModalProps> = ({
               {((formData as DepartmentFormData).description || "").length} /
               500
             </p>
+          </div>
+
+          {/* Поля соцмереж для Відділу */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <ModalLabel htmlFor="dept_telegram_link">Телеграм</ModalLabel>
+              <ModalInput
+                id="dept_telegram_link"
+                type="url"
+                maxLength={FIELD_LIMITS.url}
+                value={(formData as DepartmentFormData).telegram_Link || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, telegram_Link: e.target.value })
+                }
+                placeholder="https://t.me/..."
+              />
+            </div>
+            <div>
+              <ModalLabel htmlFor="dept_instagram_link">Інстаграм</ModalLabel>
+              <ModalInput
+                id="dept_instagram_link"
+                type="url"
+                maxLength={FIELD_LIMITS.url}
+                value={(formData as DepartmentFormData).instagram_Link || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, instagram_Link: e.target.value })
+                }
+                placeholder="https://instagram.com/..."
+              />
+            </div>
+            <div>
+              <ModalLabel htmlFor="dept_tiktok_link">TikTok</ModalLabel>
+              <ModalInput
+                id="dept_tiktok_link"
+                type="url"
+                maxLength={FIELD_LIMITS.url}
+                value={(formData as DepartmentFormData).tiktok_Link || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, tiktok_Link: e.target.value })
+                }
+                placeholder="https://tiktok.com/@..."
+              />
+            </div>
           </div>
         </>
       )}

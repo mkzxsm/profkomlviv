@@ -25,6 +25,7 @@ namespace ProfkomBackend.Models
         public string? Instagram_Link { get; set; }
         [MaxLength(FieldLimits.Url)]
         public string? Telegram_Link { get; set; }
+        public string? TikTok_Link { get; set; }
         public bool IsActive { get; set; }
         public bool IsCollege { get; set; }
         public string? ImageUrl { get; set; }

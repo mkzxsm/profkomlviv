@@ -25,9 +25,9 @@ namespace ProfkomBackend.Utils
         };
 
         // Максимальні розміри (байти)
-        public const long MAX_IMAGE_SIZE = 10 * 1024 * 1024;      // 10 MB для картинок
-        public const long MAX_DOCUMENT_SIZE = 50 * 1024 * 1024;   // 50 MB для документів
-        public const long MAX_LOGO_SIZE = 5 * 1024 * 1024;        // 5 MB для логотипів
+        public const long MAX_IMAGE_SIZE = 100 * 1024 * 1024;      // 10 MB для картинок
+        public const long MAX_DOCUMENT_SIZE = 100 * 1024 * 1024;   // 50 MB для документів
+        public const long MAX_LOGO_SIZE = 25 * 1024 * 1024;        // 5 MB для логотипів
 
         /// <summary>
         /// Перевіряє розмір файлу

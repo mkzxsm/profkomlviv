@@ -57,7 +57,7 @@ namespace ProfkomBackend.Controllers
             }
             if (!string.IsNullOrEmpty(formData.ImageUrl))
             {
-                var imgErr = InputValidator.ValidateTextField(formData.ImageUrl, "ImageUrl", maxLength: 500);
+                var imgErr = InputValidator.ValidateTextField(formData.ImageUrl, "ImageUrl", maxLength: 10000);
                 if (imgErr != null) return BadRequest(new { message = imgErr });
             }
 
@@ -139,7 +139,7 @@ namespace ProfkomBackend.Controllers
             }
             if (!string.IsNullOrEmpty(formData.ImageUrl))
             {
-                var imgErr2 = InputValidator.ValidateTextField(formData.ImageUrl, "ImageUrl", maxLength: 500);
+                var imgErr2 = InputValidator.ValidateTextField(formData.ImageUrl, "ImageUrl", maxLength: 10000);
                 if (imgErr2 != null) return BadRequest(new { message = imgErr2 });
             }
 

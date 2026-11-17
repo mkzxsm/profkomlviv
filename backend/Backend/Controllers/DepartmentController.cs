@@ -70,6 +70,23 @@ namespace ProfkomBackend.Controllers
                 if (descError != null) return BadRequest(new { message = descError });
             }
 
+            // Валідація посилань соцмереж для відділу
+            if (!string.IsNullOrEmpty(formData.Instagram_Link))
+            {
+                var err = InputValidator.ValidateTextField(formData.Instagram_Link, "Instagram Link", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.Telegram_Link))
+            {
+                var err = InputValidator.ValidateTextField(formData.Telegram_Link, "Telegram Link", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.TikTok_Link))
+            {
+                var err = InputValidator.ValidateTextField(formData.TikTok_Link, "TikTok Link", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+
             if (!string.IsNullOrEmpty(formData.LogoUrl))
             {
                 var logoUrlError = InputValidator.ValidateTextField(formData.LogoUrl, "LogoUrl", maxLength: 500);
@@ -85,14 +102,12 @@ namespace ProfkomBackend.Controllers
 
             if (formData.Logo != null && formData.Logo.Length > 0)
             {
-                // Перевірка розміру (413 Payload Too Large)
                 var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Logo, FileValidationHelper.MAX_LOGO_SIZE);
                 if (!sizeValid)
                 {
                     return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
                 }
 
-                // Перевірка MIME типу (415 Unsupported Media Type)
                 var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Logo);
                 if (!mimeValid)
                 {
@@ -118,7 +133,7 @@ namespace ProfkomBackend.Controllers
             {
                 head = await _db.Team.FirstOrDefaultAsync(t => t.Id == formData.HeadId && t.Type == MemberType.Viddil);
                 if (head == null) return UnprocessableEntity(new { message = "Head must be a Team member with Type = Viddil" });
-                
+
                 head.IsChoosed = true;
                 _db.Team.Update(head);
             }
@@ -127,6 +142,9 @@ namespace ProfkomBackend.Controllers
             {
                 Name = formData.Name,
                 Description = formData.Description,
+                Instagram_Link = formData.Instagram_Link,
+                Telegram_Link = formData.Telegram_Link,
+                TikTok_Link = formData.TikTok_Link, // Додано збереження TikTok
                 LogoUrl = logoUrl ?? formData.LogoUrl,
                 HeadId = formData.HeadId,
                 Head = head,
@@ -143,7 +161,6 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<Department>> Update(int id, [FromForm] DepartmentFormData formData)
         {
-            // Валідація вхідних даних
             if (string.IsNullOrWhiteSpace(formData.Name))
                 return BadRequest(new { message = "Назва відділу обов'язкова" });
 
@@ -156,7 +173,22 @@ namespace ProfkomBackend.Controllers
                 if (descError2 != null) return BadRequest(new { message = descError2 });
             }
 
-            // Валідація LogoUrl
+            if (!string.IsNullOrEmpty(formData.Instagram_Link))
+            {
+                var err = InputValidator.ValidateTextField(formData.Instagram_Link, "Instagram Link", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.Telegram_Link))
+            {
+                var err = InputValidator.ValidateTextField(formData.Telegram_Link, "Telegram Link", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+            if (!string.IsNullOrEmpty(formData.TikTok_Link))
+            {
+                var err = InputValidator.ValidateTextField(formData.TikTok_Link, "TikTok Link", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
+
             if (!string.IsNullOrEmpty(formData.LogoUrl))
             {
                 var logoUrlError2 = InputValidator.ValidateTextField(formData.LogoUrl, "LogoUrl", maxLength: 500);
@@ -166,7 +198,7 @@ namespace ProfkomBackend.Controllers
             var department = await _db.Departments
                 .Include(d => d.Head)
                 .FirstOrDefaultAsync(d => d.Id == id);
-                
+
             if (department == null) return NotFound(new { message = "Кафедра не знайдена" });
 
             if (await DepartmentNameTakenAsync(formData.Name, excludeId: id))
@@ -178,14 +210,12 @@ namespace ProfkomBackend.Controllers
 
             if (formData.Logo != null && formData.Logo.Length > 0)
             {
-                // Перевірка розміру (413 Payload Too Large)
                 var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Logo, FileValidationHelper.MAX_LOGO_SIZE);
                 if (!sizeValid)
                 {
                     return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
                 }
 
-                // Перевірка MIME типу (415 Unsupported Media Type)
                 var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Logo);
                 if (!mimeValid)
                 {
@@ -236,6 +266,9 @@ namespace ProfkomBackend.Controllers
 
             department.Name = formData.Name;
             department.Description = formData.Description;
+            department.Instagram_Link = formData.Instagram_Link;
+            department.Telegram_Link = formData.Telegram_Link;
+            department.TikTok_Link = formData.TikTok_Link; // Оновлення TikTok
             department.LogoUrl = logoUrl ?? formData.LogoUrl;
             department.HeadId = formData.HeadId;
             department.Head = newHead;
@@ -253,7 +286,7 @@ namespace ProfkomBackend.Controllers
             var department = await _db.Departments
                 .Include(d => d.Head)
                 .FirstOrDefaultAsync(d => d.Id == id);
-                
+
             if (department == null) return NotFound();
 
             if (department.Head != null)
@@ -296,6 +329,12 @@ namespace ProfkomBackend.Controllers
         [MaxLength(FieldLimits.StructureName)]
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
+        [MaxLength(FieldLimits.Url)]
+        public string? Instagram_Link { get; set; }
+        [MaxLength(FieldLimits.Url)]
+        public string? Telegram_Link { get; set; }
+        [MaxLength(FieldLimits.Url)]
+        public string? TikTok_Link { get; set; } // Додано у форму відділу
         public string? LogoUrl { get; set; }
         public bool IsActive { get; set; } = true;
         public IFormFile? Logo { get; set; }

@@ -74,9 +74,9 @@ const HomePage: React.FC = () => {
     {
       id: 4,
       image: "/home_page/education.JPG",
-      title: "Освітні програми",
-      subtitle: "Додаткові можливості розвитку",
-      description: "Курси, тренінги та програми особистісного зростання",
+      title: "Оздоровлення",
+      subtitle: "Путівки в СОТ «Карпати»",
+      description: "Надаємо пільгові путівки до спортивно-оздоровчого табору «Карпати» для відпочинку та відновлення",
     },
     {
       id: 5,
@@ -89,9 +89,9 @@ const HomePage: React.FC = () => {
       id: 6,
       image: "/home_page/hostel.jpg",
       title: "Студентські гуртожитки",
-      subtitle: "Комфортні умови проживання",
-      description: "Забезпечуємо якісні умови проживання для студентів",
-    },
+      subtitle: "Оформлення та поселення",
+      description: "Здійснюємо організацію поселення студентів до університетських гуртожитків",
+    }
   ];
 
   const services = [
@@ -102,7 +102,7 @@ const HomePage: React.FC = () => {
       description:
         "Профком студентів оформлює звільнення від оплати за проживання в гуртожитках для дітей-пільговиків",
       color: "from-blue-600 to-blue-800",
-      url: "https://forms.office.com/e/enQBJqB4SN",
+      url: "https://linktr.ee/profkom_lnu?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAcGRvZgJleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA85MzY2MTk3NDMzOTI0NTkAAafiMXXz5cd2VzGxO4odbrVhbtfxC0vD4dojpJGB-YaQ1eRmU3wfclOo4ZaNUA_aem_ga94xJnrWZk4uWb0me-zaQ",
     },
     {
       icon: <HandCoins className="h-8 w-8" />,
@@ -111,7 +111,7 @@ const HomePage: React.FC = () => {
       description:
         "Надання матеріальної допомоги студентам у скрутних життєвих випадках",
       color: "from-pink-500 to-rose-600",
-      url: "https://www.google.com/maps",
+      url: "https://linktr.ee/profkom_lnu?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAcGRvZgJleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA85MzY2MTk3NDMzOTI0NTkAAafiMXXz5cd2VzGxO4odbrVhbtfxC0vD4dojpJGB-YaQ1eRmU3wfclOo4ZaNUA_aem_ga94xJnrWZk4uWb0me-zaQ",
     },
     {
       icon: <TentTree className="h-8 w-8" />,
@@ -120,25 +120,34 @@ const HomePage: React.FC = () => {
       description:
         "Організований відпочинок у спортивно-оздоровчому таборі «Карпати» з активними іграми та спортивними заходами",
       color: "from-emerald-500 to-green-700",
-      url: "https://forms.office.com/e/enQBJqB4SN",
+      url: "https://linktr.ee/profkom_lnu?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAcGRvZgJleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA85MzY2MTk3NDMzOTI0NTkAAafiMXXz5cd2VzGxO4odbrVhbtfxC0vD4dojpJGB-YaQ1eRmU3wfclOo4ZaNUA_aem_ga94xJnrWZk4uWb0me-zaQ",
     },
     {
       icon: <Users className="h-8 w-8" />,
       title: "Консультації та захист прав",
       subtitle: "Права",
       description:
-        "Консультації щодо оформлення соціальних стипендій та захист прав студентів (звернення щодо корупції, харасменту та булінгу)",
+        "Консультації щодо оформлення соціальних стипендій та захист прав студентів",
       color: "from-red-500 to-red-700",
-      url: "https://www.google.com/maps",
+      url: "https://linktr.ee/profkom_lnu?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAcGRvZgJleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA85MzY2MTk3NDMzOTI0NTkAAafiMXXz5cd2VzGxO4odbrVhbtfxC0vD4dojpJGB-YaQ1eRmU3wfclOo4ZaNUA_aem_ga94xJnrWZk4uWb0me-zaQ",
     },
     {
       icon: <CreditCard className="h-8 w-8" />,
       title: "Студентська смарт-картка",
-      subtitle: "Леокарт",
+      subtitle: "Виготовлення Леокарт",
       description:
         "Оформлення та виготовлення безконтактної смарт-картки для оплати у громадському транспорті Львова",
       color: "from-purple-500 to-purple-700",
-      url: "https://forms.office.com/e/enQBJqB4SN",
+      url: "https://forms.cloud.microsoft/e/pGeLt4rVDx",
+    },
+      {
+      icon: <CreditCard className="h-8 w-8" />,
+      title: "Студентська смарт-картка",
+      subtitle: "Оновлення профілю Леокарт",
+      description:
+        "Оформлення та виготовлення безконтактної смарт-картки для оплати у громадському транспорті Львова",
+      color: "from-purple-500 to-purple-700",
+      url: "https://forms.office.com/e/sB3jrmJvwk",
     },
   ];
 

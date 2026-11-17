@@ -91,6 +91,11 @@ namespace ProfkomBackend.Controllers
                 var err = InputValidator.ValidateTextField(formData.Telegram_Link, "Telegram Link", maxLength: 500);
                 if (err != null) return BadRequest(new { message = err });
             }
+            if (!string.IsNullOrEmpty(formData.TikTok_Link))
+            {
+                var err = InputValidator.ValidateTextField(formData.TikTok_Link, "TikTok Link", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
             if (!string.IsNullOrEmpty(formData.Schedule))
             {
                 var err = InputValidator.ValidateTextField(formData.Schedule, "Розклад", maxLength: 2000);
@@ -116,7 +121,7 @@ namespace ProfkomBackend.Controllers
             if (formData.HeadId.HasValue)
             {
                 headTeam = await _db.Team.FirstOrDefaultAsync(t => t.Id == formData.HeadId && t.Type == MemberType.Profburo);
-                
+
                 if (headTeam == null)
                 {
                     return UnprocessableEntity(new { message = "Invalid HeadId or team member is not the correct type." });
@@ -128,14 +133,12 @@ namespace ProfkomBackend.Controllers
             string? imageUrl = null;
             if (formData.Image != null && formData.Image.Length > 0)
             {
-                // Перевірка розміру (413 Payload Too Large)
                 var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Image, FileValidationHelper.MAX_IMAGE_SIZE);
                 if (!sizeValid)
                 {
                     return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
                 }
 
-                // Перевірка MIME типу (415 Unsupported Media Type)
                 var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Image);
                 if (!mimeValid)
                 {
@@ -165,6 +168,7 @@ namespace ProfkomBackend.Controllers
                 Room = formData.Room,
                 Instagram_Link = formData.Instagram_Link,
                 Telegram_Link = formData.Telegram_Link,
+                TikTok_Link = formData.TikTok_Link, // Додано збереження TikTok
                 ImageUrl = imageUrl ?? formData.ImageUrl,
                 Schedule = formData.Schedule,
                 Summary = formData.Summary,
@@ -182,7 +186,6 @@ namespace ProfkomBackend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(int id, [FromForm] FacultyFormData formData)
         {
-            // === Валідація вхідних даних ===
             if (string.IsNullOrWhiteSpace(formData.Name))
                 return BadRequest(new { message = "Назва факультету обов'язкова" });
 
@@ -209,6 +212,11 @@ namespace ProfkomBackend.Controllers
                 var err = InputValidator.ValidateTextField(formData.Telegram_Link, "Telegram Link", maxLength: 500);
                 if (err != null) return BadRequest(new { message = err });
             }
+            if (!string.IsNullOrEmpty(formData.TikTok_Link))
+            {
+                var err = InputValidator.ValidateTextField(formData.TikTok_Link, "TikTok Link", maxLength: 500);
+                if (err != null) return BadRequest(new { message = err });
+            }
             if (!string.IsNullOrEmpty(formData.Schedule))
             {
                 var err = InputValidator.ValidateTextField(formData.Schedule, "Розклад", maxLength: 2000);
@@ -226,7 +234,7 @@ namespace ProfkomBackend.Controllers
             }
 
             var faculty = await _db.Faculties
-                .Include(f => f.Head) 
+                .Include(f => f.Head)
                 .FirstOrDefaultAsync(f => f.Id == id);
 
             if (faculty == null)
@@ -243,7 +251,7 @@ namespace ProfkomBackend.Controllers
             if (formData.HeadId.HasValue)
             {
                 newHead = await _db.Team.FirstOrDefaultAsync(t => t.Id == formData.HeadId && t.Type == MemberType.Profburo);
-                
+
                 if (newHead == null)
                 {
                     return UnprocessableEntity(new { message = "Invalid HeadId or team member is not the correct type." });
@@ -261,18 +269,16 @@ namespace ProfkomBackend.Controllers
                 newHead.IsChoosed = true;
                 _db.Team.Update(newHead);
             }
-            
+
             string? imageUrl = faculty.ImageUrl;
             if (formData.Image != null && formData.Image.Length > 0)
             {
-                // Перевірка розміру (413 Payload Too Large)
                 var (sizeValid, sizeError) = FileValidationHelper.ValidateFileSize(formData.Image, FileValidationHelper.MAX_IMAGE_SIZE);
                 if (!sizeValid)
                 {
                     return StatusCode(StatusCodes.Status413PayloadTooLarge, new { message = sizeError });
                 }
 
-                // Перевірка MIME типу (415 Unsupported Media Type)
                 var (mimeValid, mimeError) = FileValidationHelper.ValidateImageMimeType(formData.Image);
                 if (!mimeValid)
                 {
@@ -308,6 +314,7 @@ namespace ProfkomBackend.Controllers
             faculty.Room = formData.Room;
             faculty.Instagram_Link = formData.Instagram_Link;
             faculty.Telegram_Link = formData.Telegram_Link;
+            faculty.TikTok_Link = formData.TikTok_Link; // Оновлення TikTok
             faculty.ImageUrl = imageUrl ?? formData.ImageUrl;
             faculty.Schedule = formData.Schedule;
             faculty.Summary = formData.Summary;
@@ -339,11 +346,11 @@ namespace ProfkomBackend.Controllers
 
             if (!string.IsNullOrEmpty(faculty.ImageUrl))
             {
-                 var filePath = Path.Combine(_env.ContentRootPath, faculty.ImageUrl.TrimStart('/'));
-                 if (System.IO.File.Exists(filePath))
-                 {
-                      System.IO.File.Delete(filePath);
-                 }
+                var filePath = Path.Combine(_env.ContentRootPath, faculty.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
             }
 
             _db.Faculties.Remove(faculty);
@@ -380,6 +387,8 @@ namespace ProfkomBackend.Controllers
         public string? Instagram_Link { get; set; }
         [MaxLength(FieldLimits.Url)]
         public string? Telegram_Link { get; set; }
+        [MaxLength(FieldLimits.Url)]
+        public string? TikTok_Link { get; set; } // Додано сюди
         public string? ImageUrl { get; set; }
         [MaxLength(FieldLimits.Schedule)]
         public string? Schedule { get; set; }

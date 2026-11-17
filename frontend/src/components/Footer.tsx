@@ -161,7 +161,7 @@ const Footer: React.FC = () => {
             {/* Текст (великий екран) */}
             <p className="hidden text-gray-300 text-sm text-center sm:text-left sm:block">
               © {new Date().getFullYear()} ППОС ЛНУ ім. Івана Франка. Всі права
-              захищені. Розробники: Юрій Мазур, Богуслав Мазурик
+              захищені.
             </p>
 
             {/* Іконки */}

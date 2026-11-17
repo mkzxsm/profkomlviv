@@ -7,25 +7,36 @@ const ContactsPage: React.FC = () => {
       name: "Микола Спересенко",
       position: "Голова профкому",
       email: "mykola.Speresenko@lnu.edu.ua",
-      office: "Головний корпус, аудиторія 125"
+      office: "Головний корпус, аудиторія 125",
+      photo: "" // Шлях до фото, наприклад: "/images/contacts/mykola.jpg"
     },
     {
       name: "Денис Фещук",
       position: "Заступник з організаційної роботи, комунікацій та інновацій",
       email: "denys.feshchuk@lnu.edu.ua",
-      office: "Головний корпус, аудиторія 125"
-    },
-    {
-      name: "Марія-Уляна Кульчицька",
-      position: "Заступниця з проєктної діяльності та фандрайзенгу",
-      email: "mariia-uliana.kulchytska@lnu.edu.ua",
-      office: "Головний корпус, аудиторія 125"
+      office: "Головний корпус, аудиторія 125",
+      photo: "" 
     },
     {
       name: "Тарас Щерба",
       position: "Заступник з соціально-гуманітарної роботи",
       email: "taras.shcherba@lnu.edu.ua",
-      office: "Головний корпус, аудиторія 125"
+      office: "Головний корпус, аудиторія 125",
+      photo: "" 
+    },
+    {
+      name: "Тетяна Марусяк",
+      position: "Заступниця з проєктної діяльності",
+      email: "tetyana.marusyk@lnu.edu.ua",
+      office: "Головний корпус, аудиторія 125",
+      photo: "" 
+    },
+    {
+      name: "Маркіян Качур",
+      position: "Заступник з медіа, промоцій та розвитку команди",
+      email: "markiyan.kachur@lnu.edu.ua",
+      office: "Головний корпус, аудиторія 125",
+      photo: "" 
     }
   ];
 
@@ -121,9 +132,20 @@ const ContactsPage: React.FC = () => {
                 {contacts.map((contact, index) => (
                   <div key={index} className="border-b border-gray-100 pb-6 last:border-b-0 last:pb-0">
                     <div className="flex items-start space-x-4">
-                      <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                        <User className="h-6 w-6 text-gray-500" />
+                      
+                      {/* Аватар / Фото */}
+                      <div className="w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-gray-50 border border-gray-200 flex items-center justify-center">
+                        {contact.photo ? (
+                          <img 
+                            src={contact.photo} 
+                            alt={contact.name} 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <User className="h-8 w-8 text-gray-400" />
+                        )}
                       </div>
+
                       <div className="flex-1">
                         <h3 className="text-lg font-bold text-gray-900 mb-1">
                           {contact.name}

@@ -5,6 +5,9 @@ export interface DepartmentFormData {
   headId: number | null;
   description: string;
   logoUrl?: string;
+  telegram_Link?: string;
+  instagram_Link?: string;
+  tiktok_Link?: string;
   isActive: boolean;
 }
 
@@ -15,6 +18,9 @@ export interface Department {
   head?: TeamMember;
   description?: string;
   logoUrl?: string;
+  telegram_Link?: string;
+  instagram_Link?: string;
+  tiktok_Link?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

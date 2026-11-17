@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { ArrowRight, Search, ChevronDown, Star } from "lucide-react";
+import { ArrowRight, Search, ChevronDown, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -59,7 +59,6 @@ const TeamPage: React.FC = () => {
         );
         console.log("Team Members:", membersResponse.data);
 
-        // Сортуємо по orderInd
         const activeMembers = membersResponse.data.sort(
           (a, b) => a.orderInd - b.orderInd,
         );
@@ -78,7 +77,6 @@ const TeamPage: React.FC = () => {
     fetchData();
   }, []);
 
-  // Фільтруємо членів команди по типу та пошуку
   const displayMembers = useMemo(() => {
     const filteredByType = teamMembers.filter(
       (member) => member.type === selectedType,
@@ -111,6 +109,11 @@ const TeamPage: React.FC = () => {
     }
   }, []);
 
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+    startAutoPlay();
+  };
+
   const goNextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % teamSlides.length);
     startAutoPlay();
@@ -129,10 +132,9 @@ const TeamPage: React.FC = () => {
   }, [startAutoPlay, stopAutoPlay]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F8FAFC] overflow-x-clip">
       {/* Header Section */}
-      <section className="relative bg-[#10183a] pt-20 pb-32 text-white overflow-hidden w-full">
-        {/* Фонововідблиски (адаптивні) */}
+      <section className="relative overflow-hidden bg-[#0f172a] pt-24 pb-36 text-white w-full">
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
           <div className="absolute top-[5%] -left-[10%] w-[50%] h-[80%] rounded-full bg-[#1e3a8a]/40 blur-[120px]" />
           <div className="absolute top-[25%] -right-[5%] w-[45%] h-[75%] rounded-full bg-[#ca8a04]/20 blur-[130px]" />
@@ -141,15 +143,14 @@ const TeamPage: React.FC = () => {
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
           <div className="text-center flex flex-col items-center">
-            {/* Декоративна іконка */}
             <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-2xl mb-6 backdrop-blur-sm border border-white/10">
               <Star className="w-8 h-8 text-[#facc15]" />
             </div>
 
-            <h1 className="mb-6 text-4xl font-extrabold md:text-5xl lg:text-6xl tracking-tight">
+            <h1 className="mb-6 text-4xl font-extrabold md:text-5xl lg:text-6xl tracking-tight drop-shadow-xl">
               Наша команда
             </h1>
-            <p className="mx-auto max-w-3xl text-lg md:text-xl text-slate-300 leading-relaxed">
+            <p className="mx-auto max-w-3xl text-lg md:text-xl text-slate-300 leading-relaxed drop-shadow-md">
               Познайомтеся зі студентами, які об'єдналися, щоб робити життя
               університетської спільноти яскравішим, справедливішим і насиченим
               новими можливостями.
@@ -158,7 +159,7 @@ const TeamPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Search Section (Накладається на Header) */}
+      {/* Search Section */}
       <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12">
         <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-4 sm:p-6 border border-gray-100">
           <div className="flex flex-col md:flex-row gap-4 items-center">
@@ -293,104 +294,93 @@ const TeamPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Team Carousel Section */}
+      {/* Team Carousel Section (Синхронізована з головною) */}
       <section
-        className="relative overflow-hidden"
+        className="relative overflow-hidden bg-[#0f172a]"
         style={{ height: "calc(100vh - 64px)" }}
       >
         {teamSlides.map((slide, index) => (
           <div
             key={index}
-            className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-              index === currentSlide
-                ? "scale-100 opacity-100"
-                : "scale-105 opacity-0"
+            aria-hidden={index !== currentSlide}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
             }`}
           >
             <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[7000ms] ease-out ${
+                index === currentSlide ? "scale-105" : "scale-100"
+              }`}
               style={{ backgroundImage: `url(${slide.image})` }}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 via-blue-800/60 to-blue-700/50" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/95 via-[#0f172a]/70 to-[#0f172a]/20" />
           </div>
         ))}
-        <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">
-            Хочете приєднатися до нашої команди?
-          </h2>
-          <p className="mb-8 max-w-3xl text-lg text-blue-100 md:text-xl">
-            Ми завжди шукаємо активних студентів, готових працювати для
-            покращення студентського життя
-          </p>
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <button
-              className="flex transform items-center justify-center rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 px-8 py-3 font-bold text-[#1E2A5A] shadow-[0_4px_14px_0_rgba(234,179,8,0.39)] transition-all duration-300 hover:scale-105 hover:shadow-[0_6px_20px_rgba(234,179,8,0.23)] hover:from-yellow-300 hover:to-yellow-400 ring-2 ring-transparent focus:ring-yellow-400"
-              onClick={() =>
-                window.open("https://forms.office.com/e/enQBJqB4SN")
-              }
-            >
-              Подати заяву{" "}
-              <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-            </button>
-            <button
-              className="transform rounded-lg border-2 border-white px-8 py-3 font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:bg-white hover:text-blue-800"
-              onClick={() => {
-                navigate("/contacts");
-              }}
-            >
-              Зв'язатися з нами
-            </button>
+
+        <div className="relative z-20 flex h-full flex-col items-center justify-center px-4 text-center sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
+            <h2 className="mb-4 text-3xl font-extrabold text-white md:text-5xl tracking-tight drop-shadow-xl">
+              Хочете приєднатися до нашої команди?
+            </h2>
+            <p className="mb-8 text-lg text-slate-200 md:text-xl font-medium max-w-2xl mx-auto drop-shadow-md">
+              Ми завжди шукаємо активних студентів, готових працювати для
+              покращення студентського життя
+            </p>
+            <div className="flex flex-col justify-center gap-4 sm:flex-row">
+              <button
+                type="button"
+                className="group relative inline-flex items-center justify-center px-8 py-3.5 text-base font-bold text-[#0f172a] bg-white rounded-full overflow-hidden transition-all duration-500 ease-out hover:scale-[1.03] hover:shadow-[0_0_30px_rgba(255,255,255,0.25)] focus-visible:outline-none"
+                onClick={() =>
+                  window.open("https://forms.office.com/e/enQBJqB4SN", "_blank")
+                }
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Подати заяву
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-500 ease-out" />
+                </span>
+              </button>
+              <button
+                type="button"
+                className="inline-flex items-center justify-center px-8 py-3.5 text-base font-bold text-white bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm border border-white/20 transition-all duration-500 ease-out hover:scale-[1.03]"
+                onClick={() => {
+                  navigate("/contacts");
+                }}
+              >
+                Зв'язатися з нами
+              </button>
+            </div>
           </div>
         </div>
-        <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 transform space-x-3">
-          {teamSlides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentSlide(index)}
-              className={`h-3 w-3 rounded-full transition-all duration-300 ${
-                index === currentSlide
-                  ? "scale-125 bg-white"
-                  : "bg-white/50 hover:bg-white/75"
-              }`}
-            />
-          ))}
+
+        {/* Пагінація та стрілки керування слайдером */}
+        <div aria-hidden="true">
+          <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-30 flex space-x-2.5 items-center">
+            {teamSlides.map((_, index) => (
+              <div
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`h-1.5 rounded-full transition-all duration-500 ease-out cursor-pointer ${
+                  index === currentSlide
+                    ? "bg-[#facc15] w-10 shadow-[0_0_8px_rgba(250,204,21,0.6)]"
+                    : "bg-white/40 hover:bg-white/80 w-2.5"
+                }`}
+              />
+            ))}
+          </div>
+
+          <div
+            onClick={goPrevSlide}
+            className="hidden lg:flex absolute left-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-500 ease-out p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20 cursor-pointer"
+          >
+            <ChevronLeft className="w-8 h-8" />
+          </div>
+          <div
+            onClick={goNextSlide}
+            className="hidden lg:flex absolute right-6 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white transition-all duration-500 ease-out p-3 rounded-full hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20 cursor-pointer"
+          >
+            <ChevronRight className="w-8 h-8" />
+          </div>
         </div>
-        <button
-          onClick={goPrevSlide}
-          className="absolute left-4 top-1/2 z-20 hidden -translate-y-1/2 transform rounded-full p-2 text-white/70 backdrop-blur-sm transition-all duration-200 hover:bg-white/10 hover:text-white sm:flex"
-        >
-          <svg
-            className="h-8 w-8"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
-        <button
-          onClick={goNextSlide}
-          className="absolute right-4 top-1/2 z-20 hidden -translate-y-1/2 transform rounded-full p-2 text-white/70 backdrop-blur-sm transition-all duration-200 hover:bg-white/10 hover:text-white sm:flex"
-        >
-          <svg
-            className="h-8 w-8"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
       </section>
     </div>
   );

@@ -25,6 +25,11 @@ namespace ProfkomBackend.Models
 
         public bool IsActive { get; set; } = true;
 
+        public string? Instagram_Link { get; set; }
+        [MaxLength(FieldLimits.Url)]
+        public string? Telegram_Link { get; set; }
+        public string? TikTok_Link { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
     }

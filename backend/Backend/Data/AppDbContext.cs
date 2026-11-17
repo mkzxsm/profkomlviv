@@ -91,12 +91,16 @@ namespace ProfkomBackend.Data
             modelBuilder.Entity<Team>().Property(t => t.Position).HasMaxLength(FieldLimits.Position);
             modelBuilder.Entity<Team>().Property(t => t.Email).HasMaxLength(FieldLimits.Email);
             modelBuilder.Entity<Department>().Property(d => d.Name).HasMaxLength(FieldLimits.StructureName);
+            modelBuilder.Entity<Department>().Property(f => f.Instagram_Link).HasMaxLength(FieldLimits.Url);
+            modelBuilder.Entity<Department>().Property(f => f.Telegram_Link).HasMaxLength(FieldLimits.Url);
+            modelBuilder.Entity<Department>().Property(f => f.TikTok_Link).HasMaxLength(FieldLimits.Url);
             modelBuilder.Entity<Faculty>().Property(f => f.Name).HasMaxLength(FieldLimits.StructureName);
             modelBuilder.Entity<Faculty>().Property(f => f.Address).HasMaxLength(FieldLimits.Address);
             modelBuilder.Entity<Faculty>().Property(f => f.Room).HasMaxLength(FieldLimits.Room);
             modelBuilder.Entity<Faculty>().Property(f => f.Schedule).HasMaxLength(FieldLimits.Schedule);
             modelBuilder.Entity<Faculty>().Property(f => f.Instagram_Link).HasMaxLength(FieldLimits.Url);
             modelBuilder.Entity<Faculty>().Property(f => f.Telegram_Link).HasMaxLength(FieldLimits.Url);
+            modelBuilder.Entity<Faculty>().Property(f => f.TikTok_Link).HasMaxLength(FieldLimits.Url);
             modelBuilder.Entity<Admin>().Property(a => a.Username).HasMaxLength(FieldLimits.AdminUsername);
         }
     }

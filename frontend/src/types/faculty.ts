@@ -9,6 +9,7 @@ export interface FacultyFormData {
   summary: string;
   instagram_Link: string;
   telegram_Link: string;
+  tiktok_Link: string;
   isActive: boolean;
   isCollege: boolean;
   imageUrl: string;
@@ -26,6 +27,7 @@ export interface Faculty {
   summary?: string;
   instagram_Link?: string;
   telegram_Link?: string;
+  tiktok_Link?: string;
   isActive: boolean;
   isCollege: boolean;
 }

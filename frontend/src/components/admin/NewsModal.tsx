@@ -27,9 +27,9 @@ const isContentEmpty = (html: string | undefined) => {
     return text.length === 0;
 };
 
-const MAX_FILE_SIZE_MB = 5;
+const MAX_FILE_SIZE_MB = 100;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
-const MAX_FILES_COUNT = 5;
+const MAX_FILES_COUNT = 50;
 
 const resolveMediaUrl = (path: string) => {
     if (path.startsWith('blob:') || path.startsWith('http')) return path;

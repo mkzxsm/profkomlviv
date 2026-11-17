@@ -24,7 +24,7 @@ interface TeamModalProps {
  allData: TeamMember[]; 
 }
 
-const MAX_FILE_SIZE_MB = 5;
+const MAX_FILE_SIZE_MB = 25;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 const TeamModal: React.FC<TeamModalProps> = ({
@@ -42,10 +42,10 @@ useEffect(() => {
   if (formData.type === PROFBURO_HEAD_TYPE) {
     setFormData(prev => ({ ...prev, position: 'Голова Профбюро Студентів' }));
   } else if (formData.type === VIDDIL_HEAD_TYPE) {
-    setFormData(prev => ({ ...prev, position: 'Голова Відділу' }));
+    setFormData(prev => ({ ...prev, position: 'Керівник(-ця) Відділу' }));
   } else if (formData.type === APARAT_TYPE) {
     setFormData(prev => {
-      if (prev.position === 'Голова Профбюро Студентів' || prev.position === 'Голова Відділу') {
+      if (prev.position === 'Голова Профбюро Студентів' || prev.position === 'Керівник(-ця) Відділу') {
         return { ...prev, position: '', isTemporary: false };
       }
         return { ...prev, isTemporary: false }; 

@@ -37,6 +37,8 @@ namespace ProfkomBackend.Controllers
 
         [HttpPost]
         [Authorize(Roles = "admin")]
+        [RequestSizeLimit(52428800)] // Збільшує ліміт запиту до 50 МБ
+        [RequestFormLimits(MultipartBodyLengthLimit = 52428800)] // Збільшує ліміт для файлів у формі до 50 МБ
         public async Task<ActionResult<Document>> Create([FromForm] DocumentFormData formData)
         {
             if (formData.File == null || formData.File.Length == 0) return BadRequest(new { message = "Файл обов'язковий" });
@@ -51,7 +53,7 @@ namespace ProfkomBackend.Controllers
             // Валідація Description
             if (!string.IsNullOrEmpty(formData.Description))
             {
-                var descError = InputValidator.ValidateTextField(formData.Description, "Опис", maxLength: 2000);
+                var descError = InputValidator.ValidateTextField(formData.Description, "Опис", maxLength: 5000);
                 if (descError != null) return BadRequest(new { message = descError });
             }
 
@@ -82,6 +84,8 @@ namespace ProfkomBackend.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "admin")]
+        [RequestSizeLimit(52428800)] // Збільшує ліміт запиту до 50 МБ
+        [RequestFormLimits(MultipartBodyLengthLimit = 52428800)] // Збільшує ліміт для файлів у формі до 50 МБ
         public async Task<IActionResult> Update(int id, [FromForm] DocumentFormData formData)
         {
             var document = await _db.Documents.FindAsync(id);
