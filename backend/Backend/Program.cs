@@ -12,6 +12,8 @@ using NetEscapades.AspNetCore.SecurityHeaders;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using MySqlConnector;
+using ProfkomBackend.Services.DiiaSign;
+using ProfkomBackend.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -94,6 +96,12 @@ builder.Services.AddRateLimiter(options =>
         opt.QueueLimit = 0;
     });
 
+    // Опитування статусу Дія.Підпис фронтендом (раз на 2–3 с)
+    options.AddPolicy(DiiaSignController.RateLimitPolicy, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions { Window = TimeSpan.FromMinutes(1), PermitLimit = 60, QueueLimit = 0 }));
+
     // ПРИМУСОВО встановлюємо статус 429 та власне повідомлення
     options.OnRejected = async (context, token) =>
     {
@@ -102,6 +110,21 @@ builder.Services.AddRateLimiter(options =>
         await context.HttpContext.Response.WriteAsync("{\"message\": \"Забагато спроб входу. Будь ласка, зачекайте 1 хвилину.\"}", token);
     };
 });
+
+// === Дія.Підпис (окремий diia-sign-service) ===
+builder.Services.AddOptions<DiiaSignOptions>()
+    .Bind(builder.Configuration.GetSection(DiiaSignOptions.SectionName))
+    .ValidateDataAnnotations();
+builder.Services.AddHttpClient<IDiiaSignClient, DiiaSignClient>((sp, client) =>
+{
+    var o = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<DiiaSignOptions>>().Value;
+    client.BaseAddress = new Uri(o.BaseUrl.TrimEnd('/') + "/");
+    client.Timeout = TimeSpan.FromSeconds(o.TimeoutSeconds);
+    client.DefaultRequestHeaders.Add(DiiaSignClient.ApiKeyHeader, o.ApiKey);
+});
+builder.Services.AddSingleton<DiiaSignCompletionCoordinator>();
+// TODO(заяви): замінити на реальний обробник підписаних заяв
+builder.Services.AddScoped<IDiiaSignCompletionHandler, NotConfiguredDiiaSignCompletionHandler>();
 
 // === JWT Authentication ===
 var jwtSecret = builder.Configuration["JwtSettings:SecretKey"]

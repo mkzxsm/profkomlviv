@@ -1,0 +1,14 @@
+bin/
+obj/
+*.user
+.vs/
+.idea/
+# локальні секрети та дані
+appsettings.*.local.json
+.env
+data/
+*.db
+*.db-shm
+*.db-wal
+# сертифікати ЦСК завантажуються скриптом
+certs/
